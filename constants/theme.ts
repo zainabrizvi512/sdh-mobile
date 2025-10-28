@@ -51,3 +51,14 @@ export const Fonts = Platform.select({
     mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
   },
 });
+
+export const PRIMARY_BG = "#ffffff";
+export const GREEN = "#1f3d18";
+//const GREEN_DARK = "#173012";
+export const TEXT = "#0f0f0f";
+export const MUTED = "#7a7a7a";
+export const INPUT_BG = "#efefef";
+export const DANGER = "#d54b4b";
+export const BORDER = "#e6e6e6";
+export const TEXT_DARK = "#0f0f0f";
+export const TEXT_MUTED = "#5b5b5b";

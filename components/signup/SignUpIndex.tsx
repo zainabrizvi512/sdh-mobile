@@ -3,13 +3,13 @@ import { AntDesign, FontAwesome, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-    Platform,
-    Pressable,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
+  Platform,
+  Pressable,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
 
 const GREEN = "#1f3d18";
@@ -21,7 +21,7 @@ const BORDER = "#e6e6e6";
 export default function SignUpScreen() {
   const router = useRouter();
   const [fullName, setFullName] = useState("");
-  const [email, setEmail]       = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -100,27 +100,27 @@ export default function SignUpScreen() {
         </Text>
 
         {/* Sign Up */}
-<Pressable
-  onPress={() => {
-    onSignUp();              // perform signup action
-    router.push("/location");  // navigate after success
-  }}
-  disabled={submitting}
-  style={({ pressed }) => [
-    styles.primaryBtn,
-    pressed && { opacity: 0.95, transform: [{ scale: 0.98 }] },
-  ]}
->
-  <Text style={styles.primaryBtnText}>
-    {submitting ? "Creating Account..." : "Sign Up"}
-  </Text>
-</Pressable>
+        <Pressable
+          onPress={() => {
+            onSignUp();              // perform signup action
+            router.push("/location");  // navigate after success
+          }}
+          disabled={submitting}
+          style={({ pressed }) => [
+            styles.primaryBtn,
+            pressed && { opacity: 0.95, transform: [{ scale: 0.98 }] },
+          ]}
+        >
+          <Text style={styles.primaryBtnText}>
+            {submitting ? "Creating Account..." : "Sign Up"}
+          </Text>
+        </Pressable>
 
 
         {/* Social buttons */}
         <View style={{ gap: 12, marginTop: 12 }}>
           <Pressable
-            onPress={() => {}}
+            onPress={() => { }}
             style={({ pressed }) => [
               styles.socialBtn,
               pressed && { opacity: 0.9, transform: [{ scale: 0.995 }] },
@@ -132,7 +132,7 @@ export default function SignUpScreen() {
           </Pressable>
 
           <Pressable
-            onPress={() => {}}
+            onPress={() => { }}
             style={({ pressed }) => [
               styles.socialBtn,
               pressed && { opacity: 0.9, transform: [{ scale: 0.995 }] },
@@ -147,7 +147,7 @@ export default function SignUpScreen() {
         {/* Footer */}
         <View style={styles.footerRow}>
           <Text style={styles.footerText}>Already have an account? </Text>
-          <Pressable onPress={() => router.push("/signin")} hitSlop={6}>
+          <Pressable onPress={() => router.push("/screens/login/index")} hitSlop={6}>
             {({ pressed }) => (
               <Text style={[styles.footerLink, pressed && { opacity: 0.7 }]}>
                 Sign In
