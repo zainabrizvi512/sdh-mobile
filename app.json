@@ -9,7 +9,13 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "config": {
+        "googleMapsApiKey": "AIzaSyBU25wMXp0AQ2tuLZ4XgL8M0SBF-wmGRvA"
+      },
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "We use your location to show your position on the map."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -20,7 +26,16 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.alirizvi512.mysdhapp"
+      "package": "com.alirizvi512.mysdhapp",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ],
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyBU25wMXp0AQ2tuLZ4XgL8M0SBF-wmGRvA"
+        }
+      }
     },
     "web": {
       "output": "static",
@@ -43,8 +58,7 @@
       [
         "react-native-auth0",
         {
-          "domain": "dev-8qs84b8ugcdxb61i.us.auth0.com",
-          "clientId": "dEgubxYK1CfFZtn3sUGpkYaoX1Bd6zom"
+          "domain": "dev-8qs84b8ugcdxb61i.us.auth0.com"
         }
       ]
     ],

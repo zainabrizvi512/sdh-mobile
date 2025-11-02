@@ -1,3 +1,4 @@
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { Buffer } from "buffer";
 import { ActivityIndicator, View } from "react-native";
 import { Auth0Provider } from "react-native-auth0";
@@ -26,13 +27,14 @@ export default function App() {
         );
     return (
         <GestureHandlerRootView onLayout={onLayoutRootView}>
-            <Auth0Provider
-                domain={envConfig.EXPO_PUBLIC_AUTH0_DOMAIN}
-                clientId={envConfig.EXPO_PUBLIC_AUTH0_CLIENT_ID}
-            >
-                <RootStack />
-
-            </Auth0Provider>
+            <BottomSheetModalProvider>
+                <Auth0Provider
+                    domain={envConfig.EXPO_PUBLIC_AUTH0_DOMAIN}
+                    clientId={envConfig.EXPO_PUBLIC_AUTH0_CLIENT_ID}
+                >
+                    <RootStack />
+                </Auth0Provider>
+            </BottomSheetModalProvider>
         </GestureHandlerRootView>
     );
 }
