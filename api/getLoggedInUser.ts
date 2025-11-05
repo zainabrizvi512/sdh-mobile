@@ -17,8 +17,6 @@ export const getLoggedInUser = async (token: string) => {
         return response;
     } catch (error: any) {
         console.log("error", error);
-
-        // AxiosError is thrown, extract more details
-        throw error; // rethrow if you want to propagate it up
+        throw error;
     }
 };

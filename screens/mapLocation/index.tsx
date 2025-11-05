@@ -1,12 +1,15 @@
+import { ArrowBackIcon } from "@/assets/images/svg";
 import ChooseLocationBottomSheet from "@/components/chooseLocationBottomSheet";
 import { PopularPlace } from "@/components/chooseLocationBottomSheet/types";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import * as Location from "expo-location";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE, Region } from "react-native-maps";
 import { styles } from "./styles";
 import { T_MAPLOCATION } from "./types";
+// (Optional but recommended)
+// import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const GOOGLE_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY!;
 
@@ -24,18 +27,19 @@ const MapLocation: React.FC<T_MAPLOCATION> = ({ navigation }) => {
 
     const [selectedPlace, setSelectedPlace] = useState<PopularPlace | null>(null);
 
+    // const insets = useSafeAreaInsets();
+
     const handleSelectPlace = (place: PopularPlace) => {
         setSelectedPlace(place);
         chooseLocationBottomSheetRef.current?.close();
-
-        const region: Region = {
+        const next: Region = {
             latitude: place.lat,
             longitude: place.lng,
             latitudeDelta: 0.01,
             longitudeDelta: 0.01,
         };
-        setRegion(region);
-        mapRef.current?.animateToRegion(region, 800);
+        setRegion(next);
+        mapRef.current?.animateToRegion(next, 800);
     };
 
     useEffect(() => {
@@ -64,12 +68,10 @@ const MapLocation: React.FC<T_MAPLOCATION> = ({ navigation }) => {
             setLoading(false);
             chooseLocationBottomSheetRef.current?.present();
 
-            // fetch city + places for initial position
             fetchCityAndPlaces(nextRegion.latitude, nextRegion.longitude).catch(() => { });
         })();
     }, []);
 
-    // Debounce place fetching on region changes (user pans/zooms)
     useEffect(() => {
         if (!region) return;
         const t = setTimeout(() => {
@@ -90,7 +92,6 @@ const MapLocation: React.FC<T_MAPLOCATION> = ({ navigation }) => {
         mapRef.current?.animateToRegion(next, 600);
     };
 
-    // ---- helpers ----
     const haversineKm = (lat1: number, lon1: number, lat2: number, lon2: number) => {
         const toRad = (v: number) => (v * Math.PI) / 180;
         const R = 6371;
@@ -105,22 +106,16 @@ const MapLocation: React.FC<T_MAPLOCATION> = ({ navigation }) => {
 
     const fetchCityAndPlaces = async (lat: number, lng: number) => {
         setPlacesLoading(true);
-
-        // 1) City name from reverse geocoding (Expo)
         try {
             const [addr] = await Location.reverseGeocodeAsync({ latitude: lat, longitude: lng });
-            const cityName =
-                addr?.city || addr?.subregion || addr?.region || addr?.district || "";
+            const cityName = addr?.city || addr?.subregion || addr?.region || addr?.district || "";
             setCity(cityName);
-        } catch (_) {
+        } catch {
             setCity("");
         }
 
-        // 2) Nearby popular places using Google Places (ranked by distance)
-        // Use 'point_of_interest' (broad), or query several “popular” types and merge
         const base = `https://maps.googleapis.com/maps/api/place/nearbysearch/json`;
         const types = ["tourist_attraction", "park", "museum", "shopping_mall", "restaurant", "cafe"];
-        // rankby=distance requires a type or keyword (no radius)
         const urls = types.map(
             (t) => `${base}?location=${lat},${lng}&rankby=distance&type=${t}&key=${GOOGLE_KEY}`
         );
@@ -128,7 +123,6 @@ const MapLocation: React.FC<T_MAPLOCATION> = ({ navigation }) => {
         try {
             const pages = await Promise.all(urls.map((u) => fetch(u).then((r) => r.json())));
             const merged = new Map<string, PopularPlace>();
-
             pages.forEach((res) => {
                 (res?.results || []).forEach((p: any) => {
                     const id = p.place_id as string;
@@ -147,16 +141,11 @@ const MapLocation: React.FC<T_MAPLOCATION> = ({ navigation }) => {
                     }
                 });
             });
-
-            // sort by ascending distance & take a reasonable count (e.g., top 20)
-            const sorted = Array.from(merged.values())
-                .sort((a, b) => a.distanceKm - b.distanceKm)
-                .slice(0, 20);
-
+            const sorted = Array.from(merged.values()).sort((a, b) => a.distanceKm - b.distanceKm).slice(0, 20);
             setPlaces(sorted);
         } catch (e) {
-            setPlaces([]);
             console.warn("Places fetch error", e);
+            setPlaces([]);
         } finally {
             setPlacesLoading(false);
         }
@@ -178,16 +167,15 @@ const MapLocation: React.FC<T_MAPLOCATION> = ({ navigation }) => {
                         initialRegion={region}
                         showsUserLocation
                         followsUserLocation
-                        showsMyLocationButton
+                        // Android only; we add our own FAB below for both platforms
+                        showsMyLocationButton={Platform.OS === "android"}
                         zoomEnabled
-                        zoomControlEnabled
+                        zoomControlEnabled={Platform.OS === "android"}
                         onRegionChangeComplete={setRegion}
                     >
                         {region && !selectedPlace && (
                             <Marker coordinate={{ latitude: region.latitude, longitude: region.longitude }} />
                         )}
-
-                        {/* Selected place marker */}
                         {selectedPlace && (
                             <Marker
                                 coordinate={{ latitude: selectedPlace.lat, longitude: selectedPlace.lng }}
@@ -198,9 +186,35 @@ const MapLocation: React.FC<T_MAPLOCATION> = ({ navigation }) => {
                         )}
                     </MapView>
 
-                    {/* ... your custom header + center button from earlier ... */}
+                    {/* HEADER OVERLAY */}
+                    <View
+                        pointerEvents="box-none"
+                        style={[
+                            styles.headerOverlay,
+                        ]}
+                    >
+                        <TouchableOpacity
+                            onPress={() => navigation.goBack?.()}
+                            activeOpacity={0.7}
+                            style={styles.backBtn}
+                        >
+                            <ArrowBackIcon />
+                        </TouchableOpacity>
+
+                        <Text numberOfLines={1} style={styles.headerTitle}>
+                            Choose Location
+                        </Text>
+                    </View>
+
+                    <TouchableOpacity
+                        onPress={centerOnUser}
+                        style={styles.fab}
+                    >
+                        <Text style={styles.fabText}>Done</Text>
+                    </TouchableOpacity>
                 </View>
             )}
+
             <ChooseLocationBottomSheet
                 ref={chooseLocationBottomSheetRef}
                 onClose={() => chooseLocationBottomSheetRef.current?.close()}

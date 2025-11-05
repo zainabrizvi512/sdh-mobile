@@ -3,6 +3,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
+import DashboardStack from "../dashboardStack";
 import LoginSignupStack from "../loginSignUpStack";
 import { RootStackParamList } from "./types";
 
@@ -30,7 +31,7 @@ const RootStack = () => {
                 }}
             >
                 <Stack.Screen name="LoginSignupStack" component={LoginSignupStack} />
-
+                <Stack.Screen name="DashboardStack" component={DashboardStack} />
             </Stack.Navigator>
         </NavigationContainer>
     );

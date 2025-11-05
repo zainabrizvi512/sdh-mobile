@@ -60,7 +60,8 @@
         {
           "domain": "dev-8qs84b8ugcdxb61i.us.auth0.com"
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,

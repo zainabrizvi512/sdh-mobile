@@ -1,19 +1,14 @@
 import ScreenWrapper from "@/components/screenWrapper";
-import { GREEN } from "@/constants/theme";
-import { Feather, Ionicons } from "@expo/vector-icons";
 import * as Location from "expo-location";
-import { useRouter } from "expo-router";
-import { useRef, useState } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import MapView, { MapPressEvent, Marker, PROVIDER_GOOGLE, Region } from "react-native-maps";
 import { styles } from "./styles";
 import { T_CHOOSELOCATION } from "./types";
 
 const ChooseLocation: React.FC<T_CHOOSELOCATION> = ({ navigation, route }) => {
-    const router = useRouter();
     const mapRef = useRef<MapView | null>(null);
     const [loading, setLoading] = useState(true);
-    const [query, setQuery] = useState("");
     const [region, setRegion] = useState<Region>({
         latitude: 24.8621,
         longitude: 67.0011,
@@ -22,8 +17,6 @@ const ChooseLocation: React.FC<T_CHOOSELOCATION> = ({ navigation, route }) => {
     });
     const [marker, setMarker] = useState<{ latitude: number; longitude: number } | null>(null);
     const [loadingGPS, setLoadingGPS] = useState(false);
-
-    const goBack = () => router.back();
 
     const openMapPicker = () => {
         navigation.navigate("MapLocation", {});
@@ -51,10 +44,7 @@ const ChooseLocation: React.FC<T_CHOOSELOCATION> = ({ navigation, route }) => {
             }
 
             // Get current location
-            const loc = await Location.getCurrentPositionAsync({
-                accuracy: Location.Accuracy.High,
-            });
-
+            const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
             const nextRegion: Region = {
                 latitude: loc.coords.latitude,
                 longitude: loc.coords.longitude,
@@ -66,6 +56,10 @@ const ChooseLocation: React.FC<T_CHOOSELOCATION> = ({ navigation, route }) => {
         })();
     };
 
+    useEffect(() => {
+        useCurrentLocation()
+    }, [])
+
     return (
         <ScreenWrapper>
             <View style={styles.container}>
@@ -76,21 +70,8 @@ const ChooseLocation: React.FC<T_CHOOSELOCATION> = ({ navigation, route }) => {
                     Choose location below to get started.
                 </Text>
 
-                {/* Search */}
-                <View style={styles.searchWrap}>
-                    <Feather name="search" size={18} color="#b3b3b3" style={styles.searchIcon} />
-                    <TextInput
-                        value={query}
-                        onChangeText={setQuery}
-                        placeholder="Search Location"
-                        placeholderTextColor="#b9b9b9"
-                        style={styles.searchInput}
-                        returnKeyType="search"
-                    />
-                </View>
-
                 {/* Set Location on Map (outline) */}
-                <Pressable
+                {/* <Pressable
                     onPress={openMapPicker}
                     style={({ pressed }) => [
                         styles.outlineBtn,
@@ -102,32 +83,25 @@ const ChooseLocation: React.FC<T_CHOOSELOCATION> = ({ navigation, route }) => {
                         <Ionicons name="location-outline" size={18} color={GREEN} style={{ marginRight: 8 }} />
                         <Text style={styles.outlineBtnText}>Set Location on Map</Text>
                     </View>
-                </Pressable>
+                </Pressable> */}
 
                 {/* Current Location label */}
                 <Text style={styles.sectionLabel}>Current Location</Text>
 
                 {/* Map preview */}
                 <View style={styles.mapCard}>
-                    {/* <MapView
-                        style={styles.map}
-                        region={region}
-                        onRegionChangeComplete={setRegion}
-                        onPress={handleMapPress}
-                    >
-                        {marker && <Marker coordinate={marker} />}
-                    </MapView> */}
                     <MapView
                         ref={mapRef}
                         style={StyleSheet.absoluteFill}
                         provider={PROVIDER_GOOGLE}
                         initialRegion={region}
+                        onRegionChangeComplete={setRegion}
+                        onPress={handleMapPress}
                         showsUserLocation
                         followsUserLocation
                         showsMyLocationButton
                         zoomEnabled
                         zoomControlEnabled   // shows + / – buttons on Android
-                        onRegionChangeComplete={setRegion}
                     >
                         {/* Optional: put a marker where the user is (showsUserLocation already draws a blue dot) */}
                         <Marker coordinate={{ latitude: region.latitude, longitude: region.longitude }} />
@@ -136,7 +110,7 @@ const ChooseLocation: React.FC<T_CHOOSELOCATION> = ({ navigation, route }) => {
 
                 {/* Use Current Location */}
                 <Pressable
-                    onPress={useCurrentLocation}
+                    onPress={() => { }}
                     disabled={loadingGPS}
                     style={({ pressed }) => [
                         styles.primaryBtn,
@@ -145,7 +119,7 @@ const ChooseLocation: React.FC<T_CHOOSELOCATION> = ({ navigation, route }) => {
                     accessibilityRole="button"
                 >
                     <Text style={styles.primaryText}>
-                        {loadingGPS ? "Locating..." : "Use Current Location"}
+                        {loadingGPS ? "Locating..." : "Done"}
                     </Text>
                 </Pressable>
             </View>

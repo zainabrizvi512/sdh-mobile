@@ -1,6 +1,6 @@
-import { getLoggedInUser } from "@/api/getLoggedInUser";
 import { ArrowBackIcon } from "@/assets/images/svg";
 import ScreenWrapper from "@/components/screenWrapper";
+import { saveTokens } from "@/storage/tokenStorage";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import {
     NativeSyntheticEvent,
@@ -99,8 +99,13 @@ const VerifyOTP: React.FC<T_VERIFYOTP> = ({ navigation, route }) => {
                 additionalParameters: { responseType: "code" },
             });
             console.log("Logged in with credentials: ", credentials.accessToken)
-            const response = await getLoggedInUser(credentials.accessToken);
-            console.log("Logged in user: ", response);
+            await saveTokens({
+                accessToken: credentials.accessToken,
+                refreshToken: credentials.refreshToken ?? null,
+                accessTokenExpiresAt: credentials.expiresAt
+                    ? Math.floor(credentials.expiresAt / 1000)
+                    : undefined,
+            });
             navigation.navigate("ChooseLocation", {});
         } catch (e) {
             console.log("Login error: ", e);

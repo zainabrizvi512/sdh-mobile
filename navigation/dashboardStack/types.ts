@@ -1,0 +1,3 @@
+export type DashboardStackParamList = {
+    Dashboard: {};
+};

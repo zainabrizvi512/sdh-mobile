@@ -15,7 +15,7 @@ const Stack = createNativeStackNavigator<LoginSignupStackParamList>();
 const LoginSignupStack = () => {
     return (
         <Stack.Navigator
-            initialRouteName="ChooseLocation"
+            initialRouteName="SandwichA"
             screenOptions={{
                 headerShown: false,
                 animation: 'none', // 👈 This disables animation globally for this stack
