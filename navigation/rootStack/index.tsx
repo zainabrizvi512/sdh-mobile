@@ -23,7 +23,7 @@ const RootStack = () => {
                 backgroundColor={"fff"}
             />
             <Stack.Navigator
-                initialRouteName={"LoginSignupStack"}
+                initialRouteName={"DashboardStack"}
                 screenOptions={{
                     headerShown: false,
                     animation: "none",

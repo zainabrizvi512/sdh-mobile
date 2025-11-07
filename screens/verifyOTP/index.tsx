@@ -1,3 +1,4 @@
+import { getLoggedInUser } from "@/api/getLoggedInUser";
 import { ArrowBackIcon } from "@/assets/images/svg";
 import ScreenWrapper from "@/components/screenWrapper";
 import { saveTokens } from "@/storage/tokenStorage";
@@ -106,6 +107,7 @@ const VerifyOTP: React.FC<T_VERIFYOTP> = ({ navigation, route }) => {
                     ? Math.floor(credentials.expiresAt / 1000)
                     : undefined,
             });
+            await getLoggedInUser(credentials.accessToken);
             navigation.navigate("ChooseLocation", {});
         } catch (e) {
             console.log("Login error: ", e);

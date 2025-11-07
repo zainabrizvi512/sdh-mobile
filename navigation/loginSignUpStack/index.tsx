@@ -1,9 +1,4 @@
-import AddMembers from "@/screens/addmembers";
 import ChooseLocation from "@/screens/chooseLocation";
-import CreateGroup from "@/screens/createGroup";
-import GroupInfo from "@/screens/groupInfo";
-import GroupListing from "@/screens/groupListing";
-import GroupMemberListing from "@/screens/groupMemberListing";
 import Login from "@/screens/login";
 import MapLocation from "@/screens/mapLocation";
 import SandwichAIndex from "@/screens/sandwiches/sandwichAIndex";
@@ -20,7 +15,7 @@ const Stack = createNativeStackNavigator<LoginSignupStackParamList>();
 const LoginSignupStack = () => {
     return (
         <Stack.Navigator
-            initialRouteName="CreateGroup"
+            initialRouteName="SandwichA"
             screenOptions={{
                 headerShown: false,
                 animation: 'none', // 👈 This disables animation globally for this stack
@@ -78,46 +73,6 @@ const LoginSignupStack = () => {
             <Stack.Screen
                 name="MapLocation"
                 component={MapLocation}
-                options={{
-                    gestureEnabled: false,
-                    animation: "none", // <==== LIKE HERE
-                }}
-            />
-            <Stack.Screen
-                name="GroupListing"
-                component={GroupListing}
-                options={{
-                    gestureEnabled: false,
-                    animation: "none", // <==== LIKE HERE
-                }}
-            />
-            <Stack.Screen
-                name="CreateGroup"
-                component={CreateGroup}
-                options={{
-                    gestureEnabled: false,
-                    animation: "none", // <==== LIKE HERE
-                }}
-            />
-            <Stack.Screen
-                name="AddMembers"
-                component={AddMembers}
-                options={{
-                    gestureEnabled: false,
-                    animation: "none", // <==== LIKE HERE
-                }}
-            />
-            <Stack.Screen
-                name="GroupInfo"
-                component={GroupInfo}
-                options={{
-                    gestureEnabled: false,
-                    animation: "none", // <==== LIKE HERE
-                }}
-            />
-            <Stack.Screen
-                name="GroupMemberListing"
-                component={GroupMemberListing}
                 options={{
                     gestureEnabled: false,
                     animation: "none", // <==== LIKE HERE

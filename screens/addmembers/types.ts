@@ -1,10 +1,11 @@
-import { LoginSignupStackParamList } from "@/navigation/loginSignUpStack/types";
+import { DashboardStackParamList } from "@/navigation/dashboardStack/types";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 export type T_ADDMEMBERS = NativeStackScreenProps<
-    LoginSignupStackParamList,
+    DashboardStackParamList,
     "AddMembers"
 >;
 
 export type AddMembersRouteParams = {
+    id: string
 };

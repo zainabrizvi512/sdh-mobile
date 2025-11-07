@@ -1,22 +1,18 @@
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import React from "react";
 import {
-    Alert,
-    Image,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Image,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { styles } from "./styles";
+import { T_GROUPINFO } from "./types";
 
-type Props = {
-  navigation: any;
-  route?: { params?: { id: string; name?: string; members?: number; avatar?: string } };
-};
-
-export default function GroupInfo({ navigation, route }: Props) {
+const GroupInfo: React.FC<T_GROUPINFO> = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
   const name = route?.params?.name ?? "Well Wave";
   const members = route?.params?.members ?? 5;
@@ -24,8 +20,12 @@ export default function GroupInfo({ navigation, route }: Props) {
     route?.params?.avatar ??
     "https://images.unsplash.com/photo-1514846326710-096e4a8035e1?w=400&h=400&fit=crop";
 
-  const onAddMembers = () => navigation.navigate("AddMembers");
-  const onViewMembers = () => navigation.navigate("ViewMembers", { id: route?.params?.id });
+  const onAddMembers = () => {
+    navigation.navigate("AddMembers", { id: route.params.id });
+  }
+  const onViewMembers = () => {
+    navigation.navigate("GroupMemberListing", { id: route?.params?.id });
+  }
 
   const onLeave = () => Alert.alert("Leave Group", "Are you sure you want to leave this group?", [
     { text: "Cancel", style: "cancel" },
@@ -88,3 +88,5 @@ export default function GroupInfo({ navigation, route }: Props) {
     </ScrollView>
   );
 }
+
+export default GroupInfo;
