@@ -22,9 +22,12 @@ export type UiMessage = {
     sender: Sender;
     username?: string;
     picture?: string;
-    showStatus?: boolean;        // double-check ticks for "me"
+    showStatus?: boolean;
     dateTag?: "Today" | null;
-    tempId?: string;             // optimistic id before server id arrives
+    tempId?: string;
+    kind: MessageKind;
+    location?: LocationPayload;
+    attachments?: Attachment[];                 // NEW
 };
 
 export type ServerUser = {
@@ -36,12 +39,35 @@ export type ServerUser = {
 export type ServerMessage = {
     id: string;
     text: string;
-    createdAt: string; // ISO string
+    createdAt: string;
     sender: ServerUser;
     groupId: string;
+    location?: LocationPayload;
+    kind: MessageKind;                          // now can be "audio"
+    attachments?: Attachment[];                 // NEW
 };
 
+export type MessageKind = "text" | "location" | "system" | "audio" | "image";
+
+/** GPS payload sent/received when kind === "location" */
+export type LocationPayload = {
+    lat: number;
+    lng: number;
+    accuracy?: number; // meters (optional)
+};
+
+/** Client → server when sending anything (text or location) */
 export type SendMessageDto = {
-    text: string;
-    // extend if you support images, attachments, replyTo, etc.
+    kind: MessageKind;         // "text" | "location" | "audio"
+    text?: string;
+    location?: LocationPayload;
+    attachments?: Attachment[];                 // for audio
+};
+
+export type Attachment = {
+    url: string;
+    mime?: string;
+    durationMs?: number;
+    width?: number;
+    height?: number;
 };
