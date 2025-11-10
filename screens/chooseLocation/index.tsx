@@ -1,4 +1,7 @@
 import ScreenWrapper from "@/components/screenWrapper";
+import type { RootStackParamList } from "@/navigation/rootStack/types";
+import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import * as Location from "expo-location";
 import { useEffect, useRef, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
@@ -6,7 +9,10 @@ import MapView, { MapPressEvent, Marker, PROVIDER_GOOGLE, Region } from "react-n
 import { styles } from "./styles";
 import { T_CHOOSELOCATION } from "./types";
 
+type Nav = NativeStackNavigationProp<RootStackParamList>;
+
 const ChooseLocation: React.FC<T_CHOOSELOCATION> = ({ navigation, route }) => {
+    const navigationObj = useNavigation<Nav>();
     const mapRef = useRef<MapView | null>(null);
     const [loading, setLoading] = useState(true);
     const [region, setRegion] = useState<Region>({
@@ -110,7 +116,17 @@ const ChooseLocation: React.FC<T_CHOOSELOCATION> = ({ navigation, route }) => {
 
                 {/* Use Current Location */}
                 <Pressable
-                    onPress={() => { }}
+                    onPress={() => {
+                        navigationObj.reset({
+                            index: 0,
+                            routes: [
+                                {
+                                    name: "DashboardStack",
+                                    params: { screen: "GroupListing" }, // 👈 inner screen
+                                },
+                            ],
+                        });
+                    }}
                     disabled={loadingGPS}
                     style={({ pressed }) => [
                         styles.primaryBtn,

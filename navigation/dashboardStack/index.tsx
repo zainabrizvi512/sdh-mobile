@@ -13,7 +13,7 @@ const Stack = createNativeStackNavigator<DashboardStackParamList>();
 const DashboardStack = () => {
     return (
         <Stack.Navigator
-            initialRouteName="GroupListing"
+            initialRouteName="Dashboard"
             screenOptions={{
                 headerShown: false,
                 animation: 'none', // 👈 This disables animation globally for this stack
