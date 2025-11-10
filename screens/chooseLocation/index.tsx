@@ -122,7 +122,7 @@ const ChooseLocation: React.FC<T_CHOOSELOCATION> = ({ navigation, route }) => {
                             routes: [
                                 {
                                     name: "DashboardStack",
-                                    params: { screen: "GroupListing" }, // 👈 inner screen
+                                    params: { screen: "Dashboard" }, // 👈 inner screen
                                 },
                             ],
                         });

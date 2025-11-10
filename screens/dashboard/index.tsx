@@ -1,12 +1,12 @@
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import React from "react";
 import {
-    FlatList,
-    Image,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
+  FlatList,
+  Image,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { styles } from "./styles";
@@ -73,7 +73,7 @@ const Dashboard: React.FC<T_DASHBOARD> = ({ navigation }) => {
         {/* Emergency Contacts */}
         <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionTitle}>Emergency Contacts</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => { navigation.navigate("EmergencyContactsListing", {}) }}>
             <Text style={styles.linkText}>View All</Text>
           </TouchableOpacity>
         </View>
@@ -143,24 +143,6 @@ const Dashboard: React.FC<T_DASHBOARD> = ({ navigation }) => {
           ))}
         </View>
       </ScrollView>
-
-      {/* Bottom Tab (static mock) */}
-      <View style={styles.bottomTabWrap}>
-        <View style={styles.bottomTab}>
-          <TouchableOpacity style={styles.tabItem}>
-            <Ionicons name="home" size={20} color="#FFFFFF" />
-            <Text style={styles.tabText}>Home</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.tabItem}>
-            <Ionicons name="people" size={20} color="#FFFFFF" />
-            <Text style={styles.tabText}>Groups</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.tabItem}>
-            <Ionicons name="notifications" size={20} color="#FFFFFF" />
-            <Text style={styles.tabText}>Notifications</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
     </View>
   );
 }

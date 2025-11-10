@@ -1,12 +1,19 @@
+import { AddMembersRouteParams } from "@/screens/addMembers/types";
+import { EmergencyContactsListingRouteParams } from "@/screens/emergencyContactsListing/types";
+import { GroupChatRouteParams } from "@/screens/groupChat/types";
+import { GroupInfoRouteParams } from "@/screens/groupInfo/types";
+import { GroupListingRouteParams } from "@/screens/groupListing/types";
+import { GroupMemberListingRouteParams } from "@/screens/groupMemberListing/types";
 import type { NavigatorScreenParams } from "@react-navigation/native";
 
 export type DashboardStackParamList = {
     Dashboard: undefined;
-    GroupListing: undefined;
-    AddMembers: undefined;
-    GroupInfo: undefined;
-    GroupMemberListing: undefined;
-    GroupChat: { groupId: string } | undefined;
+    GroupListing: GroupListingRouteParams;
+    AddMembers: AddMembersRouteParams;
+    GroupInfo: GroupInfoRouteParams;
+    GroupMemberListing: GroupMemberListingRouteParams;
+    GroupChat: GroupChatRouteParams
+    EmergencyContactsListing: EmergencyContactsListingRouteParams;
 };
 
 export type LoginSignupStackParamList = {
