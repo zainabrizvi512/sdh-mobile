@@ -140,7 +140,7 @@ const Dashboard: React.FC<T_DASHBOARD> = ({ navigation }) => {
 
         {/* Related News */}
         <View style={[styles.sectionHeaderRow, { marginTop: 16 }]}>
-          <Text style={styles.sectionTitle}>RELATED NEWS</Text>
+          <Text style={styles.sectionTitle}>Related News</Text>
           <TouchableOpacity onPress={() => { navigation.navigate("NewsListing", {}) }}>
             <Text style={styles.linkText}>Read More</Text>
           </TouchableOpacity>
