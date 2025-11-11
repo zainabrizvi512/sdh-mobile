@@ -1,11 +1,11 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
-    Image,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { styles } from "./styles";
@@ -69,24 +69,6 @@ const NewsDetails: React.FC<T_NEWSDETAILS> = ({ navigation, route }) => {
         {/* Body */}
         <Text style={styles.body}>{body}</Text>
       </ScrollView>
-
-      {/* Bottom Tab (static mock to match your UI) */}
-      <View style={styles.bottomTabWrap}>
-        <View style={styles.bottomTab}>
-          <TouchableOpacity style={styles.tabItem}>
-            <Ionicons name="home" size={20} color="#FFFFFF" />
-            <Text style={styles.tabText}>Home</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.tabItem}>
-            <Ionicons name="people" size={20} color="#FFFFFF" />
-            <Text style={styles.tabText}>Groups</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.tabItem}>
-            <Ionicons name="notifications" size={20} color="#FFFFFF" />
-            <Text style={styles.tabText}>Notifications</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
     </View>
   );
 };

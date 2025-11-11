@@ -44,6 +44,7 @@ export const styles = StyleSheet.create({
   sectionHeaderRow: {
     marginTop: 14,
     paddingHorizontal: 16,
+    marginBottom: 14,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",

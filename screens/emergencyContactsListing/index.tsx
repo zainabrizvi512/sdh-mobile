@@ -1,13 +1,18 @@
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import React from "react";
+import * as SecureStore from "expo-secure-store";
+import React, { useCallback, useEffect, useState } from "react";
 import {
-    Alert,
-    FlatList,
-    Image,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  FlatList,
+  Image,
+  Linking,
+  NativeModules,
+  PermissionsAndroid,
+  Platform,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { styles } from "./styles";
@@ -17,53 +22,190 @@ type Contact = {
   id: string;
   name: string;
   phone: string;
-  avatar: string;
+  avatar?: string;
   fav?: boolean;
 };
 
-const FAVS: Contact[] = [
-  {
-    id: "f1",
-    name: "Mom",
-    phone: "+923001234567",
-    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&h=300&fit=crop",
-    fav: true,
-  },
-  {
-    id: "f2",
-    name: "Dad",
-    phone: "+923001234568",
-    avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&h=300&fit=crop",
-    fav: true,
-  },
-  {
-    id: "f3",
-    name: "Sister",
-    phone: "+923001234569",
-    avatar: "https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?w=300&h=300&fit=crop",
-    fav: true,
-  },
-];
+const FAV_KEY = "fav_contacts_v1";
 
-const ALL_CONTACTS: Contact[] = [
-  { id: "1", name: "Emma", phone: "+92354867967", avatar: "https://images.unsplash.com/photo-1544005313-ffaf79a3f1b8?w=300&h=300&fit=crop" },
-  { id: "2", name: "Emma", phone: "+92354867967", avatar: "https://images.unsplash.com/photo-1544005313-4dc12f03d5d2?w=300&h=300&fit=crop" },
-  { id: "3", name: "Emma", phone: "+92354867967", avatar: "https://images.unsplash.com/photo-1544005313-3b3b0063f3c0?w=300&h=300&fit=crop" },
-  { id: "4", name: "Emma", phone: "+92354867967", avatar: "https://images.unsplash.com/photo-1544005310-7c30f3f1d17a?w=300&h=300&fit=crop" },
-  { id: "5", name: "Emma", phone: "+92354867967", avatar: "https://images.unsplash.com/photo-1544005311-94ddf0286df2?w=300&h=300&fit=crop" },
-];
+const { ContactPicker } = NativeModules as {
+  ContactPicker: {
+    getContacts: (
+      page: number,
+      pageSize: number,
+      query?: string | null
+    ) => Promise<{
+      data: Contact[];
+      meta: { total: number; page: number; pageSize: number; hasNextPage: boolean };
+    }>;
+  };
+};
+
+async function ensureContactsPermission() {
+  if (Platform.OS !== "android") return true;
+  const res = await PermissionsAndroid.request(
+    PermissionsAndroid.PERMISSIONS.READ_CONTACTS
+  );
+  return res === PermissionsAndroid.RESULTS.GRANTED;
+}
+
+function normalizePhone(raw: string) {
+  const trimmed = raw.trim();
+  const plus = trimmed.startsWith("+") ? "+" : "";
+  const digits = trimmed.replace(/[^\d]/g, "");
+  return plus + digits;
+}
+
+async function callNumber(number: string) {
+  try {
+    const n = normalizePhone(number);
+    const url = `tel:${n}`;
+    const supported = await Linking.canOpenURL(url);
+    if (!supported) {
+      Alert.alert("Cannot place call", "Your device cannot handle phone calls.");
+      return;
+    }
+    await Linking.openURL(url);
+  } catch {
+    Alert.alert("Call failed", "Something went wrong while starting the call.");
+  }
+}
+
+const PAGE_SIZE = 200;
 
 const EmergencyContactsListing: React.FC<T_EMERGENCYCONTACTSLISTING> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
-//EmergencyContactsListing
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(0);
+  const [hasNext, setHasNext] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [favContacts, setFavContacts] = useState<Contact[]>([]);
+
+  // -------- SecureStore helpers ----------
+  const loadFavs = useCallback(async () => {
+    try {
+      const stored = await SecureStore.getItemAsync(FAV_KEY);
+      if (stored) {
+        const parsed: Contact[] = JSON.parse(stored);
+        setFavContacts(parsed.slice(0, 3));
+      }
+    } catch (e) {
+      console.warn("Failed to load favourites:", e);
+    }
+  }, []);
+
+  const saveFavs = useCallback(async (list: Contact[]) => {
+    setFavContacts(list);
+    try {
+      await SecureStore.setItemAsync(FAV_KEY, JSON.stringify(list));
+    } catch (e) {
+      console.warn("Failed to save favourites:", e);
+    }
+  }, []);
+
+  const isInFavs = useCallback(
+    (c: Contact) =>
+      favContacts.some(
+        (f) => f.id === c.id || normalizePhone(f.phone) === normalizePhone(c.phone)
+      ),
+    [favContacts]
+  );
+
+  const addToFavs = useCallback(
+    (c: Contact) => {
+      if (isInFavs(c)) {
+        Alert.alert("Already a favourite", `${c.name} is already in favourites.`);
+        return;
+      }
+      if (favContacts.length >= 3) {
+        Alert.alert(
+          "Limit reached",
+          "You can only keep 3 favourite contacts. Remove one to add a new favourite."
+        );
+        return;
+      }
+      const next = [...favContacts, { ...c, fav: true }];
+      saveFavs(next);
+    },
+    [favContacts, isInFavs, saveFavs]
+  );
+
+  const promptToggleFav = useCallback(
+    (c: Contact) => {
+      if (isInFavs(c)) {
+        Alert.alert("Remove favourite", `Remove ${c.name}?`, [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Remove",
+            style: "destructive",
+            onPress: () => {
+              const next = favContacts.filter(
+                (f) =>
+                  !(
+                    f.id === c.id ||
+                    normalizePhone(f.phone) === normalizePhone(c.phone)
+                  )
+              );
+              saveFavs(next);
+            },
+          },
+        ]);
+      } else {
+        addToFavs(c);
+      }
+    },
+    [favContacts, isInFavs, addToFavs, saveFavs]
+  );
+
+  // -------- Load contacts ----------
+  const loadPage = useCallback(
+    async (reset = false) => {
+      if (loading) return;
+      const ok = await ensureContactsPermission();
+      if (!ok) {
+        Alert.alert("Permission needed", "Contacts permission is required.");
+        return;
+      }
+      setLoading(true);
+      try {
+        const next = reset ? 0 : page;
+        const res = await ContactPicker.getContacts(next, PAGE_SIZE, query.trim() || null);
+        setContacts((prev) => (reset ? res.data : [...prev, ...res.data]));
+        setHasNext(res.meta?.hasNextPage ?? false);
+        setPage(next + 1);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [loading, page, query]
+  );
+
+  useEffect(() => {
+    loadPage(true);
+    loadFavs();
+  }, []);
+
+  useEffect(() => {
+    const t = setTimeout(() => loadPage(true), 250);
+    return () => clearTimeout(t);
+  }, [query]);
+
   const quickCall = (label: string, number: string) => {
-    Alert.alert(label, `Dial ${number}?`);
-    // Linking.openURL(`tel:${number}`)
+    Alert.alert(label, `Dial ${number}?`, [
+      { text: "Cancel", style: "cancel" },
+      { text: "Call", onPress: () => callNumber(number) },
+    ]);
   };
 
   const renderFav = (c: Contact) => (
-    <View key={c.id} style={styles.favItem}>
-      <Image source={{ uri: c.avatar }} style={styles.favAvatar} />
+    <View key={`${c.id}-${c.phone}`} style={styles.favItem}>
+      <Image
+        source={{
+          uri: c.avatar || "https://dummyimage.com/100x100/edf2f7/475569&text=%20",
+        }}
+        style={styles.favAvatar}
+      />
       <Text style={styles.favName} numberOfLines={1}>
         {c.name}
       </Text>
@@ -77,29 +219,43 @@ const EmergencyContactsListing: React.FC<T_EMERGENCYCONTACTSLISTING> = ({ naviga
     </View>
   );
 
-  const renderRow = ({ item }: { item: Contact }) => (
-    <View style={styles.row}>
-      <Image source={{ uri: item.avatar }} style={styles.rowAvatar} />
-      <View style={{ flex: 1 }}>
-        <Text style={styles.rowName} numberOfLines={1}>
-          {item.name}
-        </Text>
-        <Text style={styles.rowPhone}>{item.phone}</Text>
+  const renderRow = ({ item }: { item: Contact }) => {
+    const fav = isInFavs(item);
+    return (
+      <View style={styles.row}>
+        <Image
+          source={{
+            uri: item.avatar || "https://dummyimage.com/100x100/edf2f7/475569&text=%20",
+          }}
+          style={styles.rowAvatar}
+        />
+        <View style={{ flex: 1 }}>
+          <Text style={styles.rowName} numberOfLines={1}>
+            {item.name}
+          </Text>
+          <Text style={styles.rowPhone}>{item.phone}</Text>
+        </View>
+
+        <TouchableOpacity
+          style={styles.iconBtn}
+          onPress={() => promptToggleFav(item)}
+        >
+          <Ionicons
+            name={fav ? "checkmark-circle" : "add-circle"}
+            size={22}
+            color="#175B34"
+          />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.iconBtn}
+          onPress={() => quickCall(item.name, item.phone)}
+        >
+          <Ionicons name="call-outline" size={22} color="#175B34" />
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity
-        style={styles.iconBtn}
-        onPress={() => Alert.alert("Add to favourites", `Add ${item.name}?`)}
-      >
-        <Ionicons name="add-circle" size={22} color="#175B34" />
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.iconBtn}
-        onPress={() => quickCall(item.name, item.phone)}
-      >
-        <Ionicons name="call-outline" size={22} color="#175B34" />
-      </TouchableOpacity>
-    </View>
-  );
+    );
+  };
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -145,39 +301,61 @@ const EmergencyContactsListing: React.FC<T_EMERGENCYCONTACTSLISTING> = ({ naviga
 
         {/* Favourites */}
         <Text style={styles.sectionHeading}>Favourite Contacts</Text>
-        <View style={styles.favRow}>{FAVS.map(renderFav)}</View>
+        <View style={styles.favRow}>
+          {favContacts.length === 0 ? (
+            <Text style={{ color: "#6b7280", marginLeft: 16 }}>
+              No favourites yet. Tap “+” on a contact to add.
+            </Text>
+          ) : (
+            favContacts.map(renderFav)
+          )}
+        </View>
 
         {/* All Contacts */}
-        <Text style={[styles.sectionHeading, { marginTop: 8 }]}>All Contacts</Text>
+        <Text style={[styles.sectionHeading, { marginTop: 8 }]}>
+          All Contacts
+        </Text>
         <FlatList
-          data={ALL_CONTACTS}
+          data={contacts}
           keyExtractor={(i) => i.id}
           renderItem={renderRow}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
           scrollEnabled={false}
           contentContainerStyle={{ paddingHorizontal: 16 }}
+          ListEmptyComponent={
+            <View style={{ paddingHorizontal: 16, paddingVertical: 24 }}>
+              <Text style={{ color: "#6b7280" }}>
+                {loading ? "Loading contacts…" : "No contacts found."}
+              </Text>
+            </View>
+          }
+          ListFooterComponent={
+            hasNext ? (
+              <View style={{ paddingHorizontal: 16, paddingVertical: 12 }}>
+                <TouchableOpacity
+                  onPress={() => loadPage(false)}
+                  disabled={loading}
+                  style={{
+                    alignItems: "center",
+                    justifyContent: "center",
+                    paddingVertical: 10,
+                    borderRadius: 10,
+                    borderWidth: 1,
+                    borderColor: "#e5e7eb",
+                    backgroundColor: loading ? "#f3f4f6" : "#fff",
+                  }}
+                >
+                  <Text style={{ color: "#111827" }}>
+                    {loading ? "Loading…" : "Load more"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ) : null
+          }
         />
       </ScrollView>
-
-      {/* Bottom Tab (static mock to match your UI) */}
-      <View style={styles.bottomTabWrap}>
-        <View style={styles.bottomTab}>
-          <TouchableOpacity style={styles.tabItem}>
-            <Ionicons name="home" size={20} color="#FFFFFF" />
-            <Text style={styles.tabText}>Home</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.tabItem}>
-            <Ionicons name="people" size={20} color="#FFFFFF" />
-            <Text style={styles.tabText}>Groups</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.tabItem}>
-            <Ionicons name="notifications" size={20} color="#FFFFFF" />
-            <Text style={styles.tabText}>Notifications</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
     </View>
   );
-}
+};
 
-export default EmergencyContactsListing
+export default EmergencyContactsListing;

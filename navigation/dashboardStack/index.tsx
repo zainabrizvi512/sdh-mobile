@@ -12,6 +12,10 @@ import React from "react";
 import { View } from "react-native";
 
 import BottomNav from "@/components/bottomNav";
+import NewsDetails from "@/screens/newsDetails";
+import NewsListing from "@/screens/newsListing";
+import SafetyGuideDetail from "@/screens/safetyGuideDetail";
+import SafetyGuides from "@/screens/safetyGuides";
 import { DashboardStackParamList } from "./types";
 
 const Stack = createNativeStackNavigator<DashboardStackParamList>();
@@ -56,6 +60,10 @@ const DashboardStack = () => {
                 <Stack.Screen name="GroupMemberListing" component={GroupMemberListing} />
                 <Stack.Screen name="AddMembers" component={AddMembers} />
                 <Stack.Screen name="GroupChat" component={GroupChat} />
+                <Stack.Screen name="SafetyGuides" component={SafetyGuides} />
+                <Stack.Screen name="SafetyGuideDetail" component={SafetyGuideDetail} />
+                <Stack.Screen name="NewsListing" component={NewsListing} />
+                <Stack.Screen name="NewsDetails" component={NewsDetails} />
             </Stack.Navigator>
 
             {showBottomBar ? <BottomNav /> : null}

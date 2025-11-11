@@ -1,5 +1,8 @@
+import { getAllNews } from "@/api/getAllNews";
+import { getLoggedInUser } from "@/api/getLoggedInUser";
+import { getSafetyGuides, SafetyGuide } from "@/api/getSafetyGuides";
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   FlatList,
   Image,
@@ -8,31 +11,44 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useAuth0 } from "react-native-auth0";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { styles } from "./styles";
 import { T_DASHBOARD } from "./types";
 
-const guides = [
-  { id: "g1", title: "Before Disaster-\nGet Ready" },
-  { id: "g2", title: "During Disaster-\nStay Safe" },
-  { id: "g3", title: "After Disaster-\nRecover Fast" },
-];
-
-const news = [
-  {
-    id: "n1",
-    title: "Flash Floods Hit Islamabad:",
-    body: "E-11 & F-10 areas waterlogged; residents urged to stay indoors.",
-  },
-  {
-    id: "n2",
-    title: "Rescue Teams on Alert:",
-    body: "NDMA and CDA clear debris, assist stranded families.",
-  },
-];
-
 const Dashboard: React.FC<T_DASHBOARD> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
+  const [token, setToken] = useState<string | null>(null);
+  const { getCredentials, user } = useAuth0();
+  const [safetyGuides, setSafetyGuides] = useState<SafetyGuide[]>([]);
+  const [news, setNews] = useState([]);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const creds = await getCredentials();
+        if (mounted) setToken(creds?.accessToken ?? null);
+      } catch {
+        setToken(null);
+      }
+    })();
+    return () => { mounted = false; };
+  }, [getCredentials]);
+
+  useEffect(() => {
+    if (token) {
+      loadData();
+    }
+  }, [token]);
+
+  const loadData = async () => {
+    const safetyGuidesResponse = await getSafetyGuides({});
+    await getLoggedInUser(token || "");
+    const newsResponse = await getAllNews(token || "");
+    setSafetyGuides(safetyGuidesResponse);
+    setNews(newsResponse.data.items.slice(0, 3));
+  }
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -54,11 +70,11 @@ const Dashboard: React.FC<T_DASHBOARD> = ({ navigation }) => {
         {/* Profile Row */}
         <View style={styles.profileRow}>
           <Image
-            source={{ uri: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=200&h=200&fit=crop" }}
+            source={{ uri: user?.picture }}
             style={styles.avatar}
           />
           <View style={{ flex: 1 }}>
-            <Text style={styles.name}>Jamie</Text>
+            <Text style={styles.name}>{user?.name}</Text>
             <Text style={styles.location}>G-13, Islamabad</Text>
           </View>
 
@@ -101,22 +117,21 @@ const Dashboard: React.FC<T_DASHBOARD> = ({ navigation }) => {
         {/* Interactive Safety Guides */}
         <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionTitle}>Interactive Safety Guides</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => { navigation.navigate("SafetyGuides", {}) }}>
             <Text style={styles.linkText}>Read More</Text>
           </TouchableOpacity>
         </View>
 
         <FlatList
           horizontal
-          data={guides}
+          data={safetyGuides}
           keyExtractor={(i) => i.id}
           contentContainerStyle={{ paddingHorizontal: 16 }}
           ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
           showsHorizontalScrollIndicator={false}
           renderItem={({ item }) => (
-            <TouchableOpacity style={styles.guideCard}>
-              <View style={styles.guideThumb} />
-              <Text style={styles.guideTitle} numberOfLines={2}>
+            <TouchableOpacity style={styles.guideCard} onPress={() => navigation.navigate("SafetyGuideDetail", { id: item.id, title: item.title })}>
+              <Text style={styles.guideTitle} numberOfLines={1}>
                 {item.title}
               </Text>
             </TouchableOpacity>
@@ -126,13 +141,13 @@ const Dashboard: React.FC<T_DASHBOARD> = ({ navigation }) => {
         {/* Related News */}
         <View style={[styles.sectionHeaderRow, { marginTop: 16 }]}>
           <Text style={styles.sectionTitle}>RELATED NEWS</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => { navigation.navigate("NewsListing", {}) }}>
             <Text style={styles.linkText}>Read More</Text>
           </TouchableOpacity>
         </View>
 
         <View style={{ paddingHorizontal: 16 }}>
-          {news.map((n) => (
+          {news.map((n: any) => (
             <View key={n.id} style={styles.newsCard}>
               <View style={styles.newsThumb} />
               <View style={{ flex: 1 }}>

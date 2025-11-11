@@ -4,6 +4,10 @@ import { GroupChatRouteParams } from "@/screens/groupChat/types";
 import { GroupInfoRouteParams } from "@/screens/groupInfo/types";
 import { GroupListingRouteParams } from "@/screens/groupListing/types";
 import { GroupMemberListingRouteParams } from "@/screens/groupMemberListing/types";
+import { NewsDetailsListingRouteParams } from "@/screens/newsDetails/types";
+import { NewsListingRouteParams } from "@/screens/newsListing/types";
+import { SafetyGuideDetailRouteParams } from "@/screens/safetyGuideDetail/types";
+import { SafetyGuidesRouteParams } from "@/screens/safetyGuides/types";
 import type { NavigatorScreenParams } from "@react-navigation/native";
 
 export type DashboardStackParamList = {
@@ -12,8 +16,12 @@ export type DashboardStackParamList = {
     AddMembers: AddMembersRouteParams;
     GroupInfo: GroupInfoRouteParams;
     GroupMemberListing: GroupMemberListingRouteParams;
-    GroupChat: GroupChatRouteParams
+    GroupChat: GroupChatRouteParams;
     EmergencyContactsListing: EmergencyContactsListingRouteParams;
+    SafetyGuides: SafetyGuidesRouteParams;
+    SafetyGuideDetail: SafetyGuideDetailRouteParams;
+    NewsListing: NewsListingRouteParams;
+    NewsDetails: NewsDetailsListingRouteParams;
 };
 
 export type LoginSignupStackParamList = {
