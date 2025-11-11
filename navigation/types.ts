@@ -6,6 +6,7 @@ import { GroupListingRouteParams } from "@/screens/groupListing/types";
 import { GroupMemberListingRouteParams } from "@/screens/groupMemberListing/types";
 import { NewsDetailsListingRouteParams } from "@/screens/newsDetails/types";
 import { NewsListingRouteParams } from "@/screens/newsListing/types";
+import { RiskLevelsRouteParams } from "@/screens/riskLevels/types";
 import { SafetyGuideDetailRouteParams } from "@/screens/safetyGuideDetail/types";
 import { SafetyGuidesRouteParams } from "@/screens/safetyGuides/types";
 import type { NavigatorScreenParams } from "@react-navigation/native";
@@ -22,6 +23,7 @@ export type DashboardStackParamList = {
     SafetyGuideDetail: SafetyGuideDetailRouteParams;
     NewsListing: NewsListingRouteParams;
     NewsDetails: NewsDetailsListingRouteParams;
+    RiskLevels: RiskLevelsRouteParams;
 };
 
 export type LoginSignupStackParamList = {

@@ -54,7 +54,7 @@ const Dashboard: React.FC<T_DASHBOARD> = ({ navigation }) => {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <ScrollView contentContainerStyle={{ paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
         {/* Red Alert Banner */}
-        <View style={styles.alertCard}>
+        <TouchableOpacity onPress={() => { navigation.navigate("RiskLevels", {}) }} style={styles.alertCard}>
           <MaterialCommunityIcons name="alert" size={22} color="#1A1A1A" style={styles.alertIcon} />
           <View style={{ flex: 1 }}>
             <Text style={styles.alertTitle}>
@@ -65,7 +65,7 @@ const Dashboard: React.FC<T_DASHBOARD> = ({ navigation }) => {
               <Text style={styles.alertMeta}>Updated 9:40 PM — NDMA.</Text>
             </Text>
           </View>
-        </View>
+        </TouchableOpacity>
 
         {/* Profile Row */}
         <View style={styles.profileRow}>

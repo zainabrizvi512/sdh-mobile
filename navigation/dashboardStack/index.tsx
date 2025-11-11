@@ -14,6 +14,7 @@ import { View } from "react-native";
 import BottomNav from "@/components/bottomNav";
 import NewsDetails from "@/screens/newsDetails";
 import NewsListing from "@/screens/newsListing";
+import RiskLevels from "@/screens/riskLevels";
 import SafetyGuideDetail from "@/screens/safetyGuideDetail";
 import SafetyGuides from "@/screens/safetyGuides";
 import { DashboardStackParamList } from "./types";
@@ -64,6 +65,7 @@ const DashboardStack = () => {
                 <Stack.Screen name="SafetyGuideDetail" component={SafetyGuideDetail} />
                 <Stack.Screen name="NewsListing" component={NewsListing} />
                 <Stack.Screen name="NewsDetails" component={NewsDetails} />
+                <Stack.Screen name="RiskLevels" component={RiskLevels} />
             </Stack.Navigator>
 
             {showBottomBar ? <BottomNav /> : null}
