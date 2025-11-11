@@ -1,3 +1,4 @@
+import { FAV_KEY } from "@/screens/emergencyContactsListing";
 import * as SecureStore from "expo-secure-store";
 
 const ACCESS_KEY = "sdh.accessToken";
@@ -35,4 +36,5 @@ export async function clearTokens() {
     await SecureStore.deleteItemAsync(ACCESS_KEY);
     await SecureStore.deleteItemAsync(REFRESH_KEY);
     await SecureStore.deleteItemAsync(EXP_KEY);
+    await SecureStore.deleteItemAsync(FAV_KEY);
 }

@@ -81,7 +81,7 @@ const Dashboard: React.FC<T_DASHBOARD> = ({ navigation }) => {
           <TouchableOpacity style={styles.headerIconBtn}>
             <Ionicons name="notifications-outline" size={20} color="#1A1A1A" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.headerIconBtn}>
+          <TouchableOpacity style={styles.headerIconBtn} onPress={() => { navigation.navigate("ProfileSettings", {}) }}>
             <Ionicons name="person-circle-outline" size={22} color="#1A1A1A" />
           </TouchableOpacity>
         </View>

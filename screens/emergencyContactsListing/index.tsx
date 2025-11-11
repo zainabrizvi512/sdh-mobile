@@ -26,7 +26,7 @@ type Contact = {
   fav?: boolean;
 };
 
-const FAV_KEY = "fav_contacts_v1";
+export const FAV_KEY = "fav_contacts_v1";
 
 const { ContactPicker } = NativeModules as {
   ContactPicker: {

@@ -6,6 +6,7 @@ import { GroupListingRouteParams } from "@/screens/groupListing/types";
 import { GroupMemberListingRouteParams } from "@/screens/groupMemberListing/types";
 import { NewsDetailsListingRouteParams } from "@/screens/newsDetails/types";
 import { NewsListingRouteParams } from "@/screens/newsListing/types";
+import { ProfileSettingsRouteParams } from "@/screens/profileSettings/types";
 import { RiskLevelsRouteParams } from "@/screens/riskLevels/types";
 import { SafetyGuideDetailRouteParams } from "@/screens/safetyGuideDetail/types";
 import { SafetyGuidesRouteParams } from "@/screens/safetyGuides/types";
@@ -23,4 +24,5 @@ export type DashboardStackParamList = {
     NewsListing: NewsListingRouteParams;
     NewsDetails: NewsDetailsListingRouteParams;
     RiskLevels: RiskLevelsRouteParams;
+    ProfileSettings: ProfileSettingsRouteParams;
 };
