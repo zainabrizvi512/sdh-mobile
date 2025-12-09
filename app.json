@@ -15,7 +15,8 @@
       },
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "We use your location to show your position on the map."
-      }
+      },
+      "bundleIdentifier": "com.alirizvi512.mysdhapp"
     },
     "android": {
       "adaptiveIcon": {

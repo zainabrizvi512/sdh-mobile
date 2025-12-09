@@ -4,6 +4,7 @@ import MapLocation from "@/screens/mapLocation";
 import SandwichAIndex from "@/screens/sandwiches/sandwichAIndex";
 import SandwichBIndex from "@/screens/sandwiches/sandwichBIndex";
 import SandwichCIndex from "@/screens/sandwiches/sandwichCIndex";
+import SetProfile from "@/screens/setProfile";
 import Test from "@/screens/test";
 import VerifyOTP from "@/screens/verifyOTP";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -73,6 +74,14 @@ const LoginSignupStack = () => {
             <Stack.Screen
                 name="MapLocation"
                 component={MapLocation}
+                options={{
+                    gestureEnabled: false,
+                    animation: "none", // <==== LIKE HERE
+                }}
+            />
+            <Stack.Screen
+                name="SetProfile"
+                component={SetProfile}
                 options={{
                     gestureEnabled: false,
                     animation: "none", // <==== LIKE HERE

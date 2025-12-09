@@ -1,6 +1,7 @@
 import { getAllNews } from "@/api/getAllNews";
-import { getLoggedInUser } from "@/api/getLoggedInUser";
+import { getLoggedInUser, IUser } from "@/api/getLoggedInUser";
 import { getSafetyGuides, SafetyGuide } from "@/api/getSafetyGuides";
+import { getAddressFromCoords } from "@/utils/getAddressFromCoords";
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
 import {
@@ -19,7 +20,9 @@ import { T_DASHBOARD } from "./types";
 const Dashboard: React.FC<T_DASHBOARD> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const [token, setToken] = useState<string | null>(null);
-  const { getCredentials, user } = useAuth0();
+  const { getCredentials } = useAuth0();
+  const [user, setUser] = useState<IUser>();
+  const [address, setAddress] = useState<string>("");
   const [safetyGuides, setSafetyGuides] = useState<SafetyGuide[]>([]);
   const [news, setNews] = useState([]);
 
@@ -44,12 +47,17 @@ const Dashboard: React.FC<T_DASHBOARD> = ({ navigation }) => {
 
   const loadData = async () => {
     const safetyGuidesResponse = await getSafetyGuides({});
-    await getLoggedInUser(token || "");
+    const response = await getLoggedInUser(token || "");
+    setUser(response);
+    if (response.location) {
+      const address = await getAddressFromCoords(response.location.x, response.location.y);
+      setAddress(address?.full || "");
+    }
     const newsResponse = await getAllNews(token || "");
     setSafetyGuides(safetyGuidesResponse);
     setNews(newsResponse.data.items.slice(0, 3));
   }
-
+  console.log(user?.picture);
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <ScrollView contentContainerStyle={{ paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
@@ -75,10 +83,10 @@ const Dashboard: React.FC<T_DASHBOARD> = ({ navigation }) => {
           />
           <View style={{ flex: 1 }}>
             <Text style={styles.name}>{user?.name}</Text>
-            <Text style={styles.location}>G-13, Islamabad</Text>
+            <Text style={styles.location}>{address}</Text>
           </View>
 
-          <TouchableOpacity style={styles.headerIconBtn}>
+          <TouchableOpacity style={styles.headerIconBtn} onPress={() => { navigation.navigate("PredictiveHub", {}) }}>
             <Ionicons name="notifications-outline" size={20} color="#1A1A1A" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.headerIconBtn} onPress={() => { navigation.navigate("ProfileSettings", {}) }}>

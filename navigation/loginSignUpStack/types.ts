@@ -12,5 +12,6 @@ export type LoginSignupStackParamList = {
     SandwichC: {},
     ChooseLocation: ChooseLocationRouteParams;
     MapLocation: MapLocationRouteParams;
+    SetProfile: { email?: string }
     Test: TestRouteParams
 };

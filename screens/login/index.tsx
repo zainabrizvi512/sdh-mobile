@@ -1,6 +1,8 @@
+import { getLoggedInUser } from "@/api/getLoggedInUser";
 import { ArrowBackIcon } from "@/assets/images/svg";
 import ScreenWrapper from "@/components/screenWrapper";
 import { envConfig } from "@/config/envConfig";
+import { saveTokens } from "@/storage/tokenStorage";
 import { AntDesign } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
@@ -58,6 +60,15 @@ const Login: React.FC<T_LOGIN> = ({ navigation }) => {
             { ephemeralSession: true }
         );
         console.log("Logged in with credentials: ", credentials);
+        await saveTokens({
+            accessToken: credentials.accessToken,
+            refreshToken: credentials.refreshToken ?? null,
+            accessTokenExpiresAt: credentials.expiresAt
+                ? Math.floor(credentials.expiresAt / 1000)
+                : undefined,
+        });
+        await getLoggedInUser(credentials.accessToken);
+        navigation.navigate("ChooseLocation", {});
     }
 
     return (
@@ -105,14 +116,6 @@ const Login: React.FC<T_LOGIN> = ({ navigation }) => {
                         <AntDesign name="google" size={18} />
                         <Text style={styles.socialText}>Continue with Google</Text>
                         <View style={{ width: 18 }} />
-                    </TouchableOpacity>
-                </View>
-
-                {/* Footer */}
-                <View style={styles.footerRow}>
-                    <Text style={styles.footerText}>Don’t have an account? </Text>
-                    <TouchableOpacity onPress={() => { }} hitSlop={6}>
-                        <Text>Register</Text>
                     </TouchableOpacity>
                 </View>
             </View>
