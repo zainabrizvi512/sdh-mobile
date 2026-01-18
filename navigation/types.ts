@@ -1,4 +1,5 @@
 import { AddMembersRouteParams } from "@/screens/addMembers/types";
+import { EmergencyAidNetworkRouteParams } from "@/screens/emergencyAidNetwork/types";
 import { EmergencyContactsListingRouteParams } from "@/screens/emergencyContactsListing/types";
 import { GroupChatRouteParams } from "@/screens/groupChat/types";
 import { GroupInfoRouteParams } from "@/screens/groupInfo/types";
@@ -28,6 +29,7 @@ export type DashboardStackParamList = {
     RiskLevels: RiskLevelsRouteParams;
     ProfileSettings: ProfileSettingsRouteParams;
     PredictiveHub: PredictiveHubRouteParams;
+    EmergencyAidNetwork: EmergencyAidNetworkRouteParams;
 };
 
 export type LoginSignupStackParamList = {

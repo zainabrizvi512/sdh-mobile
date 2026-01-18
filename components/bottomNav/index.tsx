@@ -19,10 +19,28 @@ type Item = {
 const TABS: Item[] = [
     { key: "home", label: "Home", icon: "home", iconOutline: "home-outline", target: "Dashboard" },
     { key: "groups", label: "Groups", icon: "people", iconOutline: "people-outline", target: "GroupListing" },
-    // If you don’t have Notifications yet, point it to EmergencyContactsListing or create a Notifications screen.
-    // { key: "notifications", label: "Notifications", icon: "notifications", iconOutline: "notifications-outline", target: "EmergencyContactsListing" },
+    { 
+        key: "emergency", 
+        label: "Emergency", 
+        icon: "shield-checkmark", 
+        iconOutline: "shield-checkmark-outline", 
+        target: "EmergencyAidNetwork" 
+    },
+    { 
+        key: "rescue", 
+        label: "Rescue", 
+        icon: "sync", 
+        iconOutline: "sync-outline", 
+        target: "RescueCoordinationSystem" 
+    },
+    { 
+        key: "predictive", 
+        label: "Hub", 
+        icon: "analytics", 
+        iconOutline: "analytics-outline", 
+        target: "PredictiveHub" 
+    },
 ];
-
 const barHeight = 62; // visual height excluding safe area
 
 const BottomNav = memo(() => {

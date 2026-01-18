@@ -27,4 +27,6 @@ export type DashboardStackParamList = {
     RiskLevels: RiskLevelsRouteParams;
     ProfileSettings: ProfileSettingsRouteParams;
     PredictiveHub: PredictiveHubRouteParams;
+    EmergencyAidNetwork: {};
+    RescueCoordinationSystem: {}; 
 };

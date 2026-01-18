@@ -226,7 +226,7 @@ const GroupChat: React.FC<T_GROUPCHAT> = ({ navigation, route }) => {
     useEffect(() => {
         const getMe = async () => {
             const user = await getLoggedInUser(token || "");
-            if (user && user.data) setMyUserId(user.data.id);
+            if (user) setMyUserId(user.id);
         };
         if (token) getMe();
     }, [token]);
