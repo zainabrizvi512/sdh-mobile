@@ -3,7 +3,9 @@ import { FlatList, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { usePredictiveHub } from '../../store/predictiveHub.store';
 
 export default function VolunteerHubChat() {
-    const { messages, socket, region } = usePredictiveHub(s => ({ messages: s.messages, socket: s.socket, region: s.region }));
+    const messages = usePredictiveHub(s => s.messages);
+    const socket = usePredictiveHub(s => s.socket);
+    const region = usePredictiveHub(s => s.region);
     const [text, setText] = useState('');
 
     function send() {

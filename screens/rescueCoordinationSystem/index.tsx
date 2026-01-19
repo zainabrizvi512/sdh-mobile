@@ -33,18 +33,18 @@ const RescueCoordinationSystem = ({ navigation }: any) => {
   const tabs = [
     { id: "requests", label: "Requests", icon: "document-text-outline" },
     { id: "allocation", label: "Allocation", icon: "git-network-outline" },
-    { id: "tracking", label: "Tracking", icon: "location-outline" },
+    // { id: "tracking", label: "Tracking", icon: "location-outline" },
     { id: "feedback", label: "Feedback", icon: "star-outline" },
     { id: "analytics", label: "Analytics", icon: "stats-chart-outline" },
   ];
 
   useEffect(() => {
-    const run  = async() => {
+    const run = async () => {
       const { accessToken } = await getCredentials();
-      setToken(accessToken);
+      if (accessToken) setToken(accessToken);
     };
     run();
-  }, [getCredentials])
+  }, [getCredentials]);
 
   // Fetch data when tab changes
   useEffect(() => {
@@ -56,9 +56,11 @@ const RescueCoordinationSystem = ({ navigation }: any) => {
     setIsLoading(true);
     try {
       const { accessToken } = await getCredentials();
-      const data = await getRescueAllocations(accessToken);
+      const data = await getRescueAllocations(accessToken || "");
+      console.log("Allocation Data:", data);
       setAllocations(data);
     } catch (error) {
+      console.error(error);
       Alert.alert("Error", "Failed to load allocations");
     } finally {
       setIsLoading(false);
@@ -67,11 +69,12 @@ const RescueCoordinationSystem = ({ navigation }: any) => {
 
   const fetchAnalytics = async () => {
     setIsLoading(true);
-    const { accessToken } = await getCredentials();
     try {
-      const data = await getRescueAnalytics(accessToken);
+      const { accessToken } = await getCredentials();
+      const data = await getRescueAnalytics(accessToken || "");
       setStats(data);
     } catch (error) {
+      console.error(error);
       Alert.alert("Error", "Failed to load analytics");
     } finally {
       setIsLoading(false);
@@ -178,17 +181,33 @@ const NGOAllocationPanel = ({ data }: { data: any[] }) => (
     <View style={styles.card}>
       <Text style={styles.cardTitle}>NGO Distribution</Text>
       {data.length === 0 ? (
-          <Text style={{ color: '#999', fontStyle: 'italic' }}>No active allocations found.</Text>
+          <Text style={{ color: '#999', fontStyle: 'italic', marginTop: 10 }}>No active allocations found.</Text>
       ) : (
         data.map((item, i) => (
             <View key={i} style={styles.listRow}>
-            <View style={styles.iconCircle}><Ionicons name="business" size={20} color={GREEN} /></View>
-            <View style={{ flex: 1 }}>
-                {/* Adjust property names based on your actual backend response structure */}
-                <Text style={styles.rowMainText}>{item.vehicleDetails || "Unknown Resource"}</Text>
-                <Text style={styles.rowSubText}>{item.provider?.username || "Provider"}</Text>
-            </View>
-            <View style={styles.badge}><Text style={styles.badgeText}>{item.status || "ACTIVE"}</Text></View>
+                {/* 1. Icon Section */}
+                <View style={styles.iconCircle}>
+                    {/* If you have logoUrl in item.ngoIcon, you can use <Image> here */}
+                    <Ionicons name="business" size={20} color={GREEN} />
+                </View>
+
+                {/* 2. Text Section - UPDATED to match flattened backend response */}
+                <View style={{ flex: 1 }}>
+                    {/* Main Title: NGO Name */}
+                    <Text style={styles.rowMainText}>
+                        {item.ngoName || "Unknown NGO"}
+                    </Text>
+                    
+                    {/* Subtitle: Resource Type */}
+                    <Text style={styles.rowSubText}>
+                        {item.resourceType || "General Aid"}
+                    </Text>
+                </View>
+
+                {/* 3. Status Badge */}
+                <View style={styles.badge}>
+                    <Text style={styles.badgeText}>{item.status || "ACTIVE"}</Text>
+                </View>
             </View>
         ))
       )}
@@ -198,11 +217,11 @@ const NGOAllocationPanel = ({ data }: { data: any[] }) => (
 const AnalyticsView = ({ data }: { data: { aidSent: number, successRate: number } }) => (
     <View style={styles.statGrid}>
       <View style={[styles.statCard, { backgroundColor: GREEN }]}>
-          <Text style={styles.statVal}>{data.aidSent}</Text>
+          <Text style={styles.statVal}>{data.aidSent || 0}</Text>
           <Text style={styles.statDesc}>Aid Sent</Text>
       </View>
       <View style={[styles.statCard, { backgroundColor: '#FFF', borderWidth: 1, borderColor: '#DDD' }]}>
-          <Text style={[styles.statVal, {color: GREEN}]}>{data.successRate}%</Text>
+          <Text style={[styles.statVal, {color: GREEN}]}>{data.successRate || 0}%</Text>
           <Text style={styles.statDesc}>Success</Text>
       </View>
     </View>
@@ -232,6 +251,7 @@ const FeedbackView = ({ token }: { token: string }) => {
             <TextInput 
                 style={styles.textArea} 
                 placeholder="Enter observations..." 
+                placeholderTextColor="#999"
                 multiline 
                 value={obs}
                 onChangeText={setObs}
@@ -250,7 +270,10 @@ const FeedbackView = ({ token }: { token: string }) => {
 const LiveTrackingView = () => (
     <View style={styles.card}>
       <Text style={styles.cardTitle}>Live Map</Text>
-      <View style={styles.mapVisual}><Ionicons name="map-outline" size={40} color={GREEN} opacity={0.3} /></View>
+      <View style={styles.mapVisual}>
+          <Ionicons name="map-outline" size={40} color={GREEN} opacity={0.3} />
+          <Text style={{ marginTop: 10, color: '#999', fontSize: 12 }}>Map Integration Coming Soon</Text>
+      </View>
     </View>
 );
 
@@ -274,17 +297,17 @@ const styles = StyleSheet.create({
   fancyInput: { borderBottomWidth: 1.5, borderColor: '#EEE', paddingVertical: 12, fontSize: 16, marginBottom: 20, color: '#000' },
   submitBtn: { backgroundColor: GREEN, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', padding: 16, borderRadius: 16 },
   submitBtnText: { color: '#FFF', fontWeight: '800', marginRight: 10 },
-  listRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10, borderBottomWidth: 1, borderBottomColor: '#f0f0f0', paddingBottom: 10 },
+  listRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10, borderBottomWidth: 1, borderBottomColor: '#f0f0f0', paddingBottom: 15, paddingTop: 5 },
   iconCircle: { width: 40, height: 40, borderRadius: 10, backgroundColor: '#F0F4F0', justifyContent: 'center', alignItems: 'center', marginRight: 12 },
-  rowMainText: { fontWeight: '700', fontSize: 14 }, 
-  rowSubText: { fontSize: 12, color: '#888' },
-  badge: { backgroundColor: '#E8F5E9', padding: 5, borderRadius: 8 },
+  rowMainText: { fontWeight: '700', fontSize: 14, color: '#333' }, 
+  rowSubText: { fontSize: 12, color: '#888', marginTop: 2 },
+  badge: { backgroundColor: '#E8F5E9', paddingVertical: 4, paddingHorizontal: 8, borderRadius: 6 },
   badgeText: { fontSize: 10, color: GREEN, fontWeight: 'bold' },
   mapVisual: { height: 150, backgroundColor: '#F9F9F9', borderRadius: 20, justifyContent: 'center', alignItems: 'center' },
   statGrid: { flexDirection: 'row', justifyContent: 'space-between' },
-  statCard: { width: '48%', padding: 20, borderRadius: 20, alignItems: 'center' },
-  statVal: { fontSize: 24, fontWeight: '900', color: '#FFF' },
-  statDesc: { fontSize: 11, color: '#666' },
+  statCard: { width: '48%', padding: 20, borderRadius: 20, alignItems: 'center', justifyContent: 'center', height: 120 },
+  statVal: { fontSize: 28, fontWeight: '900', color: '#FFF', marginBottom: 5 },
+  statDesc: { fontSize: 12, color: 'rgba(255,255,255,0.8)', fontWeight: '600' },
   textArea: { backgroundColor: '#F9F9F9', borderRadius: 12, padding: 15, height: 100, textAlignVertical: 'top', marginBottom: 15, color: '#000' }
 });
 

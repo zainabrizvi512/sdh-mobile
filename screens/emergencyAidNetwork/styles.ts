@@ -1,3 +1,4 @@
+import { GREEN } from "@/constants/theme";
 import { Platform, StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
@@ -37,4 +38,13 @@ export const styles = StyleSheet.create({
   progressTrack: { height: 8, backgroundColor: "#E5E7EB", borderRadius: 4, width: "100%", marginBottom: 8, overflow: "hidden" },
   progressFill: { height: "100%", backgroundColor: "#4C8DFF", borderRadius: 4 },
   stageRow: { flexDirection: "row", justifyContent: "space-between" },
+  stageText: {
+    fontSize: 10,
+    color: '#999',
+    fontWeight: '500'
+  },
+  activeStage: {
+    color: GREEN,
+    fontWeight: '800'
+  },
 });
