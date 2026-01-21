@@ -17,6 +17,7 @@ export interface IUser {
     sub: string
     updatedAt: string
     username: string
+    ngo: { name: string, id: string }
 }
 
 export interface ILocation {
@@ -37,6 +38,7 @@ export const getLoggedInUser = async (token: string) => {
 
     try {
         const response = await axios<IUser>(config);
+        console.log(response.data);
         return response.data;
     } catch (error: any) {
         console.log("error", error);

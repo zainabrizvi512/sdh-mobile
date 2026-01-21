@@ -1,32 +1,43 @@
 import { getAllNews } from "@/api/getAllNews";
+import { getAllNgos, NGO } from "@/api/getAllNgos";
 import { getLoggedInUser, IUser } from "@/api/getLoggedInUser";
 import { getSafetyGuides, SafetyGuide } from "@/api/getSafetyGuides";
+import { postJoinNgo } from "@/api/postJoinNgo";
 import { getAddressFromCoords } from "@/utils/getAddressFromCoords";
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   FlatList,
   Image,
+  Modal,
   ScrollView,
   StatusBar,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View
 } from "react-native";
 import { useAuth0 } from "react-native-auth0";
+import { styles } from "./styles";
+import { T_DASHBOARD } from "./types";
 
 const GREEN = "#1f3d18";
-const BG_LIGHT = "#F4F7F4";
 const RED_ALERT = "#d32f2f";
 
-const Dashboard: React.FC<any> = ({ navigation }) => {
+const Dashboard: React.FC<T_DASHBOARD> = ({ navigation }) => {
   const [token, setToken] = useState<string | null>(null);
   const { getCredentials } = useAuth0();
   const [user, setUser] = useState<IUser>();
   const [address, setAddress] = useState<string>("Detecting address...");
   const [safetyGuides, setSafetyGuides] = useState<SafetyGuide[]>([]);
   const [news, setNews] = useState([]);
+
+  // --- NGO JOIN STATES ---
+  const [isNgoModalVisible, setNgoModalVisible] = useState(false);
+  const [ngos, setNgos] = useState<NGO[]>([]);
+  const [isLoadingNgos, setIsLoadingNgos] = useState(false);
+  const [isJoining, setIsJoining] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -54,13 +65,39 @@ const Dashboard: React.FC<any> = ({ navigation }) => {
     const newsResponse = await getAllNews(token || "");
     setSafetyGuides(safetyGuidesResponse);
     setNews(newsResponse.data.items.slice(0, 3));
-  }
+  };
+
+  // --- HANDLERS FOR NGO JOIN ---
+  const openNgoModal = async () => {
+    setNgoModalVisible(true);
+    if (ngos.length === 0) {
+      setIsLoadingNgos(true);
+      const data = await getAllNgos(token || "");
+      setNgos(data);
+      setIsLoadingNgos(false);
+    }
+  };
+
+  const handleJoinNgo = async (ngoId: string, ngoName: string) => {
+    setIsJoining(true);
+    try {
+      await postJoinNgo(token || "", ngoId);
+      Alert.alert("Success", `You have successfully joined ${ngoName}!`);
+      setNgoModalVisible(false);
+      const updatedUser = await getLoggedInUser(token || "");
+      setUser(updatedUser);
+    } catch (error) {
+      Alert.alert("Error", "Failed to join NGO. Please try again.");
+    } finally {
+      setIsJoining(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       
-      {/* --- PREMIUM CURVED HEADER --- */}
+      {/* --- HEADER --- */}
       <View style={styles.headerContainer}>
         <View style={styles.profileRow}>
           <TouchableOpacity onPress={() => navigation.navigate("ProfileSettings", {})} style={styles.avatarWrapper}>
@@ -69,8 +106,14 @@ const Dashboard: React.FC<any> = ({ navigation }) => {
           <View style={{ flex: 1, marginLeft: 12 }}>
             <Text style={styles.greetingText}>Welcome back,</Text>
             <Text style={styles.nameText}>{user?.name || "Rescue User"}</Text>
+            <Text style={[styles.nameText, { fontSize: 12 }]}>{user?.ngo.name || "Rescue User"}</Text>
           </View>
           <View style={styles.headerActions}>
+            {/* JOIN NGO BUTTON */}
+            <TouchableOpacity style={styles.headerIconBtn} onPress={openNgoModal}>
+                <Ionicons name="people-outline" size={20} color="#FFF" />
+            </TouchableOpacity>
+
             <TouchableOpacity style={styles.headerIconBtn} onPress={() => navigation.navigate("RescueCoordinationSystem", {})}>
               <Ionicons name="notifications-outline" size={20} color="#FFF" />
               <View style={styles.notifDot} />
@@ -78,7 +121,6 @@ const Dashboard: React.FC<any> = ({ navigation }) => {
           </View>
         </View>
 
-        {/* Location Card inside Header for "Fuller" look */}
         <View style={styles.locationCard}>
           <Ionicons name="location" size={16} color={GREEN} />
           <Text style={styles.locationText} numberOfLines={1}>{address}</Text>
@@ -89,7 +131,6 @@ const Dashboard: React.FC<any> = ({ navigation }) => {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollBody} showsVerticalScrollIndicator={false}>
-        
         {/* Urgent Alert Banner */}
         <TouchableOpacity onPress={() => navigation.navigate("RiskLevels", {})} style={styles.alertCard}>
             <View style={styles.alertIconBg}>
@@ -161,11 +202,58 @@ const Dashboard: React.FC<any> = ({ navigation }) => {
           ))}
         </View>
       </ScrollView>
+
+      {/* --- NGO SELECTION MODAL --- */}
+      <Modal
+        visible={isNgoModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setNgoModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+                <View style={styles.modalHeader}>
+                    <Text style={styles.modalTitle}>Join an NGO</Text>
+                    <TouchableOpacity onPress={() => setNgoModalVisible(false)}>
+                        <Ionicons name="close" size={24} color="#333" />
+                    </TouchableOpacity>
+                </View>
+                <Text style={styles.modalSubtitle}>Select an organization to volunteer with:</Text>
+                
+                {isLoadingNgos ? (
+                    <ActivityIndicator size="large" color={GREEN} style={{ marginVertical: 30 }} />
+                ) : (
+                    <FlatList
+                        data={ngos}
+                        keyExtractor={(item) => item.id}
+                        contentContainerStyle={{ paddingVertical: 10 }}
+                        renderItem={({ item }) => (
+                            <TouchableOpacity 
+                                style={styles.ngoItem} 
+                                onPress={() => handleJoinNgo(item.id, item.name)}
+                                disabled={isJoining}
+                            >
+                                <View style={styles.ngoIcon}>
+                                    <Ionicons name="business" size={20} color={GREEN} />
+                                </View>
+                                <View style={{ flex: 1 }}>
+                                    <Text style={styles.ngoName}>{item.name}</Text>
+                                    <Text style={styles.ngoType}>{item.type}</Text>
+                                </View>
+                                <Ionicons name="chevron-forward" size={20} color="#CCC" />
+                            </TouchableOpacity>
+                        )}
+                    />
+                )}
+            </View>
+        </View>
+      </Modal>
+
     </View>
   );
 }
 
-// --- SUB COMPONENTS ---
+// Subcomponent for Emergency Buttons
 const EmergencyBtn = ({ label, num, icon, color, onPress }: any) => (
     <TouchableOpacity style={[styles.emCard, { borderLeftColor: color }]} onPress={onPress}>
         <View style={[styles.emIconCircle, { backgroundColor: color + '15' }]}>
@@ -175,59 +263,5 @@ const EmergencyBtn = ({ label, num, icon, color, onPress }: any) => (
         <Text style={styles.emLabel}>{label}</Text>
     </TouchableOpacity>
 );
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: BG_LIGHT },
-  headerContainer: { 
-    backgroundColor: GREEN, paddingTop: 60, paddingBottom: 35, 
-    borderBottomLeftRadius: 35, borderBottomRightRadius: 35, elevation: 12 
-  },
-  profileRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 25, marginBottom: 25 },
-  avatarWrapper: { borderRadius: 18, padding: 2, backgroundColor: 'rgba(255,255,255,0.3)' },
-  avatar: { width: 50, height: 50, borderRadius: 16 },
-  greetingText: { color: 'rgba(255,255,255,0.6)', fontSize: 12, fontWeight: '600' },
-  nameText: { color: '#FFF', fontSize: 20, fontWeight: '800' },
-  headerActions: { flexDirection: 'row', gap: 10 },
-  headerIconBtn: { backgroundColor: 'rgba(255,255,255,0.15)', padding: 10, borderRadius: 12 },
-  notifDot: { position: 'absolute', top: 10, right: 10, width: 8, height: 8, borderRadius: 4, backgroundColor: RED_ALERT, borderWidth: 1.5, borderColor: GREEN },
-
-  locationCard: { 
-    flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFF', 
-    marginHorizontal: 25, padding: 14, borderRadius: 20, elevation: 5 
-  },
-  locationText: { flex: 1, marginLeft: 8, fontSize: 13, color: '#333', fontWeight: '600' },
-  statusBadge: { backgroundColor: '#E8F5E9', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10 },
-  statusText: { color: GREEN, fontSize: 10, fontWeight: '900' },
-
-  scrollBody: { paddingBottom: 40 },
-  alertCard: { 
-    flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFF', 
-    marginHorizontal: 20, marginTop: 20, padding: 18, borderRadius: 24, 
-    borderWidth: 1, borderColor: '#FFE5E5', elevation: 3 
-  },
-  alertIconBg: { width: 44, height: 44, borderRadius: 15, backgroundColor: '#FFF0F0', justifyContent: 'center', alignItems: 'center' },
-  alertTitle: { fontSize: 15, fontWeight: '800', color: '#1A1A1A' },
-  alertBody: { fontSize: 12, color: '#666', marginTop: 2 },
-
-  sectionHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 25, marginTop: 25, marginBottom: 15 },
-  sectionTitle: { fontSize: 16, fontWeight: '800', color: '#1A1A1A' },
-  linkText: { color: GREEN, fontWeight: '700', fontSize: 13 },
-
-  emergencyRow: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20 },
-  emCard: { width: '30%', backgroundColor: '#FFF', borderRadius: 22, padding: 15, alignItems: 'center', elevation: 4, borderLeftWidth: 4 },
-  emIconCircle: { width: 40, height: 40, borderRadius: 14, justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
-  emNumber: { fontSize: 16, fontWeight: '900', color: '#333' },
-  emLabel: { fontSize: 10, fontWeight: '700', color: '#999', textTransform: 'uppercase' },
-
-  guideCard: { width: 150, backgroundColor: '#FFF', borderRadius: 24, padding: 18, marginRight: 12, elevation: 3, borderWidth: 1, borderColor: '#EEE' },
-  guideIconCircle: { width: 36, height: 36, borderRadius: 12, backgroundColor: '#F0F4F0', justifyContent: 'center', alignItems: 'center', marginBottom: 10 },
-  guideTitle: { fontSize: 14, fontWeight: '700', color: '#333', lineHeight: 20 },
-
-  newsCard: { flexDirection: 'row', backgroundColor: '#FFF', borderRadius: 24, padding: 12, marginBottom: 12, elevation: 2, borderWidth: 1, borderColor: '#F0F0F0' },
-  newsThumb: { width: 80, height: 80, borderRadius: 18, backgroundColor: '#F9F9F9' },
-  newsCardTitle: { fontSize: 14, fontWeight: '800', color: '#1A1A1A', lineHeight: 20 },
-  newsCardBody: { fontSize: 12, color: '#777', marginTop: 4 },
-  newsMeta: { fontSize: 10, color: GREEN, fontWeight: '700', marginTop: 6, textTransform: 'uppercase' }
-});
 
 export default Dashboard;
