@@ -23,6 +23,7 @@ export default function PredictiveHubIndex() {
     const { getCredentials } = useAuth0();
     const [token, setToken] = useState<string>('');
     const [userNgoId, setUserNgoId] = useState<string | null>(null);
+    const [currentUserId, setCurrentUserId] = useState<string>('');
 
     useEffect(() => {
         (async () => {
@@ -43,6 +44,7 @@ export default function PredictiveHubIndex() {
                 setToken(creds.accessToken);
                 const user = await getLoggedInUser(creds.accessToken); // Uses your existing API
                 if (user.ngo.id) setUserNgoId(user.ngo.id);
+                if (user.id) setCurrentUserId(user.id);
             }
         };
         init();
@@ -102,8 +104,8 @@ export default function PredictiveHubIndex() {
 
                 {/* Chat: NO ScrollView wrapper! It has its own FlatList */}
                 {tab === 'chat' && (
-                    userNgoId && token ? (
-                        <VolunteerHubChat ngoId={userNgoId} token={token} />
+                    currentUserId && userNgoId && token ? (
+                        <VolunteerHubChat ngoId={userNgoId} token={token} currentUserId={currentUserId}/>
                     ) : (
                         <ActivityIndicator color="#1f3d18" style={{ marginTop: 50 }} />
                     )

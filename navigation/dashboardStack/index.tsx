@@ -12,6 +12,9 @@ import React from "react";
 import { View } from "react-native";
 
 import BottomNav from "@/components/bottomNav";
+import DisasterResponseFramework from "@/screens/DisasterResponseFramework";
+import InteractiveDonationNetwork from "@/screens/InteractiveDonationNetwork";
+import UserEnagagementHub from "@/screens/UserEnagagementHub";
 import EmergencyAidNetworkHome from "@/screens/emergencyAidNetwork";
 import NewsDetails from "@/screens/newsDetails";
 import NewsListing from "@/screens/newsListing";
@@ -77,6 +80,9 @@ const DashboardStack = () => {
                 <Stack.Screen name="PredictiveHub" component={PredictiveHubIndex} />
                 <Stack.Screen name="EmergencyAidNetwork" component={EmergencyAidNetworkHome} />
                 <Stack.Screen name="RescueCoordinationSystem" component={RescueCoordinationSystem} />
+                <Stack.Screen name="UserEnagagementHub" component={UserEnagagementHub} />
+                <Stack.Screen name="DisasterResponseFramework" component={DisasterResponseFramework} />
+                <Stack.Screen name="InteractiveDonationNetwork" component={InteractiveDonationNetwork} />
             </Stack.Navigator>
 
             {showBottomBar ? <BottomNav /> : null}

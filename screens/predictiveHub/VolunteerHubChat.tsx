@@ -7,10 +7,11 @@ const SOCKET_URL = envConfig.EXPO_PUBLIC_BASE_URL ?? "https://your-api.example.c
 
 interface Props {
   ngoId: string;
-  token: string; // Pass the auth token
+  token: string;
+  currentUserId: string; // <--- Add this Prop
 }
 
-export default function VolunteerHubChat({ ngoId, token }: Props) {
+export default function VolunteerHubChat({ ngoId, token, currentUserId }: Props) {
   const [messages, setMessages] = useState<any[]>([]);
   const [text, setText] = useState('');
   const [connected, setConnected] = useState(false);
@@ -19,33 +20,24 @@ export default function VolunteerHubChat({ ngoId, token }: Props) {
   useEffect(() => {
     if (!token || !ngoId) return;
 
-    // 1. Connect to the Specific Namespace
-    console.log(`${SOCKET_URL}/ngo-hub`);
-      socketRef.current = io(`${SOCKET_URL}/ngo-hub`, {
-          auth: { token }, // Pass token for WsAuthGuard
+    socketRef.current = io(`${SOCKET_URL}/ngo-hub`, {
+          auth: { token },
           transports: ['websocket'],
           reconnection: true,
-          reconnectionAttempts: Infinity,
-          reconnectionDelayMax: 5000,
       });
 
     const socket = socketRef.current;
 
-    console.log(socket);
-
     socket.on('connect', () => {
       console.log('Connected to NGO Chat');
       setConnected(true);
-      // 2. Join the NGO Room
       socket.emit('join_ngo', { ngoId });
     });
 
-    // 3. Listen for History (Optional, if backend sends it)
     socket.on('history', (history: any[]) => {
       setMessages(history);
     });
 
-    // 4. Listen for New Messages
     socket.on('new_message', (msg: any) => {
       setMessages((prev) => [msg, ...prev]);
     });
@@ -57,13 +49,10 @@ export default function VolunteerHubChat({ ngoId, token }: Props) {
 
   const sendMessage = () => {
     if (!text.trim() || !socketRef.current) return;
-
-    // 5. Emit to the new event
     socketRef.current.emit('send_ngo_message', {
       ngoId,
       text: text.trim(),
     });
-
     setText('');
   };
 
@@ -71,7 +60,7 @@ export default function VolunteerHubChat({ ngoId, token }: Props) {
     <View style={{ flex: 1, backgroundColor: '#FFF' }}>
       {!connected && (
         <View style={{ padding: 10, alignItems: 'center', backgroundColor: '#FFF3E0' }}>
-            <Text style={{ fontSize: 10, color: '#F57C00' }}>Connecting to secure channel...</Text>
+            <Text style={{ fontSize: 10, color: '#F57C00' }}>Connecting...</Text>
         </View>
       )}
 
@@ -81,22 +70,42 @@ export default function VolunteerHubChat({ ngoId, token }: Props) {
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ padding: 15 }}
         renderItem={({ item }) => {
-          // You might need user ID from props to check 'isSelf'
-          // const isSelf = item.sender.id === myUserId; 
+          // Check if the message was sent by the logged-in user
+          const isSelf = item.sender?.id === currentUserId;
+
           return (
-            <View style={{ marginVertical: 5 }}>
-                <Text style={{ fontSize: 10, color: '#888', marginBottom: 2 }}>
-                    {item.sender?.name || "Volunteer"} • {new Date(item.createdAt).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}
-                </Text>
+            <View style={{ 
+                marginVertical: 5, 
+                alignSelf: isSelf ? 'flex-end' : 'flex-start', // Right for self, Left for others
+                maxWidth: '80%' 
+            }}>
+                {/* Only show sender name for others */}
+                {!isSelf && (
+                    <Text style={{ fontSize: 10, color: '#888', marginBottom: 2, marginLeft: 4 }}>
+                        {item.sender?.name || "Volunteer"}
+                    </Text>
+                )}
+
                 <View style={{ 
-                    backgroundColor: '#F4F7F4', 
-                    padding: 10, 
-                    borderRadius: 12,
-                    alignSelf: 'flex-start',
-                    maxWidth: '85%'
+                    backgroundColor: isSelf ? '#1f3d18' : '#F4F7F4', // Dark Green for Self, Light Grey for Others
+                    padding: 12, 
+                    borderRadius: 16,
+                    borderBottomRightRadius: isSelf ? 2 : 16, // Chat bubble effect
+                    borderBottomLeftRadius: isSelf ? 16 : 2,
                 }}>
-                    <Text style={{ color: '#333' }}>{item.text}</Text>
+                    <Text style={{ color: isSelf ? '#FFF' : '#333' }}>{item.text}</Text>
                 </View>
+                
+                <Text style={{ 
+                    fontSize: 9, 
+                    color: '#999', 
+                    marginTop: 2, 
+                    alignSelf: isSelf ? 'flex-end' : 'flex-start',
+                    marginRight: isSelf ? 4 : 0,
+                    marginLeft: isSelf ? 0 : 4
+                }}>
+                    {new Date(item.createdAt).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}
+                </Text>
             </View>
           );
         }}

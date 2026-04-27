@@ -29,4 +29,7 @@ export type DashboardStackParamList = {
     PredictiveHub: PredictiveHubRouteParams;
     EmergencyAidNetwork: {};
     RescueCoordinationSystem: {}; 
+    UserEnagagementHub: {};
+    DisasterResponseFramework: {};
+    InteractiveDonationNetwork: {};
 };

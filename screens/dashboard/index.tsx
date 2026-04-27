@@ -106,7 +106,7 @@ const Dashboard: React.FC<T_DASHBOARD> = ({ navigation }) => {
           <View style={{ flex: 1, marginLeft: 12 }}>
             <Text style={styles.greetingText}>Welcome back,</Text>
             <Text style={styles.nameText}>{user?.name || "Rescue User"}</Text>
-            <Text style={[styles.nameText, { fontSize: 12 }]}>{user?.ngo.name || "Rescue User"}</Text>
+            <Text style={[styles.nameText, { fontSize: 12 }]}>{user?.ngo?.name}</Text>
           </View>
           <View style={styles.headerActions}>
             {/* JOIN NGO BUTTON */}
@@ -114,7 +114,7 @@ const Dashboard: React.FC<T_DASHBOARD> = ({ navigation }) => {
                 <Ionicons name="people-outline" size={20} color="#FFF" />
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.headerIconBtn} onPress={() => navigation.navigate("RescueCoordinationSystem", {})}>
+            <TouchableOpacity style={styles.headerIconBtn} onPress={() => navigation.navigate("InteractiveDonationNetwork", {})}>
               <Ionicons name="notifications-outline" size={20} color="#FFF" />
               <View style={styles.notifDot} />
             </TouchableOpacity>
