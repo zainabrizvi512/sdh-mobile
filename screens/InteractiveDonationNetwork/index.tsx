@@ -28,6 +28,7 @@ import {
 } from "react-native";
 import { useAuth0 } from "react-native-auth0";
 import { extractResponseArray } from "@/utils/extractResponseArray";
+import FancyAppHeader, { fancyHeaderStyles } from "@/components/fancyAppHeader";
 import { styles } from "./styles";
 import { DonationTabKey, T_INTERACTIVEDONATION } from "./types";
 
@@ -515,25 +516,28 @@ const InteractiveDonationNetwork: React.FC<T_INTERACTIVEDONATION> = ({ navigatio
   return (
     <View style={styles.screen}>
       <StatusBar barStyle="light-content" />
-      <View style={styles.header}>
-        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-            <Ionicons name="chevron-back" size={22} color="#FFF" />
+      <FancyAppHeader
+        title="Donation Network"
+        subtitle="Campaigns, portal, chat & community stories"
+        badge={{ icon: "heart", label: "GIVE & SUPPORT" }}
+        onBack={() => navigation.goBack()}
+        rightElement={
+          <TouchableOpacity
+            onPress={() => token && refreshTab(token, tab)}
+            style={fancyHeaderStyles.backBtn}
+          >
+            <Ionicons name="refresh-outline" size={18} color="#FFF" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Donation Network</Text>
-          <TouchableOpacity onPress={() => token && refreshTab(token, tab)} style={styles.backBtn}>
-            <Ionicons name="refresh-outline" size={22} color="#D4AF37" />
-          </TouchableOpacity>
-        </View>
-
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.headerTabs}>
-          {(["campaigns", "portal", "chat", "stories"] as DonationTabKey[]).map((t) => (
-            <TouchableOpacity key={t} onPress={() => setTab(t)} style={[styles.tabBtn, tab === t && styles.tabBtnActive]}>
-              <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>{t.toUpperCase()}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
+        }
+        tabs={[
+          { id: "campaigns", label: "CAMPAIGNS" },
+          { id: "portal", label: "PORTAL" },
+          { id: "chat", label: "CHAT" },
+          { id: "stories", label: "STORIES" },
+        ]}
+        activeTab={tab}
+        onTabChange={(id) => setTab(id as DonationTabKey)}
+      />
 
       {tab === "chat" ? (
         isLoading ? (

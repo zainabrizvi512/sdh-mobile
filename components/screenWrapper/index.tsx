@@ -30,7 +30,7 @@ const ScreenWrapper: React.FC<T_SCREEN_WRAPPER> = ({
         }
     };
     useEffect(() => {
-        if (Platform.OS == "ios") {
+        if (Platform.OS === "ios") {
             checkReduceMotion();
         }
     }, []);

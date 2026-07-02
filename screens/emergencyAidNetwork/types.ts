@@ -1,4 +1,4 @@
-import { DashboardStackParamList } from "@/navigation/types";
+import { DashboardStackParamList } from "@/navigation/dashboardStack/types";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 export type TabKey = "alerts" | "reporting" | "tracking";

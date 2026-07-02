@@ -70,7 +70,7 @@ const CreateGroupModal: React.FC<CreateGroupParams> = ({ visible, onAddMembers, 
             console.log(name, type, image?.uri)
             const creds = await getCredentials();
             const token = creds?.accessToken || "";
-            const created = await createGroup({
+            await createGroup({
                 name: name.trim(),
                 type,
                 image: image ? { uri: image.uri } : undefined,

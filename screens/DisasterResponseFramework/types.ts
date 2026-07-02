@@ -28,9 +28,9 @@ export interface DisasterCommunicationMessage {
 
 export interface DisasterTimelineEvent {
   id: string;
-  description: string;
+  title: string;
   incidentId?: string;
-  createdAt?: string;
+  time?: string;
 }
 
 /** Options for timeline incident selector (from GET /incidents, dashboard, or create flow). */

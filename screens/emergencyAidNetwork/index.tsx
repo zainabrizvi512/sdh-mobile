@@ -1,4 +1,6 @@
 import { envConfig } from "@/config/envConfig";
+import { BOTTOM_NAV_SCROLL_PADDING } from "@/components/bottomNav/styles";
+import FancyAppHeader from "@/components/fancyAppHeader";
 import { Ionicons } from "@expo/vector-icons";
 import * as Location from 'expo-location'; // Assuming you use expo-location
 import React, { useEffect, useState } from "react";
@@ -113,26 +115,17 @@ const EmergencyAidNetwork = ({ navigation }: any) => {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
-      <View style={styles.headerContainer}>
-        <View style={styles.headerRow}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Ionicons name="chevron-back" size={26} color="#FFF" />
-          </TouchableOpacity>
-          <View>
-            <Text style={styles.headerTitle}>Emergency Aid Network</Text>
-            <Text style={styles.headerSubtitle}>Active Response Unit</Text>
-          </View>
-        </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabScroll}>
-          {tabs.map((t) => (
-            <TouchableOpacity key={t.id} onPress={() => setTab(t.id)}
-              style={[styles.tabItem, tab === t.id && styles.activeTabItem]}>
-              <Ionicons name={t.icon as any} size={16} color={tab === t.id ? GREEN : "#FFF"} />
-              <Text style={[styles.tabText, tab === t.id && styles.activeTabText]}>{t.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
+      <FancyAppHeader
+        title="Emergency Aid"
+        subtitle="Active response unit & SOS dispatch"
+        badge={{ icon: "alert-circle", label: "ACTIVE RESPONSE" }}
+        rightIcon="warning-outline"
+        rightIconColor="#fca5a5"
+        onBack={() => navigation.goBack()}
+        tabs={tabs.map((t) => ({ id: t.id, label: t.label.toUpperCase(), icon: t.icon as any }))}
+        activeTab={tab}
+        onTabChange={setTab}
+      />
 
       <View style={{ flex: 1 }}>
         {tab === "alerts" && (
@@ -208,7 +201,7 @@ const styles = StyleSheet.create({
   activeTabItem: { backgroundColor: '#FFF' },
   tabText: { color: 'rgba(255,255,255,0.7)', fontWeight: '700', fontSize: 12, marginLeft: 6 },
   activeTabText: { color: GREEN },
-  contentScroll: { padding: 20 },
+  contentScroll: { padding: 20, paddingBottom: BOTTOM_NAV_SCROLL_PADDING },
   gridContainer: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
   card: { backgroundColor: '#FFF', borderRadius: 24, padding: 20, marginBottom: 20, elevation: 4 },
   cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 20, borderBottomWidth: 1, borderColor: '#F0F0F0', paddingBottom: 10 },

@@ -3,7 +3,8 @@ import axios, { AxiosRequestConfig } from "axios";
 
 type PostDisasterFrameworkTimelinePayload = {
   incidentId: string;
-  description: string;
+  title: string;
+  report: string;
   [key: string]: any;
 };
 

@@ -32,4 +32,7 @@ export type DashboardStackParamList = {
     UserEnagagementHub: {};
     DisasterResponseFramework: {};
     InteractiveDonationNetwork: {};
+    MentalHealthSupport: {};
+    DataBackupSecurity: {};
+    ReviewsFeedback: {};
 };

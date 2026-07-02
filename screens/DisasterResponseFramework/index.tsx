@@ -8,6 +8,8 @@ import { postDisasterFrameworkCommunication } from "@/api/postDisasterFrameworkC
 import { postDisasterFrameworkIncident } from "@/api/postDisasterFrameworkIncident";
 import { postDisasterFrameworkTask } from "@/api/postDisasterFrameworkTask";
 import { postDisasterFrameworkTimeline } from "@/api/postDisasterFrameworkTimeline";
+import { extractResponseArray } from "@/utils/extractResponseArray";
+import FancyAppHeader from "@/components/fancyAppHeader";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -23,7 +25,6 @@ import {
   View,
 } from "react-native";
 import { useAuth0 } from "react-native-auth0";
-import { extractResponseArray } from "@/utils/extractResponseArray";
 import { styles } from "./styles";
 import {
   DisasterCommunicationMessage,
@@ -130,6 +131,7 @@ const DisasterResponseFramework: React.FC<T_DISASTERRESPONSE> = ({ navigation })
       const idToUse = selectedIncidentId || incidentId;
       if (idToUse) {
         const timelineData = await getDisasterFrameworkTimeline(currentToken, idToUse);
+        console.log("timelineData", timelineData);
         setTimeline(extractResponseArray<DisasterTimelineEvent>(timelineData));
       }
     } catch (error) {
@@ -226,8 +228,9 @@ const DisasterResponseFramework: React.FC<T_DISASTERRESPONSE> = ({ navigation })
     }
     try {
       await postDisasterFrameworkTimeline(token, {
+        title: newTimelineDescription.trim(),
         incidentId: incidentId.trim(),
-        description: newTimelineDescription.trim(),
+        report: newTimelineDescription.trim(),
       });
       setNewTimelineDescription("");
       const timelineData = await getDisasterFrameworkTimeline(token, incidentId.trim());
@@ -454,9 +457,9 @@ const DisasterResponseFramework: React.FC<T_DISASTERRESPONSE> = ({ navigation })
           </View>
           <View style={{paddingBottom: 20}}>
             <Text style={{fontWeight: '900', fontSize: 12}}>
-              {item.createdAt ? new Date(item.createdAt).toLocaleTimeString() : "N/A"}
+              {item.time ? new Date(item.time).toLocaleTimeString() : "N/A"}
             </Text>
-            <Text style={{color: '#444'}}>{item.description}</Text>
+            <Text style={{color: '#444'}}>{item.title}</Text>
           </View>
         </View>
       ))}
@@ -466,27 +469,21 @@ const DisasterResponseFramework: React.FC<T_DISASTERRESPONSE> = ({ navigation })
   return (
     <View style={styles.screen}>
       <StatusBar barStyle="light-content" />
-      <View style={styles.header}>
-        <View style={styles.headerTop}>
-          <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
-            <Ionicons name="chevron-back" size={20} color="#FFF" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>RESPONSE FRAMEWORK</Text>
-          <Ionicons name="radio-outline" size={24} color="#FFF" />
-        </View>
-        <View style={styles.liveBadge}>
-          <View style={{width: 6, height: 6, borderRadius: 3, backgroundColor: '#FFF', marginRight: 5}} />
-          <Text style={styles.liveText}>SYSTEM LIVE: SECTOR {dashboard.sector || "UNKNOWN"}</Text>
-        </View>
-        
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.headerTabs}>
-          {(["dashboard", "communication", "tasks", "timeline"] as DisasterTabKey[]).map((t) => (
-            <TouchableOpacity key={t} onPress={() => setTab(t)} style={[styles.tabBtn, tab === t && styles.tabBtnActive]}>
-              <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>{t.toUpperCase()}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
+      <FancyAppHeader
+        title="Response Framework"
+        subtitle="Multi-layer disaster command & coordination"
+        badge={{ icon: "radio", label: `SYSTEM LIVE · SECTOR ${dashboard.sector || "UNKNOWN"}` }}
+        rightIcon="radio-outline"
+        onBack={() => navigation.goBack()}
+        tabs={[
+          { id: "dashboard", label: "DASHBOARD" },
+          { id: "communication", label: "COMMS" },
+          { id: "tasks", label: "TASKS" },
+          { id: "timeline", label: "TIMELINE" },
+        ]}
+        activeTab={tab}
+        onTabChange={(id) => setTab(id as DisasterTabKey)}
+      />
 
       <ScrollView contentContainerStyle={styles.content}>
         {isLoading ? (

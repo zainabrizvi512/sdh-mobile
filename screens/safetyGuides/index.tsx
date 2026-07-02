@@ -1,5 +1,6 @@
 import { getDisasterTypes } from "@/api/getDisasterTypes";
 import { getSafetyGuides, SafetyGuide } from "@/api/getSafetyGuides";
+import FancyAppHeader from "@/components/fancyAppHeader";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import {
@@ -56,42 +57,36 @@ const SafetyGuides: React.FC<T_SAFETYGUIDES> = ({ navigation }) => {
         <View style={styles.container}>
             <StatusBar barStyle="light-content" />
             
-            {/* --- HEADER (Curved & Green) --- */}
-            <View style={styles.headerContainer}>
-                <View style={styles.headerRow}>
-                    <Pressable onPress={() => navigation.goBack()} style={styles.backButton}>
-                        <Ionicons name="chevron-back" size={26} color="#FFF" />
-                    </Pressable>
-                    <View>
-                        <Text style={styles.headerTitle}>Safety Guides</Text>
-                        <Text style={styles.headerSubtitle}>Proactive Emergency Prep</Text>
+            <FancyAppHeader
+                title="Safety Guides"
+                subtitle="Proactive emergency prep & disaster protocols"
+                badge={{ icon: "shield-checkmark", label: "PREPAREDNESS" }}
+                onBack={() => navigation.goBack()}
+                footer={
+                    <View style={styles.searchContainer}>
+                        <View style={styles.searchBox}>
+                            <Ionicons name="search" size={18} color="#999" style={{ marginRight: 8 }} />
+                            <TextInput
+                                placeholder="Search title…"
+                                placeholderTextColor="#999"
+                                value={q}
+                                onChangeText={setQ}
+                                style={styles.input}
+                            />
+                        </View>
+                        <View style={[styles.searchBox, { width: 110, marginLeft: 10 }]}>
+                            <Ionicons name="location" size={18} color={GREEN} style={{ marginRight: 4 }} />
+                            <TextInput
+                                placeholder="City"
+                                placeholderTextColor="#999"
+                                value={city}
+                                onChangeText={setCity}
+                                style={styles.input}
+                            />
+                        </View>
                     </View>
-                </View>
-
-                {/* Search & City Inputs Inside Header Area for "Fuller" Look */}
-                <View style={styles.searchContainer}>
-                    <View style={styles.searchBox}>
-                        <Ionicons name="search" size={18} color="#999" style={{ marginRight: 8 }} />
-                        <TextInput
-                            placeholder="Search title…"
-                            placeholderTextColor="#999"
-                            value={q}
-                            onChangeText={setQ}
-                            style={styles.input}
-                        />
-                    </View>
-                    <View style={[styles.searchBox, { width: 110, marginLeft: 10 }]}>
-                        <Ionicons name="location" size={18} color={GREEN} style={{ marginRight: 4 }} />
-                        <TextInput
-                            placeholder="City"
-                            placeholderTextColor="#999"
-                            value={city}
-                            onChangeText={setCity}
-                            style={styles.input}
-                        />
-                    </View>
-                </View>
-            </View>
+                }
+            />
 
             {/* --- BODY --- */}
             <View style={styles.body}>
@@ -176,16 +171,8 @@ function Empty({ label }: { label: string }) {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: BG_LIGHT },
-    headerContainer: { 
-        backgroundColor: GREEN, paddingTop: 60, paddingBottom: 25, 
-        borderBottomLeftRadius: 30, borderBottomRightRadius: 30, elevation: 8 
-    },
-    headerRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, marginBottom: 20 },
-    backButton: { marginRight: 15, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: 6 },
-    headerTitle: { fontSize: 24, fontWeight: '800', color: '#FFF' },
-    headerSubtitle: { fontSize: 12, color: 'rgba(255,255,255,0.7)', fontWeight: '600' },
-    
-    searchContainer: { flexDirection: 'row', paddingHorizontal: 20 },
+
+    searchContainer: { flexDirection: 'row' },
     searchBox: { 
         flex: 1, flexDirection: 'row', alignItems: 'center', 
         backgroundColor: '#FFF', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10 

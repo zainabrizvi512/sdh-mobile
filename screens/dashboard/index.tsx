@@ -3,6 +3,7 @@ import { getAllNgos, NGO } from "@/api/getAllNgos";
 import { getLoggedInUser, IUser } from "@/api/getLoggedInUser";
 import { getSafetyGuides, SafetyGuide } from "@/api/getSafetyGuides";
 import { postJoinNgo } from "@/api/postJoinNgo";
+import FancyAppHeader from "@/components/fancyAppHeader";
 import { getAddressFromCoords } from "@/utils/getAddressFromCoords";
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
@@ -97,38 +98,40 @@ const Dashboard: React.FC<T_DASHBOARD> = ({ navigation }) => {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       
-      {/* --- HEADER --- */}
-      <View style={styles.headerContainer}>
-        <View style={styles.profileRow}>
-          <TouchableOpacity onPress={() => navigation.navigate("ProfileSettings", {})} style={styles.avatarWrapper}>
-            <Image source={{ uri: user?.picture || "https://dummyimage.com/100/ffffff/1f3d18&text=User" }} style={styles.avatar} />
-          </TouchableOpacity>
-          <View style={{ flex: 1, marginLeft: 12 }}>
-            <Text style={styles.greetingText}>Welcome back,</Text>
-            <Text style={styles.nameText}>{user?.name || "Rescue User"}</Text>
-            <Text style={[styles.nameText, { fontSize: 12 }]}>{user?.ngo?.name}</Text>
-          </View>
-          <View style={styles.headerActions}>
-            {/* JOIN NGO BUTTON */}
-            <TouchableOpacity style={styles.headerIconBtn} onPress={openNgoModal}>
+      <FancyAppHeader
+        showBack={false}
+        headerContent={
+          <View style={styles.profileRow}>
+            <TouchableOpacity onPress={() => navigation.navigate("ProfileSettings", {})} style={styles.avatarWrapper}>
+              <Image source={{ uri: user?.picture || "https://dummyimage.com/100/ffffff/1f3d18&text=User" }} style={styles.avatar} />
+            </TouchableOpacity>
+            <View style={{ flex: 1, marginLeft: 12 }}>
+              <Text style={styles.greetingText}>Welcome back,</Text>
+              <Text style={styles.nameText}>{user?.name || "Rescue User"}</Text>
+              <Text style={[styles.nameText, { fontSize: 12 }]}>{user?.ngo?.name}</Text>
+            </View>
+            <View style={styles.headerActions}>
+              <TouchableOpacity style={styles.headerIconBtn} onPress={openNgoModal}>
                 <Ionicons name="people-outline" size={20} color="#FFF" />
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.headerIconBtn} onPress={() => navigation.navigate("InteractiveDonationNetwork", {})}>
-              <Ionicons name="notifications-outline" size={20} color="#FFF" />
-              <View style={styles.notifDot} />
-            </TouchableOpacity>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.headerIconBtn} onPress={() => navigation.navigate("InteractiveDonationNetwork", {})}>
+                <Ionicons name="notifications-outline" size={20} color="#FFF" />
+                <View style={styles.notifDot} />
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-
-        <View style={styles.locationCard}>
-          <Ionicons name="location" size={16} color={GREEN} />
-          <Text style={styles.locationText} numberOfLines={1}>{address}</Text>
-          <View style={styles.statusBadge}>
-            <Text style={styles.statusText}>SAFE</Text>
+        }
+        badge={{ icon: "shield-checkmark", label: "SDH RESCUE PLATFORM" }}
+        footer={
+          <View style={styles.locationCard}>
+            <Ionicons name="location" size={16} color={GREEN} />
+            <Text style={styles.locationText} numberOfLines={1}>{address}</Text>
+            <View style={styles.statusBadge}>
+              <Text style={styles.statusText}>SAFE</Text>
+            </View>
           </View>
-        </View>
-      </View>
+        }
+      />
 
       <ScrollView contentContainerStyle={styles.scrollBody} showsVerticalScrollIndicator={false}>
         {/* Urgent Alert Banner */}
@@ -155,6 +158,45 @@ const Dashboard: React.FC<T_DASHBOARD> = ({ navigation }) => {
           <EmergencyBtn label="Police" num="15" icon="local-police" color={GREEN} onPress={() => {}} />
           <EmergencyBtn label="Ambulance" num="1122" icon="local-hospital" color="#E67E22" onPress={() => {}} />
           <EmergencyBtn label="Fire" num="16" icon="local-fire-department" color="#C0392B" onPress={() => {}} />
+        </View>
+
+        <View style={styles.sectionHeaderRow}>
+          <Text style={styles.sectionTitle}>Wellbeing & Trust Modules</Text>
+        </View>
+
+        <View style={{ paddingHorizontal: 20 }}>
+          <TouchableOpacity onPress={() => navigation.navigate("MentalHealthSupport", {})} style={styles.newsCard}>
+            <View style={[styles.guideIconCircle, { marginBottom: 0 }]}>
+              <Ionicons name="heart-half-outline" size={20} color={GREEN} />
+            </View>
+            <View style={{ flex: 1, marginLeft: 12 }}>
+              <Text style={styles.newsCardTitle}>Mental Health Support</Text>
+              <Text style={styles.newsCardBody}>Professional access, self-help resources, NGO connections.</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color="#BBB" />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => navigation.navigate("DataBackupSecurity", {})} style={styles.newsCard}>
+            <View style={[styles.guideIconCircle, { marginBottom: 0 }]}>
+              <Ionicons name="shield-checkmark-outline" size={20} color={GREEN} />
+            </View>
+            <View style={{ flex: 1, marginLeft: 12 }}>
+              <Text style={styles.newsCardTitle}>Data Backup Security</Text>
+              <Text style={styles.newsCardBody}>Encrypted storage, access control, sync, and recovery options.</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color="#BBB" />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => navigation.navigate("ReviewsFeedback", {})} style={styles.newsCard}>
+            <View style={[styles.guideIconCircle, { marginBottom: 0 }]}>
+              <Ionicons name="star-outline" size={20} color={GREEN} />
+            </View>
+            <View style={{ flex: 1, marginLeft: 12 }}>
+              <Text style={styles.newsCardTitle}>Reviews and Feedback</Text>
+              <Text style={styles.newsCardBody}>Star ratings, text/anonymous feedback, and admin review tracking.</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color="#BBB" />
+          </TouchableOpacity>
         </View>
 
         {/* Safety Guides Horizontal Scroll */}

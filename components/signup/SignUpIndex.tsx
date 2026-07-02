@@ -31,7 +31,7 @@ export default function SignUpScreen() {
     try {
       // TODO: call your sign up API here
       // await signup({ fullName, email, password })
-      router.replace("/"); // go to app home
+      router.replace("/" as any); // go to app home
     } finally {
       setSubmitting(false);
     }
@@ -86,14 +86,14 @@ export default function SignUpScreen() {
           By signing up, you agree to our{" "}
           <Text
             style={styles.link}
-            onPress={() => router.push("/")}
+            onPress={() => router.push("/" as any)}
           >
             Terms of service
           </Text>{" "}
           and{" "}
           <Text
             style={styles.link}
-            onPress={() => router.push("/")}
+            onPress={() => router.push("/" as any)}
           >
             Privacy Policy
           </Text>.
@@ -103,7 +103,7 @@ export default function SignUpScreen() {
         <Pressable
           onPress={() => {
             onSignUp();              // perform signup action
-            router.push("/location");  // navigate after success
+            router.push("/location" as any);  // navigate after success
           }}
           disabled={submitting}
           style={({ pressed }) => [
@@ -147,7 +147,7 @@ export default function SignUpScreen() {
         {/* Footer */}
         <View style={styles.footerRow}>
           <Text style={styles.footerText}>Already have an account? </Text>
-          <Pressable onPress={() => router.push("/screens/login/index")} hitSlop={6}>
+          <Pressable onPress={() => router.push("/screens/login/index" as any)} hitSlop={6}>
             {({ pressed }) => (
               <Text style={[styles.footerLink, pressed && { opacity: 0.7 }]}>
                 Sign In

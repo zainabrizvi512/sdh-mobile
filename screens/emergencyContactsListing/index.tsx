@@ -1,3 +1,4 @@
+import FancyAppHeader from "@/components/fancyAppHeader";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import * as SecureStore from "expo-secure-store";
 import React, { useCallback, useEffect, useState } from "react";
@@ -62,37 +63,31 @@ const EmergencyContactsListing = ({ navigation }: any) => {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       
-      {/* --- HEADER (Curved & Green) --- */}
-      <View style={styles.headerContainer}>
-        <View style={styles.headerRow}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Ionicons name="chevron-back" size={26} color="#FFF" />
-          </TouchableOpacity>
-          <View>
-            <Text style={styles.headerTitle}>Emergency Contacts</Text>
-            <Text style={styles.headerSubtitle}>Instant Rescue Links</Text>
-          </View>
-        </View>
-
-        {/* Quick Emergency Action Cards */}
-        <View style={styles.quickActionRow}>
-          <EmergencyPill label="Police" num="15" icon="local-police" color={RED_ALERT} onPress={() => quickCall("Police", "15")} />
-          <EmergencyPill label="Rescue" num="1122" icon="local-hospital" color="#E67E22" onPress={() => quickCall("Rescue", "1122")} />
-          <EmergencyPill label="Fire" num="16" icon="local-fire-department" color="#C0392B" onPress={() => quickCall("Fire", "16")} />
-        </View>
-
-        {/* Search Bar for "Fuller" Look */}
-        <View style={styles.searchBarContainer}>
-            <Ionicons name="search" size={18} color="rgba(255,255,255,0.6)" />
-            <TextInput 
-                placeholder="Search contacts..." 
+      <FancyAppHeader
+        title="Emergency Contacts"
+        subtitle="Instant rescue links & favourite dial list"
+        badge={{ icon: "call", label: "RESCUE LINKS" }}
+        onBack={() => navigation.goBack()}
+        footer={
+          <>
+            <View style={styles.quickActionRow}>
+              <EmergencyPill label="Police" num="15" icon="local-police" color={RED_ALERT} onPress={() => quickCall("Police", "15")} />
+              <EmergencyPill label="Rescue" num="1122" icon="local-hospital" color="#E67E22" onPress={() => quickCall("Rescue", "1122")} />
+              <EmergencyPill label="Fire" num="16" icon="local-fire-department" color="#C0392B" onPress={() => quickCall("Fire", "16")} />
+            </View>
+            <View style={styles.searchBarContainer}>
+              <Ionicons name="search" size={18} color="rgba(255,255,255,0.6)" />
+              <TextInput
+                placeholder="Search contacts..."
                 placeholderTextColor="rgba(255,255,255,0.6)"
                 style={styles.searchInput}
                 value={query}
                 onChangeText={setQuery}
-            />
-        </View>
-      </View>
+              />
+            </View>
+          </>
+        }
+      />
 
       <ScrollView contentContainerStyle={styles.scrollBody} showsVerticalScrollIndicator={false}>
         
@@ -142,21 +137,13 @@ const EmergencyPill = ({ label, num, icon, color, onPress }: any) => (
 // --- STYLES ---
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: BG_LIGHT },
-  headerContainer: { 
-    backgroundColor: GREEN, paddingTop: 60, paddingBottom: 25, 
-    borderBottomLeftRadius: 35, borderBottomRightRadius: 35, elevation: 10 
-  },
-  headerRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 25, marginBottom: 25 },
-  backButton: { marginRight: 15, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: 6 },
-  headerTitle: { fontSize: 24, fontWeight: '800', color: '#FFF', letterSpacing: -0.5 },
-  headerSubtitle: { fontSize: 12, color: 'rgba(255,255,255,0.6)', fontWeight: '700', textTransform: 'uppercase' },
-  
-  quickActionRow: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 25, marginBottom: 20 },
+
+  quickActionRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 },
   quickCard: { width: '30%', padding: 15, borderRadius: 20, alignItems: 'center', elevation: 5 },
   quickNum: { color: '#FFF', fontSize: 16, fontWeight: '900', marginTop: 4 },
   quickLabel: { color: 'rgba(255,255,255,0.8)', fontSize: 9, fontWeight: '700', textTransform: 'uppercase' },
 
-  searchBarContainer: { flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.12)', marginHorizontal: 25, paddingHorizontal: 15, paddingVertical: 12, borderRadius: 15, alignItems: 'center' },
+  searchBarContainer: { flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.12)', paddingHorizontal: 15, paddingVertical: 12, borderRadius: 15, alignItems: 'center' },
   searchInput: { flex: 1, marginLeft: 10, color: '#FFF', fontSize: 14, fontWeight: '600' },
 
   scrollBody: { padding: 25, paddingBottom: 50 },

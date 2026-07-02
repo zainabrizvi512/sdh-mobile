@@ -1,4 +1,6 @@
 import { getLoggedInUser } from '@/api/getLoggedInUser';
+import FancyAppHeader from '@/components/fancyAppHeader';
+import { BOTTOM_NAV_SCROLL_PADDING } from '@/components/bottomNav/styles';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { useNavigation } from 'expo-router';
@@ -59,25 +61,16 @@ export default function PredictiveHubIndex() {
 
     return (
         <View style={styles.container}>
-            <View style={styles.headerContainer}>
-                <View style={styles.headerRow}>
-                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                        <Ionicons name="chevron-back" size={24} color="#FFF" />
-                    </TouchableOpacity>
-                    <View>
-                        <Text style={styles.headerTitle}>Prediction Hub</Text>
-                        <Text style={styles.headerSubtitle}>{region || 'Detecting Location...'}</Text>
-                    </View>
-                </View>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabScroll}>
-                    {tabs.map((t) => (
-                        <TouchableOpacity key={t.id} onPress={() => setTab(t.id)} style={[styles.tabItem, tab === t.id && styles.activeTabItem]}>
-                            <Ionicons name={t.icon as any} size={16} color={tab === t.id ? GREEN : "#FFF"} />
-                            <Text style={[styles.tabText, tab === t.id && styles.activeTabText]}>{t.label}</Text>
-                        </TouchableOpacity>
-                    ))}
-                </ScrollView>
-            </View>
+            <FancyAppHeader
+                title="Prediction Hub"
+                subtitle={region || 'Detecting location...'}
+                badge={{ icon: 'pulse', label: 'PREDICTIVE INTEL' }}
+                rightIcon="analytics-outline"
+                onBack={() => navigation.goBack()}
+                tabs={tabs.map((t) => ({ id: t.id, label: t.label.toUpperCase(), icon: t.icon as any }))}
+                activeTab={tab}
+                onTabChange={setTab}
+            />
 
             {/* CHANGED: This is now a View (not ScrollView) so it doesn't conflict with Chat's FlatList */}
             <View style={styles.body}>
@@ -137,7 +130,7 @@ const styles = StyleSheet.create({
 
     // Updated Body Styles
     body: { flex: 1 }, // Removed padding here to let Chat go full width
-    tabContentPadding: { padding: 20 }, // Applied to ScrollViews only
+    tabContentPadding: { padding: 20, paddingBottom: BOTTOM_NAV_SCROLL_PADDING },
 
     riskCard: { backgroundColor: '#FFF', padding: 20, borderRadius: 20, marginBottom: 15, elevation: 4 },
     cardInfoLabel: { fontSize: 10, fontWeight: '900', color: GREEN, marginBottom: 10 },

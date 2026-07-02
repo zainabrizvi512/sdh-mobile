@@ -1,4 +1,5 @@
 import { ApiGroupMember, getGroupMembers } from "@/api/getGroupMembers";
+import FancyAppHeader from "@/components/fancyAppHeader";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useMemo, useState } from "react";
 import {
@@ -103,35 +104,29 @@ const GroupMemberListing: React.FC<T_GROUPMEMBERLISTING> = ({ navigation, route 
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       
-      {/* --- PREMIUM CURVED HEADER --- */}
-      <View style={styles.headerContainer}>
-        <View style={styles.headerRow}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Ionicons name="chevron-back" size={26} color="#FFF" />
-          </TouchableOpacity>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.headerTitle}>Members</Text>
-            <Text style={styles.headerSubtitle}>{members.length} People Joined</Text>
+      <FancyAppHeader
+        title="Members"
+        subtitle={`${members.length} people joined this group`}
+        badge={{ icon: "ribbon", label: "GROUP DIRECTORY" }}
+        onBack={() => navigation.goBack()}
+        footer={
+          <View style={styles.searchWrapper}>
+            <Ionicons name="search" size={18} color="rgba(255,255,255,0.6)" />
+            <TextInput
+              value={query}
+              onChangeText={setQuery}
+              placeholder="Search member name..."
+              placeholderTextColor="rgba(255,255,255,0.6)"
+              style={styles.searchInput}
+            />
+            {query.length > 0 && (
+              <TouchableOpacity onPress={() => setQuery("")}>
+                <Ionicons name="close-circle" size={18} color="#FFF" />
+              </TouchableOpacity>
+            )}
           </View>
-        </View>
-
-        {/* Integrated Search Bar inside Header Area */}
-        <View style={styles.searchWrapper}>
-          <Ionicons name="search" size={18} color="rgba(255,255,255,0.6)" />
-          <TextInput
-            value={query}
-            onChangeText={setQuery}
-            placeholder="Search member name..."
-            placeholderTextColor="rgba(255,255,255,0.6)"
-            style={styles.searchInput}
-          />
-          {query.length > 0 && (
-            <TouchableOpacity onPress={() => setQuery("")}>
-              <Ionicons name="close-circle" size={18} color="#FFF" />
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
+        }
+      />
 
       <KeyboardAvoidingView 
         behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -173,18 +168,10 @@ const GroupMemberListing: React.FC<T_GROUPMEMBERLISTING> = ({ navigation, route 
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: BG_LIGHT },
-  headerContainer: { 
-    backgroundColor: GREEN, paddingTop: 60, paddingBottom: 25, 
-    borderBottomLeftRadius: 35, borderBottomRightRadius: 35, elevation: 10 
-  },
-  headerRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 25, marginBottom: 25 },
-  backButton: { marginRight: 15, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: 6 },
-  headerTitle: { fontSize: 24, fontWeight: '800', color: '#FFF', letterSpacing: -0.5 },
-  headerSubtitle: { fontSize: 12, color: 'rgba(255,255,255,0.6)', fontWeight: '700', textTransform: 'uppercase' },
-  
+
   searchWrapper: { 
     flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.12)', 
-    marginHorizontal: 25, paddingHorizontal: 15, paddingVertical: 12, borderRadius: 15, alignItems: 'center' 
+    paddingHorizontal: 15, paddingVertical: 12, borderRadius: 15, alignItems: 'center' 
   },
   searchInput: { flex: 1, marginLeft: 10, color: '#FFF', fontSize: 14, fontWeight: '600' },
 

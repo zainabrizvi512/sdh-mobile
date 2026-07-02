@@ -14,6 +14,8 @@ import { View } from "react-native";
 import BottomNav from "@/components/bottomNav";
 import DisasterResponseFramework from "@/screens/DisasterResponseFramework";
 import InteractiveDonationNetwork from "@/screens/InteractiveDonationNetwork";
+import DataBackupSecurity from "@/screens/dataBackupSecurity";
+import MentalHealthSupport from "@/screens/mentalHealthSupport";
 import UserEnagagementHub from "@/screens/UserEnagagementHub";
 import EmergencyAidNetworkHome from "@/screens/emergencyAidNetwork";
 import NewsDetails from "@/screens/newsDetails";
@@ -21,6 +23,7 @@ import NewsListing from "@/screens/newsListing";
 import PredictiveHubIndex from "@/screens/predictiveHub/PredictiveHubIndex";
 import ProfileSettings from "@/screens/profileSettings";
 import RescueCoordinationSystem from "@/screens/rescueCoordinationSystem";
+import ReviewsFeedback from "@/screens/reviewsFeedback";
 import RiskLevels from "@/screens/riskLevels";
 import SafetyGuideDetail from "@/screens/safetyGuideDetail";
 import SafetyGuides from "@/screens/safetyGuides";
@@ -31,6 +34,10 @@ const Stack = createNativeStackNavigator<DashboardStackParamList>();
 // routes where the bottom bar SHOULD be visible
 const BOTTOM_BAR_ROUTES = new Set<keyof DashboardStackParamList>([
     "Dashboard",
+    "GroupListing",
+    "EmergencyAidNetwork",
+    "RescueCoordinationSystem",
+    "PredictiveHub",
 ]);
 
 const DashboardStack = () => {
@@ -83,6 +90,9 @@ const DashboardStack = () => {
                 <Stack.Screen name="UserEnagagementHub" component={UserEnagagementHub} />
                 <Stack.Screen name="DisasterResponseFramework" component={DisasterResponseFramework} />
                 <Stack.Screen name="InteractiveDonationNetwork" component={InteractiveDonationNetwork} />
+                <Stack.Screen name="MentalHealthSupport" component={MentalHealthSupport} />
+                <Stack.Screen name="DataBackupSecurity" component={DataBackupSecurity} />
+                <Stack.Screen name="ReviewsFeedback" component={ReviewsFeedback} />
             </Stack.Navigator>
 
             {showBottomBar ? <BottomNav /> : null}

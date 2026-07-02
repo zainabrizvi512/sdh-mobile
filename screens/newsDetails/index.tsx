@@ -1,3 +1,4 @@
+import FancyAppHeader, { fancyHeaderStyles } from "@/components/fancyAppHeader";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
@@ -47,21 +48,17 @@ const NewsDetails: React.FC<T_NEWSDETAILS> = ({ navigation, route }) => {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
 
-      {/* --- HEADER (Curved & Green) --- */}
-      <View style={styles.headerContainer}>
-        <View style={styles.headerRow}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Ionicons name="chevron-back" size={26} color="#FFF" />
+      <FancyAppHeader
+        title="News Details"
+        subtitle="Emergency briefing & verified report"
+        badge={{ icon: "megaphone", label: "URGENT UPDATE" }}
+        onBack={() => navigation.goBack()}
+        rightElement={
+          <TouchableOpacity onPress={onShare} style={fancyHeaderStyles.backBtn}>
+            <Ionicons name="share-social-outline" size={18} color="#FFF" />
           </TouchableOpacity>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.headerTitle}>News Details</Text>
-            <Text style={styles.headerSubtitle}>Emergency Briefing</Text>
-          </View>
-          <TouchableOpacity onPress={onShare} style={styles.shareButton}>
-            <Ionicons name="share-social-outline" size={22} color="#FFF" />
-          </TouchableOpacity>
-        </View>
-      </View>
+        }
+      />
 
       <ScrollView
         contentContainerStyle={styles.scrollBody}
@@ -113,15 +110,6 @@ const NewsDetails: React.FC<T_NEWSDETAILS> = ({ navigation, route }) => {
 // --- STYLES ---
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: BG_LIGHT },
-  headerContainer: { 
-    backgroundColor: GREEN, paddingTop: 60, paddingBottom: 25, 
-    borderBottomLeftRadius: 30, borderBottomRightRadius: 30, elevation: 10 
-  },
-  headerRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20 },
-  backButton: { marginRight: 15, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: 6 },
-  headerTitle: { fontSize: 22, fontWeight: '800', color: '#FFF', letterSpacing: -0.5 },
-  headerSubtitle: { fontSize: 11, color: 'rgba(255,255,255,0.6)', fontWeight: '700', textTransform: 'uppercase' },
-  shareButton: { backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: 8 },
 
   scrollBody: { padding: 20, paddingBottom: 60 },
   categoryBadge: { backgroundColor: '#F0F4F0', alignSelf: 'flex-start', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 8, marginBottom: 15, borderWidth: 1, borderColor: '#E0E8E0' },

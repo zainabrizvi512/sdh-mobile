@@ -1,4 +1,5 @@
 import { getLoggedInUser, IUser } from "@/api/getLoggedInUser";
+import FancyAppHeader from "@/components/fancyAppHeader";
 import { clearTokens } from "@/storage/tokenStorage";
 import { getAddressFromCoords } from "@/utils/getAddressFromCoords";
 import { Ionicons } from "@expo/vector-icons";
@@ -52,31 +53,26 @@ const ProfileSettings: React.FC<T_PROFILESETTINGS> = ({ navigation, route }) => 
         <View style={styles.container}>
             <StatusBar barStyle="light-content" />
             
-            {/* --- PREMIUM CURVED HEADER --- */}
-            <View style={styles.headerContainer}>
-                <View style={styles.headerRow}>
-                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                        <Ionicons name="chevron-back" size={26} color="#FFF" />
-                    </TouchableOpacity>
-                    <Text style={styles.headerTitle}>My Profile</Text>
-                    <View style={{ width: 40 }} /> 
-                </View>
-
-                {/* Profile Identity Section */}
-                <View style={styles.profileSection}>
-                    <View style={styles.avatarWrapper}>
-                        <Image
-                            source={{ uri: user?.picture || "https://dummyimage.com/100/ffffff/1f3d18&text=User" }}
-                            style={styles.avatar}
-                        />
-                        <TouchableOpacity style={styles.editBadge}>
-                            <Ionicons name="camera" size={14} color={GREEN} />
-                        </TouchableOpacity>
+            <FancyAppHeader
+                title="My Profile"
+                subtitle={address}
+                badge={{ icon: "person-circle", label: "ACCOUNT SETTINGS" }}
+                onBack={() => navigation.goBack()}
+                footer={
+                    <View style={styles.profileSection}>
+                        <View style={styles.avatarWrapper}>
+                            <Image
+                                source={{ uri: user?.picture || "https://dummyimage.com/100/ffffff/1f3d18&text=User" }}
+                                style={styles.avatar}
+                            />
+                            <TouchableOpacity style={styles.editBadge}>
+                                <Ionicons name="camera" size={14} color={GREEN} />
+                            </TouchableOpacity>
+                        </View>
+                        <Text style={styles.userName}>{user?.name || "Rescue Link User"}</Text>
                     </View>
-                    <Text style={styles.userName}>{user?.name || "Rescue Link User"}</Text>
-                    <Text style={styles.userLocation}>{address}</Text>
-                </View>
-            </View>
+                }
+            />
 
             <ScrollView contentContainerStyle={styles.scrollBody} showsVerticalScrollIndicator={false}>
                 
@@ -135,20 +131,12 @@ const ProfileOption = ({ icon, label }: any) => (
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: BG_LIGHT },
-    headerContainer: { 
-        backgroundColor: GREEN, paddingTop: 60, paddingBottom: 40, 
-        borderBottomLeftRadius: 35, borderBottomRightRadius: 35, elevation: 12 
-    },
-    headerRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 25, justifyContent: 'space-between' },
-    backButton: { backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: 8 },
-    headerTitle: { fontSize: 20, fontWeight: '800', color: '#FFF' },
 
-    profileSection: { alignItems: 'center', marginTop: 20 },
+    profileSection: { alignItems: 'center' },
     avatarWrapper: { position: 'relative', borderRadius: 35, padding: 4, backgroundColor: 'rgba(255,255,255,0.2)', marginBottom: 15 },
     avatar: { width: 90, height: 90, borderRadius: 30 },
     editBadge: { position: 'absolute', bottom: 5, right: -5, backgroundColor: '#FFF', width: 28, height: 28, borderRadius: 14, justifyContent: 'center', alignItems: 'center', elevation: 5 },
-    userName: { fontSize: 22, fontWeight: '800', color: '#FFF' },
-    userLocation: { fontSize: 13, color: 'rgba(255,255,255,0.6)', fontWeight: '600', marginTop: 4, paddingHorizontal: 40, textAlign: 'center' },
+    userName: { fontSize: 18, fontWeight: '800', color: '#FFF', marginTop: 8 },
 
     scrollBody: { padding: 25, paddingBottom: 60 },
     sectionHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 15 },

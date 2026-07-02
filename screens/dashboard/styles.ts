@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+import { BOTTOM_NAV_SCROLL_PADDING } from "@/components/bottomNav/styles";
 
 const GREEN = "#1f3d18";
 const BG_LIGHT = "#F4F7F4";
@@ -6,17 +7,7 @@ const RED_ALERT = "#d32f2f";
 
 export const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: BG_LIGHT },
-  
-  /* HEADER */
-  headerContainer: { 
-    backgroundColor: GREEN, 
-    paddingTop: 60, 
-    paddingBottom: 35, 
-    borderBottomLeftRadius: 35, 
-    borderBottomRightRadius: 35, 
-    elevation: 12 
-  },
-  profileRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 25, marginBottom: 25 },
+  profileRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 4 },
   avatarWrapper: { borderRadius: 18, padding: 2, backgroundColor: 'rgba(255,255,255,0.3)' },
   avatar: { width: 50, height: 50, borderRadius: 16 },
   greetingText: { color: 'rgba(255,255,255,0.6)', fontSize: 12, fontWeight: '600' },
@@ -27,13 +18,13 @@ export const styles = StyleSheet.create({
 
   locationCard: { 
     flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFF', 
-    marginHorizontal: 25, padding: 14, borderRadius: 20, elevation: 5 
+    padding: 14, borderRadius: 20, elevation: 5 
   },
   locationText: { flex: 1, marginLeft: 8, fontSize: 13, color: '#333', fontWeight: '600' },
   statusBadge: { backgroundColor: '#E8F5E9', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10 },
   statusText: { color: GREEN, fontSize: 10, fontWeight: '900' },
 
-  scrollBody: { paddingBottom: 40 },
+  scrollBody: { paddingBottom: BOTTOM_NAV_SCROLL_PADDING },
 
   /* ALERTS */
   alertCard: { 

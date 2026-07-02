@@ -1,3 +1,4 @@
+import FancyAppHeader, { fancyHeaderStyles } from "@/components/fancyAppHeader";
 import { Ionicons } from "@expo/vector-icons";
 import { DrawerActions } from "@react-navigation/native";
 import React from "react";
@@ -62,24 +63,25 @@ const PredictiveHubScreen: React.FC<T_PREDICVIVECOORDINATIONHUB> = ({ navigation
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       
-      {/* --- PREMIUM HEADER --- */}
-      <View style={styles.header}>
-        <View style={styles.headerTopRow}>
+      <FancyAppHeader
+        title="Predictive Hub"
+        subtitle="Real-time predictive intelligence & dispatch"
+        badge={{ icon: "analytics", label: "INTELLIGENCE CENTER" }}
+        showBack={false}
+        leftElement={
           <TouchableOpacity
             onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
-            style={styles.headerIconCircle}
+            style={fancyHeaderStyles.backBtn}
           >
-            <Ionicons name="menu-outline" size={24} color="#FFF" />
+            <Ionicons name="menu-outline" size={20} color="#FFF" />
           </TouchableOpacity>
-
-          <Text style={styles.headerTitle}>Predictive Hub</Text>
-
-          <TouchableOpacity style={styles.headerIconCircle}>
-            <Ionicons name="notifications-outline" size={20} color="#FFF" />
+        }
+        rightElement={
+          <TouchableOpacity style={fancyHeaderStyles.backBtn}>
+            <Ionicons name="notifications-outline" size={18} color="#FFF" />
           </TouchableOpacity>
-        </View>
-        <Text style={styles.headerSub}>Real-time Predictive Intelligence</Text>
-      </View>
+        }
+      />
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
@@ -147,31 +149,6 @@ const PredictiveHubScreen: React.FC<T_PREDICVIVECOORDINATIONHUB> = ({ navigation
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: OFF_WHITE },
-  
-  // Header Styling
-  header: {
-    backgroundColor: GREEN,
-    paddingTop: 60,
-    paddingBottom: 30,
-    paddingHorizontal: 25,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-  },
-  headerTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  headerIconCircle: { 
-    width: 40, 
-    height: 40, 
-    borderRadius: 20, 
-    backgroundColor: 'rgba(255,255,255,0.15)', 
-    justifyContent: 'center', 
-    alignItems: 'center' 
-  },
-  headerTitle: { fontSize: 22, fontWeight: '800', color: '#FFF' },
-  headerSub: { color: 'rgba(255,255,255,0.6)', fontSize: 12, marginTop: 5, fontWeight: '600', letterSpacing: 0.5 },
 
   scrollContent: { padding: 20 },
 

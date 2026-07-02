@@ -2,6 +2,8 @@ import { getRescueAllocations } from "@/api/getRescueAllocations";
 import { getRescueAnalytics } from "@/api/getResourceAnalytics";
 import { postRescueFeedback } from "@/api/postRescueFeedback";
 import { postRescueRequest } from "@/api/postRescueRequest";
+import FancyAppHeader from "@/components/fancyAppHeader";
+import { BOTTOM_NAV_SCROLL_PADDING } from "@/components/bottomNav/styles";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
 import {
@@ -85,27 +87,16 @@ const RescueCoordinationSystem = ({ navigation }: any) => {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       
-      {/* --- HEADER --- */}
-      <View style={styles.headerContainer}>
-        <View style={styles.headerRow}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Ionicons name="chevron-back" size={26} color="#FFF" />
-          </TouchableOpacity>
-          <View>
-            <Text style={styles.headerTitle}>Rescue Coordination</Text>
-            <Text style={styles.headerSubtitle}>Field Operations</Text>
-          </View>
-        </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabScroll}>
-          {tabs.map((item) => (
-            <TouchableOpacity key={item.id} onPress={() => setTab(item.id)} 
-              style={[styles.tabItem, tab === item.id && styles.activeTabItem]}>
-              <Ionicons name={item.icon as any} size={16} color={tab === item.id ? GREEN : "#FFF"} />
-              <Text style={[styles.tabText, tab === item.id && styles.activeTabText]}>{item.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
+      <FancyAppHeader
+        title="Rescue Coordination"
+        subtitle="Field operations & resource allocation"
+        badge={{ icon: "medkit", label: "FIELD OPS" }}
+        rightIcon="git-network-outline"
+        onBack={() => navigation.goBack()}
+        tabs={tabs.map((t) => ({ id: t.id, label: t.label.toUpperCase(), icon: t.icon as any }))}
+        activeTab={tab}
+        onTabChange={setTab}
+      />
 
       {/* --- MAIN CONTENT --- */}
       <ScrollView contentContainerStyle={styles.mainContent} showsVerticalScrollIndicator={false}>
@@ -290,7 +281,7 @@ const styles = StyleSheet.create({
   activeTabItem: { backgroundColor: '#FFF' },
   tabText: { color: 'rgba(255,255,255,0.7)', fontWeight: '700', fontSize: 12, marginLeft: 6 },
   activeTabText: { color: GREEN },
-  mainContent: { padding: 20 },
+  mainContent: { padding: 20, paddingBottom: BOTTOM_NAV_SCROLL_PADDING },
   card: { backgroundColor: '#FFF', borderRadius: 24, padding: 24, elevation: 4, marginBottom: 15 },
   cardTitle: { fontSize: 16, fontWeight: '800', marginBottom: 15 },
   cardHeaderLabel: { fontSize: 11, fontWeight: '900', color: GREEN, marginBottom: 20, letterSpacing: 1 },

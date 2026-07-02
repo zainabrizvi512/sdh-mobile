@@ -1,5 +1,6 @@
 import { getGuide } from "@/api/getGuide";
 import { GuidePhase, QuickAction, ResourceLink, SafetyGuide } from "@/api/getSafetyGuides";
+import FancyAppHeader from "@/components/fancyAppHeader";
 import ScreenWrapper from "@/components/screenWrapper";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useMemo, useState } from "react";
@@ -9,7 +10,6 @@ import {
     Linking,
     Platform,
     Pressable,
-    ScrollView,
     StatusBar,
     StyleSheet,
     Text,
@@ -63,28 +63,20 @@ const SafetyGuideDetail: React.FC<T_SAFETYGUIDEDETAIL> = ({ navigation, route })
             <StatusBar barStyle="light-content" />
             <View style={styles.container}>
                 
-                {/* --- HEADER (Curved & Green) --- */}
-                <View style={styles.headerContainer}>
-                    <View style={styles.headerRow}>
-                        <Pressable onPress={() => navigation.goBack()} style={styles.backButton}>
-                            <Ionicons name="chevron-back" size={26} color="#FFF" />
-                        </Pressable>
-                        <View style={{ flex: 1 }}>
-                            <Text style={styles.headerTitle} numberOfLines={1}>{guide.title}</Text>
-                            <Text style={styles.headerSubtitle}>
-                                {guide.disasterType?.name} • {guide.regionCity ?? 'General'}
-                            </Text>
-                        </View>
-                    </View>
-
-                    {/* --- MAIN TABS --- */}
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabScroll}>
-                        <Tab label="Steps" active={tab === 'STEPS'} onPress={() => setTab('STEPS')} icon="list-outline" />
-                        <Tab label="Checklist" active={tab === 'CHECKLIST'} onPress={() => setTab('CHECKLIST')} icon="checkbox-outline" />
-                        <Tab label="Actions" active={tab === 'ACTIONS'} onPress={() => setTab('ACTIONS')} icon="flash-outline" />
-                        <Tab label="Resources" active={tab === 'RESOURCES'} onPress={() => setTab('RESOURCES')} icon="library-outline" />
-                    </ScrollView>
-                </View>
+                <FancyAppHeader
+                    title={guide.title}
+                    subtitle={`${guide.disasterType?.name ?? "Guide"} • ${guide.regionCity ?? "General"}`}
+                    badge={{ icon: "book", label: "SAFETY PROTOCOL" }}
+                    onBack={() => navigation.goBack()}
+                    tabs={[
+                        { id: "STEPS", label: "STEPS", icon: "list-outline" },
+                        { id: "CHECKLIST", label: "CHECKLIST", icon: "checkbox-outline" },
+                        { id: "ACTIONS", label: "ACTIONS", icon: "flash-outline" },
+                        { id: "RESOURCES", label: "RESOURCES", icon: "library-outline" },
+                    ]}
+                    activeTab={tab}
+                    onTabChange={(id) => setTab(id as typeof tab)}
+                />
 
                 {/* --- CONTENT AREA --- */}
                 <View style={styles.contentBody}>
@@ -175,15 +167,6 @@ const SafetyGuideDetail: React.FC<T_SAFETYGUIDEDETAIL> = ({ navigation, route })
 
 // --- UI COMPONENTS ---
 
-function Tab({ label, active, onPress, icon }: { label: string; active: boolean; onPress: () => void; icon: any }) {
-    return (
-        <Pressable onPress={onPress} style={[styles.tabItem, active && styles.activeTabItem]}>
-            <Ionicons name={icon} size={16} color={active ? GREEN : "#FFF"} style={{ marginRight: 6 }} />
-            <Text style={[styles.tabText, active && styles.activeTabText]}>{label}</Text>
-        </Pressable>
-    );
-}
-
 function PhasePill({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
     return (
         <Pressable onPress={onPress} style={[styles.phasePill, active && styles.phasePillActive]}>
@@ -254,23 +237,7 @@ function Empty({ label }: { label: string }) {
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: BG_LIGHT },
     loaderContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFF' },
-    headerContainer: { 
-        backgroundColor: GREEN, paddingTop: 60, paddingBottom: 25, 
-        borderBottomLeftRadius: 30, borderBottomRightRadius: 30, elevation: 8 
-    },
-    headerRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, marginBottom: 20 },
-    backButton: { marginRight: 15, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: 6 },
-    headerTitle: { fontSize: 22, fontWeight: '800', color: '#FFF' },
-    headerSubtitle: { fontSize: 12, color: 'rgba(255,255,255,0.7)', fontWeight: '600' },
-    tabScroll: { paddingHorizontal: 20 },
-    tabItem: { 
-        flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 10, 
-        borderRadius: 20, marginRight: 10, backgroundColor: 'rgba(255,255,255,0.1)' 
-    },
-    activeTabItem: { backgroundColor: '#FFF' },
-    tabText: { color: 'rgba(255,255,255,0.7)', fontWeight: '700', fontSize: 12 },
-    activeTabText: { color: GREEN },
-    
+
     contentBody: { flex: 1, padding: 20 },
     
     phaseContainer: { flexDirection: 'row', gap: 8, marginBottom: 20 },

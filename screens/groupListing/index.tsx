@@ -1,5 +1,7 @@
 import { ApiGroup, getMyGroups } from "@/api/getMyGroups";
 import CreateGroupModal from "@/components/createGroup";
+import { BOTTOM_NAV_SCROLL_PADDING } from "@/components/bottomNav/styles";
+import FancyAppHeader, { fancyHeaderStyles } from "@/components/fancyAppHeader";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -107,33 +109,29 @@ const GroupListing: React.FC<T_GROUPLISTING> = ({ navigation }) => {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       
-      {/* --- PREMIUM CURVED HEADER --- */}
-      <View style={styles.headerContainer}>
-        <View style={styles.headerRow}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Ionicons name="chevron-back" size={26} color="#FFF" />
+      <FancyAppHeader
+        title="Groups"
+        subtitle="Rescue coordination communities & chat hubs"
+        badge={{ icon: "people", label: "COORDINATION HUB" }}
+        onBack={() => navigation.goBack()}
+        rightElement={
+          <TouchableOpacity onPress={() => setLoadCreateGroupModal(true)} style={fancyHeaderStyles.backBtn}>
+            <Ionicons name="add" size={22} color="#FFF" />
           </TouchableOpacity>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.headerTitle}>Groups</Text>
-            <Text style={styles.headerSubtitle}>Rescue Coordination Hub</Text>
+        }
+        footer={
+          <View style={styles.searchWrapper}>
+            <Ionicons name="search" size={18} color="rgba(255,255,255,0.6)" />
+            <TextInput
+              value={query}
+              onChangeText={setQuery}
+              placeholder="Search communities..."
+              placeholderTextColor="rgba(255,255,255,0.6)"
+              style={styles.searchInput}
+            />
           </View>
-          <TouchableOpacity onPress={() => setLoadCreateGroupModal(true)} style={styles.headerAction}>
-            <Ionicons name="add" size={24} color="#FFF" />
-          </TouchableOpacity>
-        </View>
-
-        {/* Integrated Search Bar inside Header Area */}
-        <View style={styles.searchWrapper}>
-          <Ionicons name="search" size={18} color="rgba(255,255,255,0.6)" />
-          <TextInput
-            value={query}
-            onChangeText={setQuery}
-            placeholder="Search communities..."
-            placeholderTextColor="rgba(255,255,255,0.6)"
-            style={styles.searchInput}
-          />
-        </View>
-      </View>
+        }
+      />
 
       <KeyboardAvoidingView 
         behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -183,23 +181,14 @@ const GroupListing: React.FC<T_GROUPLISTING> = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: BG_LIGHT },
-  headerContainer: { 
-    backgroundColor: GREEN, paddingTop: 60, paddingBottom: 25, 
-    borderBottomLeftRadius: 35, borderBottomRightRadius: 35, elevation: 10 
-  },
-  headerRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 25, marginBottom: 25 },
-  backButton: { marginRight: 15, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: 6 },
-  headerTitle: { fontSize: 24, fontWeight: '800', color: '#FFF', letterSpacing: -0.5 },
-  headerSubtitle: { fontSize: 12, color: 'rgba(255,255,255,0.6)', fontWeight: '700', textTransform: 'uppercase' },
-  headerAction: { backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: 6 },
-  
+
   searchWrapper: { 
     flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.12)', 
-    marginHorizontal: 25, paddingHorizontal: 15, paddingVertical: 12, borderRadius: 15, alignItems: 'center' 
+    paddingHorizontal: 15, paddingVertical: 12, borderRadius: 15, alignItems: 'center' 
   },
   searchInput: { flex: 1, marginLeft: 10, color: '#FFF', fontSize: 14, fontWeight: '600' },
 
-  listPadding: { paddingHorizontal: 20, paddingBottom: 40 },
+  listPadding: { paddingHorizontal: 20, paddingBottom: BOTTOM_NAV_SCROLL_PADDING },
   listHeader: { flexDirection: 'row', alignItems: 'center', marginTop: 25, marginBottom: 15, paddingHorizontal: 5 },
   listHeaderText: { fontSize: 10, fontWeight: '900', color: GREEN, letterSpacing: 1.5 },
   headerLine: { flex: 1, height: 1, backgroundColor: GREEN, opacity: 0.1, marginLeft: 10 },

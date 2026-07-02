@@ -1,3 +1,4 @@
+import FancyAppHeader from "@/components/fancyAppHeader";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useMemo } from "react";
 import { FlatList, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -81,26 +82,20 @@ const RiskLevels: React.FC<T_RISKLEVELS> = ({ navigation }) => {
         <View style={styles.container}>
             <StatusBar barStyle="light-content" />
             
-            {/* --- HEADER --- */}
-            <View style={styles.headerContainer}>
-                <View style={styles.headerRow}>
-                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                        <Ionicons name="chevron-back" size={26} color="#FFF" />
-                    </TouchableOpacity>
-                    <View>
-                        <Text style={styles.headerTitle}>Risk Levels</Text>
-                        <Text style={styles.headerSubtitle}>Security Protocols (1–5)</Text>
+            <FancyAppHeader
+                title="Risk Levels"
+                subtitle="Security protocols & severity scale (1–5)"
+                badge={{ icon: "shield", label: "THREAT MATRIX" }}
+                onBack={() => navigation.goBack()}
+                footer={
+                    <View style={styles.summaryBox}>
+                        <Ionicons name="warning" size={20} color="rgba(255,255,255,0.8)" />
+                        <Text style={styles.summaryText}>
+                            Risk levels are determined based on real-time environmental data and government advisories.
+                        </Text>
                     </View>
-                </View>
-                
-                {/* Fuller Look Info Card */}
-                <View style={styles.summaryBox}>
-                    <Ionicons name="warning" size={20} color="rgba(255,255,255,0.8)" />
-                    <Text style={styles.summaryText}>
-                        Risk levels are determined based on real-time environmental data and government advisories.
-                    </Text>
-                </View>
-            </View>
+                }
+            />
 
             {/* --- LIST --- */}
             <FlatList
@@ -118,18 +113,10 @@ const RiskLevels: React.FC<T_RISKLEVELS> = ({ navigation }) => {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: BG_LIGHT },
-    headerContainer: { 
-        backgroundColor: GREEN, paddingTop: 60, paddingBottom: 30, 
-        borderBottomLeftRadius: 30, borderBottomRightRadius: 30, elevation: 8 
-    },
-    headerRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, marginBottom: 20 },
-    backButton: { marginRight: 15, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: 6 },
-    headerTitle: { fontSize: 24, fontWeight: '800', color: '#FFF' },
-    headerSubtitle: { fontSize: 12, color: 'rgba(255,255,255,0.7)', fontWeight: '600' },
-    
+
     summaryBox: { 
         flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.1)', 
-        marginHorizontal: 20, padding: 15, borderRadius: 15, alignItems: 'center' 
+        padding: 15, borderRadius: 15, alignItems: 'center' 
     },
     summaryText: { 
         flex: 1, color: 'rgba(255,255,255,0.8)', fontSize: 11, marginLeft: 10, 

@@ -1,10 +1,10 @@
-import { ArrowBackIcon } from "@/assets/images/svg";
 import ChooseLocationBottomSheet from "@/components/chooseLocationBottomSheet";
+import FancyAppHeader from "@/components/fancyAppHeader";
 import { PopularPlace } from "@/components/chooseLocationBottomSheet/types";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import * as Location from "expo-location";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { ActivityIndicator, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE, Region } from "react-native-maps";
 import { styles } from "./styles";
 import { T_MAPLOCATION } from "./types";
@@ -160,6 +160,7 @@ const MapLocation: React.FC<T_MAPLOCATION> = ({ navigation }) => {
                 </View>
             ) : (
                 <View style={styles.container}>
+                    <StatusBar barStyle="light-content" />
                     <MapView
                         ref={mapRef}
                         provider={PROVIDER_GOOGLE}
@@ -186,24 +187,13 @@ const MapLocation: React.FC<T_MAPLOCATION> = ({ navigation }) => {
                         )}
                     </MapView>
 
-                    {/* HEADER OVERLAY */}
-                    <View
-                        pointerEvents="box-none"
-                        style={[
-                            styles.headerOverlay,
-                        ]}
-                    >
-                        <TouchableOpacity
-                            onPress={() => navigation.goBack?.()}
-                            activeOpacity={0.7}
-                            style={styles.backBtn}
-                        >
-                            <ArrowBackIcon />
-                        </TouchableOpacity>
-
-                        <Text numberOfLines={1} style={styles.headerTitle}>
-                            Choose Location
-                        </Text>
+                    <View pointerEvents="box-none" style={styles.headerOverlay}>
+                        <FancyAppHeader
+                            title="Choose Location"
+                            subtitle={city ? `Near ${city}` : "Pick a place on the map"}
+                            badge={{ icon: "location", label: "MAP PICKER" }}
+                            onBack={() => navigation.goBack?.()}
+                        />
                     </View>
 
                     <TouchableOpacity

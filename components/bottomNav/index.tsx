@@ -1,119 +1,95 @@
-// components/BottomNav.tsx
-import { GREEN } from "@/constants/theme";
-import { DashboardStackParamList } from "@/navigation/dashboardStack/types"; // adjust path
+import { HEADER_GREEN } from "@/components/fancyAppHeader/styles";
+import { DashboardStackParamList } from "@/navigation/dashboardStack/types";
 import { RootStackParamList } from "@/navigation/types";
 import { Ionicons } from "@expo/vector-icons";
 import { NavigationProp, useNavigation, useRoute } from "@react-navigation/native";
 import React, { memo, useMemo } from "react";
-import { Platform, Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { BAR_HEIGHT, styles } from "./styles";
 
 type Item = {
-    key: string;
-    label: string;
-    icon: string;
-    iconOutline?: string;
-    target: keyof DashboardStackParamList;
+  key: string;
+  label: string;
+  icon: keyof typeof Ionicons.glyphMap;
+  iconOutline: keyof typeof Ionicons.glyphMap;
+  target: keyof DashboardStackParamList;
 };
 
 const TABS: Item[] = [
-    // { key: "home", label: "Home", icon: "home", iconOutline: "home-outline", target: "DisasterResponseFramework" },
-    // { key: "home", label: "Home", icon: "home", iconOutline: "home-outline", target: "UserEnagagementHub" },
-    { key: "home", label: "Home", icon: "home", iconOutline: "home-outline", target: "InteractiveDonationNetwork" },
-    { key: "groups", label: "Groups", icon: "people", iconOutline: "people-outline", target: "GroupListing" },
-    { 
-        key: "emergency", 
-        label: "Emergency", 
-        icon: "shield-checkmark", 
-        iconOutline: "shield-checkmark-outline", 
-        target: "EmergencyAidNetwork" 
-    },
-    { 
-        key: "rescue", 
-        label: "Rescue", 
-        icon: "sync", 
-        iconOutline: "sync-outline", 
-        target: "RescueCoordinationSystem" 
-    },
-    { 
-        key: "predictive", 
-        label: "Hub", 
-        icon: "analytics", 
-        iconOutline: "analytics-outline", 
-        target: "PredictiveHub" 
-    },
+  { key: "home", label: "Home", icon: "home", iconOutline: "home-outline", target: "Dashboard" },
+  { key: "groups", label: "Groups", icon: "people", iconOutline: "people-outline", target: "GroupListing" },
+  {
+    key: "emergency",
+    label: "Emergency",
+    icon: "shield-checkmark",
+    iconOutline: "shield-checkmark-outline",
+    target: "EmergencyAidNetwork",
+  },
+  {
+    key: "rescue",
+    label: "Rescue",
+    icon: "sync",
+    iconOutline: "sync-outline",
+    target: "RescueCoordinationSystem",
+  },
+  {
+    key: "predictive",
+    label: "Hub",
+    icon: "analytics",
+    iconOutline: "analytics-outline",
+    target: "PredictiveHub",
+  },
 ];
-const barHeight = 62; // visual height excluding safe area
 
 const BottomNav = memo(() => {
-    const insets = useSafeAreaInsets();
-    const padBottom = Math.max(insets.bottom, 8);
-    const items = useMemo(() => TABS, []);
+  const insets = useSafeAreaInsets();
+  const padBottom = Math.max(insets.bottom, 8);
+  const items = useMemo(() => TABS, []);
 
-    const rootNav = useNavigation<NavigationProp<RootStackParamList>>();
-    const route = useRoute();
-    const current = route.name as keyof DashboardStackParamList | string;
+  const rootNav = useNavigation<NavigationProp<RootStackParamList>>();
+  const route = useRoute();
+  const current = route.name as keyof DashboardStackParamList | string;
 
-    const onPressTab = (target: keyof DashboardStackParamList, active: boolean) => {
-        if (active) return;
-        // Navigate to a nested screen inside DashboardStack
-        rootNav.navigate("DashboardStack", { screen: target } as never);
-    };
-    return (
-        <View
-            style={{
-                position: "absolute",
-                left: 0,
-                right: 0,
-                bottom: 0,
-                alignItems: "center",
-                // shadow
-                ...Platform.select({
-                    ios: { shadowColor: "#000", shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: -2 } },
-                    android: { elevation: 8 },
-                }),
-            }}
-            pointerEvents="box-none"
-        >
-            <View
-                style={{
-                    width: "100%",
-                    backgroundColor: GREEN,
-                    borderTopLeftRadius: 22,
-                    borderTopRightRadius: 22,
-                    flexDirection: "row",
-                    justifyContent: "space-around",
-                    paddingTop: 12,
-                    paddingBottom: padBottom,
-                    minHeight: barHeight + padBottom,
-                }}
+  const onPressTab = (target: keyof DashboardStackParamList, active: boolean) => {
+    if (active) return;
+    rootNav.navigate("DashboardStack", { screen: target } as never);
+  };
+
+  return (
+    <View style={styles.wrapper} pointerEvents="box-none">
+      <View style={[styles.bar, { paddingBottom: padBottom, minHeight: BAR_HEIGHT + padBottom }]}>
+        <View style={styles.glow1} />
+        <View style={styles.glow2} />
+        <View style={styles.glow3} />
+
+        {items.map((it) => {
+          const active = current === it.target;
+          const iconName = active ? it.icon : it.iconOutline;
+          const iconColor = active ? HEADER_GREEN : "#FFFFFF";
+
+          return (
+            <TouchableOpacity
+              key={it.key}
+              style={[styles.tabBtn, active && styles.tabBtnActive]}
+              hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
+              accessibilityRole="button"
+              accessibilityLabel={it.label}
+              accessibilityState={{ selected: active }}
+              onPress={() => onPressTab(it.target, active)}
             >
-                {items.map((it) => {
-                    const active = current === it.target;
-                    const iconName = active ? (it.icon as any) : (it.iconOutline ?? (it.icon + "-outline")) as any;
-                    return (
-                        <TouchableOpacity
-                            key={it.key}
-                            style={{ alignItems: "center", gap: 4, paddingHorizontal: 8 }}
-                            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                            accessibilityRole="button"
-                            accessibilityLabel={it.label}
-                            onPress={() => {
-                                onPressTab(it.target, active)
-                            }}
-                        >
-                            <Ionicons name={iconName} size={20} color="#FFFFFF" />
-                            <Text style={{ color: "#FFFFFF", fontSize: 12, fontWeight: active ? "800" : "700", opacity: active ? 1 : 0.85 }}>
-                                {it.label}
-                            </Text>
-                            {/* Optional active indicator */}
-                            {active ? <View style={{ height: 3, width: 18, borderRadius: 2, backgroundColor: "#FFF", marginTop: 2 }} /> : null}
-                        </TouchableOpacity>
-                    );
-                })}
-            </View>
-        </View>
-    );
+              <View style={[styles.tabIconWrap, active && styles.tabIconWrapActive]}>
+                <Ionicons name={iconName} size={18} color={iconColor} />
+              </View>
+              <Text style={[styles.tabLabel, active && styles.tabLabelActive]}>{it.label}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    </View>
+  );
 });
+
+BottomNav.displayName = "BottomNav";
 
 export default BottomNav;

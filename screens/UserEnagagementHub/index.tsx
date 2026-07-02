@@ -11,6 +11,7 @@ import {
 import { patchEngagementHubActivityStatus } from "@/api/patchEngagementHubActivityStatus";
 import { postEngagementHubActivity } from "@/api/postEngagementHubActivity";
 import { postEngagementHubOpportunity } from "@/api/postEngagementHubOpportunity";
+import FancyAppHeader, { fancyHeaderStyles } from "@/components/fancyAppHeader";
 import { Ionicons } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import React, { useCallback, useEffect, useState } from "react";
@@ -424,30 +425,28 @@ const UserEngagementHub: React.FC<T_USERENGAGEMENTHUB> = ({ navigation }) => {
     <View style={styles.screen}>
       <StatusBar barStyle="light-content" />
 
-      <View style={styles.header}>
-        <View style={styles.navRow}>
-          <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
-            <Ionicons name="chevron-back" size={22} color="#FFF" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Engagement Hub</Text>
-          <TouchableOpacity style={styles.backBtn} onPress={() => token && refreshForTab(token, tab)}>
+      <FancyAppHeader
+        title="Engagement Hub"
+        subtitle="Tracking your global rescue impact"
+        badge={{ icon: "trophy", label: "VOLUNTEER IMPACT" }}
+        onBack={() => navigation.goBack()}
+        rightElement={
+          <TouchableOpacity
+            onPress={() => token && refreshForTab(token, tab)}
+            style={fancyHeaderStyles.backBtn}
+          >
             <Ionicons name="refresh-outline" size={18} color="#FFF" />
           </TouchableOpacity>
-        </View>
-        <Text style={styles.headerSub}>Tracking your global rescue impact</Text>
-
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.headerTabs}>
-          {(["dashboard", "activities", "history", "opportunities"] as EngagementTabKey[]).map((t) => (
-            <TouchableOpacity
-              key={t}
-              onPress={() => setTab(t)}
-              style={[styles.topTab, tab === t && styles.topTabActive]}
-            >
-              <Text style={[styles.topTabText, tab === t && styles.topTabTextActive]}>{t.toUpperCase()}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
+        }
+        tabs={[
+          { id: "dashboard", label: "DASHBOARD" },
+          { id: "activities", label: "ACTIVITIES" },
+          { id: "history", label: "HISTORY" },
+          { id: "opportunities", label: "OPPORTUNITIES" },
+        ]}
+        activeTab={tab}
+        onTabChange={(id) => setTab(id as EngagementTabKey)}
+      />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {isLoading ? (

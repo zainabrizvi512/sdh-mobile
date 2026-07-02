@@ -1,3 +1,4 @@
+import FancyAppHeader, { fancyHeaderStyles } from "@/components/fancyAppHeader";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
@@ -36,27 +37,25 @@ const GroupInfo: React.FC<T_GROUPINFO> = ({ navigation, route }) => {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       
-      {/* --- PREMIUM CURVED HEADER --- */}
-      <View style={styles.headerContainer}>
-        <View style={styles.headerRow}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Ionicons name="chevron-back" size={26} color="#FFF" />
+      <FancyAppHeader
+        title="Group Info"
+        subtitle={`${members} active members • coordination hub`}
+        badge={{ icon: "chatbubbles", label: "GROUP PROFILE" }}
+        onBack={() => navigation.goBack()}
+        rightElement={
+          <TouchableOpacity style={fancyHeaderStyles.backBtn}>
+            <Ionicons name="create-outline" size={18} color="#FFF" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Group Info</Text>
-          <TouchableOpacity style={styles.headerAction}>
-            <Ionicons name="create-outline" size={22} color="#FFF" />
-          </TouchableOpacity>
-        </View>
-
-        {/* Avatar + Name inside Header Area for Fuller Look */}
-        <View style={styles.profileSection}>
-           <View style={styles.avatarWrapper}>
+        }
+        footer={
+          <View style={styles.profileSection}>
+            <View style={styles.avatarWrapper}>
               <Image source={{ uri: avatar }} style={styles.avatar} />
-           </View>
-           <Text style={styles.groupName}>{name}</Text>
-           <Text style={styles.memberCount}>{members} Active Members</Text>
-        </View>
-      </View>
+            </View>
+            <Text style={styles.groupName}>{name}</Text>
+          </View>
+        }
+      />
 
       <ScrollView 
         contentContainerStyle={styles.scrollBody}
@@ -133,20 +132,11 @@ const SettingRow = ({ icon, label, toggle, value }: any) => (
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: BG_LIGHT },
-  headerContainer: { 
-    backgroundColor: GREEN, paddingTop: 60, paddingBottom: 40, 
-    borderBottomLeftRadius: 35, borderBottomRightRadius: 35, elevation: 12 
-  },
-  headerRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 25, justifyContent: 'space-between' },
-  backButton: { backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: 8 },
-  headerTitle: { fontSize: 20, fontWeight: '800', color: '#FFF' },
-  headerAction: { backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: 8 },
 
-  profileSection: { alignItems: 'center', marginTop: 20 },
-  avatarWrapper: { borderRadius: 30, padding: 4, backgroundColor: 'rgba(255,255,255,0.2)', marginBottom: 15 },
-  avatar: { width: 100, height: 100, borderRadius: 25 },
-  groupName: { fontSize: 24, fontWeight: '800', color: '#FFF' },
-  memberCount: { fontSize: 13, color: 'rgba(255,255,255,0.6)', fontWeight: '600', marginTop: 4 },
+  profileSection: { alignItems: 'center' },
+  avatarWrapper: { borderRadius: 30, padding: 4, backgroundColor: 'rgba(255,255,255,0.2)', marginBottom: 10 },
+  avatar: { width: 80, height: 80, borderRadius: 22 },
+  groupName: { fontSize: 18, fontWeight: '800', color: '#FFF' },
 
   scrollBody: { padding: 20, paddingBottom: 40 },
   card: { backgroundColor: '#FFF', borderRadius: 24, padding: 20, elevation: 3, marginBottom: 20 },

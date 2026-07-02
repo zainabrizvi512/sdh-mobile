@@ -1,5 +1,6 @@
 import { getAllNews } from "@/api/getAllNews";
 import CreateGroupModal from "@/components/createGroup";
+import FancyAppHeader, { fancyHeaderStyles } from "@/components/fancyAppHeader";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useCallback, useEffect, useState } from "react";
 import {
@@ -100,24 +101,17 @@ const NewsListing: React.FC<T_NEWSLISTING> = ({ navigation }) => {
         <View style={styles.container}>
             <StatusBar barStyle="light-content" />
             
-            {/* --- HEADER (Consistent Curved Style) --- */}
-            <View style={styles.headerContainer}>
-                <View style={styles.headerRow}>
-                    <TouchableOpacity
-                        onPress={() => navigation.goBack()}
-                        style={styles.backButton}
-                    >
-                        <Ionicons name="chevron-back" size={26} color="#FFF" />
+            <FancyAppHeader
+                title="News Feed"
+                subtitle="Verified crisis updates from trusted sources"
+                badge={{ icon: "newspaper", label: "CRISIS BULLETINS" }}
+                onBack={() => navigation.goBack()}
+                rightElement={
+                    <TouchableOpacity onPress={() => fetchNews()} style={fancyHeaderStyles.backBtn}>
+                        <Ionicons name="reload" size={18} color="#FFF" />
                     </TouchableOpacity>
-                    <View style={{ flex: 1 }}>
-                        <Text style={styles.headerTitle}>News Feed</Text>
-                        <Text style={styles.headerSubtitle}>Verified Crisis Updates</Text>
-                    </View>
-                    <TouchableOpacity onPress={() => fetchNews()} style={styles.headerAction}>
-                        <Ionicons name="reload" size={20} color="#FFF" />
-                    </TouchableOpacity>
-                </View>
-            </View>
+                }
+            />
 
             {loading ? (
                 <View style={styles.centerLoader}>
@@ -159,15 +153,6 @@ const NewsListing: React.FC<T_NEWSLISTING> = ({ navigation }) => {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: BG_LIGHT },
-    headerContainer: { 
-        backgroundColor: GREEN, paddingTop: 60, paddingBottom: 25, 
-        borderBottomLeftRadius: 30, borderBottomRightRadius: 30, elevation: 8 
-    },
-    headerRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20 },
-    backButton: { marginRight: 15, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: 6 },
-    headerTitle: { fontSize: 24, fontWeight: '800', color: '#FFF', letterSpacing: -0.5 },
-    headerSubtitle: { fontSize: 12, color: 'rgba(255,255,255,0.6)', fontWeight: '600', textTransform: 'uppercase' },
-    headerAction: { backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: 8 },
 
     centerLoader: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     listPadding: { paddingHorizontal: 20, paddingBottom: 40 },
