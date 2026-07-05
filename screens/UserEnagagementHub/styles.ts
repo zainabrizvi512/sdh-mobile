@@ -1,6 +1,6 @@
 import { Platform, StyleSheet } from "react-native";
 
-const GREEN = "#1f3d18";
+const GREEN = "#0f4c3a";
 const LIGHT_GREEN = "#E8F0E8";
 const GOLD = "#D4AF37";
 
@@ -63,7 +63,7 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
     borderWidth: 1,
     borderColor: "#F0F0F0",
-    shadowColor: '#1f3d18',
+    shadowColor: '#0f4c3a',
     shadowOpacity: 0.1,
     shadowRadius: 20,
     elevation: 8,

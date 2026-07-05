@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "my-sdh-app",
+    "name": "Shelter",
     "slug": "my-sdh-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -20,7 +20,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#0f4c3a",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -62,7 +62,14 @@
           "domain": "dev-8qs84b8ugcdxb61i.us.auth0.com"
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#0f4c3a"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

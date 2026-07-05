@@ -153,7 +153,7 @@ const ReviewsFeedback: React.FC<any> = ({ navigation }) => {
   const SectionHeader = ({ icon, title }: { icon: keyof typeof Ionicons.glyphMap; title: string }) => (
     <View style={styles.sectionHeader}>
       <View style={styles.sectionIcon}>
-        <Ionicons name={icon} size={18} color="#1f3d18" />
+        <Ionicons name={icon} size={18} color="#0f4c3a" />
       </View>
       <Text style={styles.sectionTitle}>{title}</Text>
     </View>
@@ -161,7 +161,7 @@ const ReviewsFeedback: React.FC<any> = ({ navigation }) => {
 
   return (
     <View style={styles.screen}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="light-content" backgroundColor="#0f4c3a" />
       <FancyAppHeader
         title="Reviews"
         subtitle="Share your experience · help us improve SDH"
@@ -184,7 +184,7 @@ const ReviewsFeedback: React.FC<any> = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
         refreshControl={
           tab === "admin" ? (
-            <RefreshControl refreshing={isLoading} onRefresh={handleRefresh} tintColor="#1f3d18" />
+            <RefreshControl refreshing={isLoading} onRefresh={handleRefresh} tintColor="#0f4c3a" />
           ) : undefined
         }
       >
@@ -289,7 +289,7 @@ const ReviewsFeedback: React.FC<any> = ({ navigation }) => {
         {tab === "admin" && (
           <>
             {!isReady || isLoading ? (
-              <ActivityIndicator size="large" color="#1f3d18" style={{ marginTop: 24 }} />
+              <ActivityIndicator size="large" color="#0f4c3a" style={{ marginTop: 24 }} />
             ) : authError || loadError ? (
               <View style={styles.card}>
                 <SectionHeader icon="cloud-offline-outline" title="UNABLE TO LOAD" />
@@ -331,7 +331,7 @@ const ReviewsFeedback: React.FC<any> = ({ navigation }) => {
                       { icon: "bar-chart-outline", label: "REPORT" },
                     ].map((step) => (
                       <View key={step.label} style={styles.pipelineStep}>
-                        <Ionicons name={step.icon as keyof typeof Ionicons.glyphMap} size={16} color="#1f3d18" />
+                        <Ionicons name={step.icon as keyof typeof Ionicons.glyphMap} size={16} color="#0f4c3a" />
                         <Text style={styles.pipelineText}>{step.label}</Text>
                       </View>
                     ))}

@@ -19,7 +19,7 @@ import {
 } from "react-native";
 import { useAuth0 } from "react-native-auth0";
 
-const GREEN = "#1f3d18";
+const GREEN = "#0f4c3a";
 const OFF_WHITE = "#F4F7F4";
 
 const RescueCoordinationSystem = ({ navigation }: any) => {
@@ -85,7 +85,7 @@ const RescueCoordinationSystem = ({ navigation }: any) => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="light-content" backgroundColor="#0f4c3a" />
       
       <FancyAppHeader
         title="Rescue Coordination"

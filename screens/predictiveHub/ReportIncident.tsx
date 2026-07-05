@@ -1,10 +1,11 @@
 import { getDisasterTypes } from "@/api/getDisasterTypes";
+import { getAddressFromCoords } from "@/utils/getAddressFromCoords";
+import { regionFromLatLng } from "@/utils/regionFromLocation";
 import * as Location from "expo-location";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
@@ -33,24 +34,23 @@ export default function ReportIncident() {
   // location
   const [lat, setLat] = useState<number | null>(null);
   const [lng, setLng] = useState<number | null>(null);
+  const [address, setAddress] = useState<string | null>(null);
 
   // form
   const [region, setRegion] = useState("PK-ISB");
   const [text, setText] = useState("");
   const [severity, setSeverity] = useState(3);
-  const [waterDepthCm, setWaterDepthCm] = useState<string>("");
   const [peopleAffected, setPeopleAffected] = useState<string>("");
 
-  const canSubmit = useMemo(() => {
-    return (
-      !!region.trim() &&
-      !!disasterTypeId &&
-      text.trim().length >= 6 &&
-      typeof lat === "number" &&
-      typeof lng === "number" &&
-      !submitting
-    );
-  }, [region, disasterTypeId, text, lat, lng, submitting]);
+  const missingReason = useMemo(() => {
+    if (!region.trim()) return "Enter a region code.";
+    if (!disasterTypeId) return "Select a disaster type.";
+    if (text.trim().length < 6) return "Description needs at least 6 characters.";
+    if (typeof lat !== "number" || typeof lng !== "number") return "Waiting for your location.";
+    return null;
+  }, [region, disasterTypeId, text, lat, lng]);
+
+  const canSubmit = !missingReason && !submitting;
 
   const fetchTypes = useCallback(async () => {
     try {
@@ -72,6 +72,16 @@ export default function ReportIncident() {
     fetchTypes();
   }, [fetchTypes]);
 
+  const applyLocation = useCallback((latitude: number, longitude: number) => {
+    setLat(latitude);
+    setLng(longitude);
+    setRegion(regionFromLatLng(latitude, longitude));
+    setAddress(null);
+    getAddressFromCoords(latitude, longitude)
+      .then((addr) => setAddress(addr?.full?.trim() || null))
+      .catch(() => setAddress(null));
+  }, []);
+
   useEffect(() => {
     (async () => {
       try {
@@ -87,15 +97,14 @@ export default function ReportIncident() {
         const pos = await Location.getCurrentPositionAsync({
           accuracy: Location.Accuracy.Balanced,
         });
-        setLat(pos.coords.latitude);
-        setLng(pos.coords.longitude);
+        applyLocation(pos.coords.latitude, pos.coords.longitude);
       } catch (e: any) {
         Alert.alert("Location error", e?.message ?? "Failed to get location");
       } finally {
         setLoadingLoc(false);
       }
     })();
-  }, []);
+  }, [applyLocation]);
 
   async function refreshLocation() {
     try {
@@ -103,8 +112,7 @@ export default function ReportIncident() {
       const pos = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.High,
       });
-      setLat(pos.coords.latitude);
-      setLng(pos.coords.longitude);
+      applyLocation(pos.coords.latitude, pos.coords.longitude);
     } catch (e: any) {
       Alert.alert("Location error", e?.message ?? "Failed to refresh location");
     } finally {
@@ -114,10 +122,6 @@ export default function ReportIncident() {
 
   async function submit() {
     if (!canSubmit) return;
-
-    const depth = waterDepthCm.trim()
-      ? clamp(Number(waterDepthCm), 0, 500)
-      : undefined;
 
     const affected = peopleAffected.trim()
       ? clamp(Number(peopleAffected), 0, 1000000)
@@ -130,7 +134,6 @@ export default function ReportIncident() {
       severity: clamp(severity, 1, 5),
       lat: lat!,
       lng: lng!,
-      waterDepthCm: Number.isFinite(depth) ? depth : undefined,
       peopleAffected: Number.isFinite(affected) ? affected : undefined,
       photoUrls: [],
     };
@@ -169,7 +172,6 @@ export default function ReportIncident() {
 
       // reset fields
       setText("");
-      setWaterDepthCm("");
       setPeopleAffected("");
       setSeverity(3);
     } catch (e: any) {
@@ -180,10 +182,7 @@ export default function ReportIncident() {
   }
 
   return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: "white" }}
-      contentContainerStyle={{ padding: 16 }}
-    >
+    <View style={{ backgroundColor: "white", padding: 16 }}>
       <Text style={{ fontSize: 20, fontWeight: "700", marginBottom: 6 }}>
         Report Incident
       </Text>
@@ -282,20 +281,6 @@ export default function ReportIncident() {
       <Text style={{ fontWeight: "700", marginBottom: 6 }}>Optional Details</Text>
 
       <TextInput
-        value={waterDepthCm}
-        onChangeText={setWaterDepthCm}
-        placeholder="Water depth (cm) - optional"
-        keyboardType="number-pad"
-        style={{
-          borderWidth: 1,
-          borderColor: "#DDD",
-          borderRadius: 12,
-          padding: 12,
-          marginBottom: 10,
-        }}
-      />
-
-      <TextInput
         value={peopleAffected}
         onChangeText={setPeopleAffected}
         placeholder="People affected - optional"
@@ -327,8 +312,12 @@ export default function ReportIncident() {
           </View>
         ) : (
           <>
-            <Text style={{ color: "#444" }}>Lat: {lat ?? "—"}</Text>
-            <Text style={{ color: "#444" }}>Lng: {lng ?? "—"}</Text>
+            <Text style={{ color: "#333", fontWeight: "600", marginBottom: 4 }}>
+              {address ?? "Address unavailable"}
+            </Text>
+            <Text style={{ color: "#999", fontSize: 12 }}>
+              {lat?.toFixed(5) ?? "—"}, {lng?.toFixed(5) ?? "—"} • Region: {region}
+            </Text>
           </>
         )}
       </View>
@@ -370,9 +359,15 @@ export default function ReportIncident() {
         )}
       </TouchableOpacity>
 
+      {!!missingReason && !submitting && (
+        <Text style={{ color: "#D32F2F", fontSize: 12, marginTop: 8, textAlign: "center" }}>
+          {missingReason}
+        </Text>
+      )}
+
       <Text style={{ color: "#777", marginTop: 10, fontSize: 12 }}>
         ⚠️ If testing on real phone, "localhost" won’t work. Use your laptop IP in EXPO_PUBLIC_API.
       </Text>
-    </ScrollView>
+    </View>
   );
 }

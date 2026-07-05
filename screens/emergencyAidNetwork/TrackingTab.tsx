@@ -77,7 +77,7 @@ const TrackingTab = ({ baseUrl, token }: { baseUrl: string, token: string }) => 
         {/* Progress Bar */}
         <View style={{ marginVertical: 10 }}>
           <View style={styles.progressTrack}>
-            <View style={[styles.progressFill, { width: getProgressWidth(item.status), backgroundColor: '#1f3d18' }]} />
+            <View style={[styles.progressFill, { width: getProgressWidth(item.status), backgroundColor: '#0f4c3a' }]} />
           </View>
           <View style={styles.stageRow}>
             <Text style={[styles.stageText, item.status === 'Requested' && styles.activeStage]}>Requested</Text>
@@ -90,7 +90,7 @@ const TrackingTab = ({ baseUrl, token }: { baseUrl: string, token: string }) => 
         {item.responder ? (
           <View style={[styles.requestRow, { marginTop: 10, backgroundColor: '#F9F9F9', borderWidth: 0 }]}>
             <View style={{ marginRight: 10 }}>
-               <Ionicons name="medkit-outline" size={20} color="#1f3d18" />
+               <Ionicons name="medkit-outline" size={20} color="#0f4c3a" />
             </View>
             <View style={{ flex: 1 }}>
                <Text style={styles.td}>{item.responder.vehicle}</Text>
@@ -109,7 +109,7 @@ const TrackingTab = ({ baseUrl, token }: { baseUrl: string, token: string }) => 
     );
   };
 
-  if (loading) return <ActivityIndicator size="small" color="#1f3d18" style={{ marginTop: 20 }} />;
+  if (loading) return <ActivityIndicator size="small" color="#0f4c3a" style={{ marginTop: 20 }} />;
 
   return (
     <View style={{ flex: 1, padding: 20 }}>
@@ -135,6 +135,6 @@ const TrackingTab = ({ baseUrl, token }: { baseUrl: string, token: string }) => 
 
 // Add these small helper styles to your stylesheet if needed, or keep inline
 // styles.stageText = { color: '#999', fontSize: 10, fontWeight: '500' }
-// styles.activeStage = { color: '#1f3d18', fontWeight: 'bold' }
+// styles.activeStage = { color: '#0f4c3a', fontWeight: 'bold' }
 
 export default TrackingTab;

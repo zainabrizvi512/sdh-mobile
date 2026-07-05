@@ -5,7 +5,7 @@ import { FlatList, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "r
 import { T_RISKLEVELS } from "./types";
 
 // --- THEME ---
-const GREEN = "#1f3d18";
+const GREEN = "#0f4c3a";
 const BG_LIGHT = "#F4F7F4";
 
 export type RiskLevel = {
@@ -80,7 +80,7 @@ const RiskLevels: React.FC<T_RISKLEVELS> = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <StatusBar barStyle="light-content" />
+            <StatusBar barStyle="light-content" backgroundColor="#0f4c3a" />
             
             <FancyAppHeader
                 title="Risk Levels"

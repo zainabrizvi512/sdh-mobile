@@ -25,6 +25,7 @@ const ARRAY_KEYS = [
   "incidents",
   "activities",
   "history",
+  "completedOperations",
   "opportunities",
   "communications",
   "communication",

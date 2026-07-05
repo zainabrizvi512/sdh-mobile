@@ -1,6 +1,6 @@
 import { Platform, StyleSheet } from "react-native";
 
-const GREEN = "#1f3d18";
+const GREEN = "#0f4c3a";
 const GOLD = "#D4AF37";
 
 export const styles = StyleSheet.create({
@@ -52,7 +52,7 @@ export const styles = StyleSheet.create({
     borderColor: "#EEE",
   },
   emptyText: { color: "#888", fontSize: 12, fontStyle: "italic", marginBottom: 12 },
-  sectionTitle: { fontSize: 12, fontWeight: "900", color: "#1f3d18", marginBottom: 10 },
+  sectionTitle: { fontSize: 12, fontWeight: "900", color: "#0f4c3a", marginBottom: 10 },
   portalCard: {
     backgroundColor: "#FFF",
     padding: 22,

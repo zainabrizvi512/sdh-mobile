@@ -12,7 +12,7 @@ import { useAuth0 } from "react-native-auth0"; // Added Auth0
 import ReportingTab from './ReportingTab';
 import TrackingTab from './TrackingTab';
 
-const GREEN = "#1f3d18";
+const GREEN = "#0f4c3a";
 const RED_ALERT = "#d32f2f";
 const OFF_WHITE = "#F5F7F5";
 // Updated to match the backend controller path '/emergency'
@@ -114,7 +114,7 @@ const EmergencyAidNetwork = ({ navigation }: any) => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="light-content" backgroundColor="#0f4c3a" />
       <FancyAppHeader
         title="Emergency Aid"
         subtitle="Active response unit & SOS dispatch"

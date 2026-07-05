@@ -20,7 +20,7 @@ import { useAuth0 } from "react-native-auth0";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { T_GROUPMEMBERLISTING } from "./types";
 
-const GREEN = "#1f3d18";
+const GREEN = "#0f4c3a";
 const BG_LIGHT = "#F4F7F4";
 const FALLBACK_AVATAR = "https://ui-avatars.com/api/?background=F0F4F0&color=1f3d18&bold=true&name=";
 
@@ -102,7 +102,7 @@ const GroupMemberListing: React.FC<T_GROUPMEMBERLISTING> = ({ navigation, route 
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="light-content" backgroundColor="#0f4c3a" />
       
       <FancyAppHeader
         title="Members"

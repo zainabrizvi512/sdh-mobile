@@ -19,8 +19,6 @@ export default function RiskDashboard() {
     y: r.score
   }));
 
-  console.log("volume", volume);
-
   return (
     <View style={{ flex:1 }}>
       <View style={{ height: 220, padding: 12 }}>

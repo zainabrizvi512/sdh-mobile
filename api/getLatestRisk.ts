@@ -4,6 +4,7 @@ import axios, { AxiosRequestConfig } from "axios";
 export type RiskSnapshot = {
   id?: string;
   disasterTypeId: string;
+  disasterName?: string;
   score: number;
   features: Record<string, any>;
   createdAt?: string;

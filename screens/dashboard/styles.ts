@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
 import { BOTTOM_NAV_SCROLL_PADDING } from "@/components/bottomNav/styles";
 
-const GREEN = "#1f3d18";
+const GREEN = "#0f4c3a";
 const BG_LIGHT = "#F4F7F4";
 const RED_ALERT = "#d32f2f";
 
@@ -23,6 +23,8 @@ export const styles = StyleSheet.create({
   locationText: { flex: 1, marginLeft: 8, fontSize: 13, color: '#333', fontWeight: '600' },
   statusBadge: { backgroundColor: '#E8F5E9', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10 },
   statusText: { color: GREEN, fontSize: 10, fontWeight: '900' },
+  statusBadgeAlert: { backgroundColor: '#FFEBEE' },
+  statusTextAlert: { color: RED_ALERT },
 
   scrollBody: { paddingBottom: BOTTOM_NAV_SCROLL_PADDING },
 
@@ -48,14 +50,33 @@ export const styles = StyleSheet.create({
   emNumber: { fontSize: 16, fontWeight: '900', color: '#333' },
   emLabel: { fontSize: 10, fontWeight: '700', color: '#999', textTransform: 'uppercase' },
 
+  /* QUICK ACTIONS */
+  quickActionRow: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, gap: 10 },
+  quickActionCard: { flex: 1, backgroundColor: '#FFF', borderRadius: 20, paddingVertical: 14, paddingHorizontal: 8, alignItems: 'center', elevation: 3, borderWidth: 1, borderColor: '#EEE' },
+  quickActionIconCircle: { width: 42, height: 42, borderRadius: 14, justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
+  quickActionLabel: { fontSize: 11, fontWeight: '700', color: '#333', textAlign: 'center', lineHeight: 14 },
+
+  /* JOIN NGO CTA */
+  joinNgoCard: {
+    flexDirection: 'row', alignItems: 'center', backgroundColor: GREEN,
+    marginHorizontal: 20, marginTop: 16, padding: 16, borderRadius: 22, elevation: 3,
+  },
+  joinNgoIconBg: { width: 42, height: 42, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.18)', justifyContent: 'center', alignItems: 'center' },
+  joinNgoTitle: { fontSize: 15, fontWeight: '800', color: '#FFF' },
+  joinNgoBody: { fontSize: 12, color: 'rgba(255,255,255,0.75)', marginTop: 2 },
+
   /* GUIDES */
   guideCard: { width: 150, backgroundColor: '#FFF', borderRadius: 24, padding: 18, marginRight: 12, elevation: 3, borderWidth: 1, borderColor: '#EEE' },
   guideIconCircle: { width: 36, height: 36, borderRadius: 12, backgroundColor: '#F0F4F0', justifyContent: 'center', alignItems: 'center', marginBottom: 10 },
   guideTitle: { fontSize: 14, fontWeight: '700', color: '#333', lineHeight: 20 },
+  guideMeta: { fontSize: 10, fontWeight: '700', color: '#999', marginTop: 8, textTransform: 'uppercase' },
 
   /* NEWS */
   newsCard: { flexDirection: 'row', backgroundColor: '#FFF', borderRadius: 24, padding: 12, marginBottom: 12, elevation: 2, borderWidth: 1, borderColor: '#F0F0F0' },
   newsThumb: { width: 80, height: 80, borderRadius: 18, backgroundColor: '#F9F9F9' },
+  newsThumbIcon: { justifyContent: 'center', alignItems: 'center' },
+  categoryChip: { alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8, marginBottom: 4 },
+  categoryChipText: { fontSize: 9, fontWeight: '900', letterSpacing: 0.4 },
   newsCardTitle: { fontSize: 14, fontWeight: '800', color: '#1A1A1A', lineHeight: 20 },
   newsCardBody: { fontSize: 12, color: '#777', marginTop: 4 },
   newsMeta: { fontSize: 10, color: GREEN, fontWeight: '700', marginTop: 6, textTransform: 'uppercase' },

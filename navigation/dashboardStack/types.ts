@@ -1,16 +1,23 @@
 import { AddMembersRouteParams } from "@/screens/addMembers/types";
+import { EditPersonalInfoRouteParams } from "@/screens/editPersonalInfo/types";
 import { EmergencyContactsListingRouteParams } from "@/screens/emergencyContactsListing/types";
+import { FamilyLiveLocationRouteParams } from "@/screens/familyLiveLocation/types";
 import { GroupChatRouteParams } from "@/screens/groupChat/types";
 import { GroupInfoRouteParams } from "@/screens/groupInfo/types";
 import { GroupListingRouteParams } from "@/screens/groupListing/types";
 import { GroupMemberListingRouteParams } from "@/screens/groupMemberListing/types";
+import { HelpCenterRouteParams } from "@/screens/helpCenter/types";
 import { NewsDetailsListingRouteParams } from "@/screens/newsDetails/types";
 import { NewsListingRouteParams } from "@/screens/newsListing/types";
+import { NotificationsRouteParams } from "@/screens/notifications/types";
 import { PredictiveHubRouteParams } from "@/screens/predictiveCoordinationHub/types";
 import { ProfileSettingsRouteParams } from "@/screens/profileSettings/types";
+import { PushNotificationsRouteParams } from "@/screens/pushNotifications/types";
 import { RiskLevelsRouteParams } from "@/screens/riskLevels/types";
 import { SafetyGuideDetailRouteParams } from "@/screens/safetyGuideDetail/types";
 import { SafetyGuidesRouteParams } from "@/screens/safetyGuides/types";
+import { StaticGuideDetailRouteParams } from "@/screens/staticGuideDetail/types";
+import { TermsOfServiceRouteParams } from "@/screens/termsOfService/types";
 
 export type DashboardStackParamList = {
     Dashboard: {};
@@ -35,4 +42,11 @@ export type DashboardStackParamList = {
     MentalHealthSupport: {};
     DataBackupSecurity: {};
     ReviewsFeedback: {};
+    EditPersonalInfo: EditPersonalInfoRouteParams;
+    PushNotifications: PushNotificationsRouteParams;
+    HelpCenter: HelpCenterRouteParams;
+    TermsOfService: TermsOfServiceRouteParams;
+    StaticGuideDetail: StaticGuideDetailRouteParams;
+    FamilyLiveLocation: FamilyLiveLocationRouteParams;
+    Notifications: NotificationsRouteParams;
 };

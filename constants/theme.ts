@@ -53,7 +53,7 @@ export const Fonts = Platform.select({
 });
 
 export const PRIMARY_BG = "#ffffff";
-export const GREEN = "#1f3d18";
+export const GREEN = "#0f4c3a";
 //const GREEN_DARK = "#173012";
 export const TEXT = "#0f0f0f";
 export const MUTED = "#7a7a7a";

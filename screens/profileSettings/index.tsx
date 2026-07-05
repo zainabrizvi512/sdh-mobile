@@ -1,5 +1,7 @@
+import { deleteRegisterPushToken } from "@/api/deleteRegisterPushToken";
 import { getLoggedInUser, IUser } from "@/api/getLoggedInUser";
 import FancyAppHeader from "@/components/fancyAppHeader";
+import { getExpoPushTokenSilently } from "@/hooks/usePushNotifications";
 import { clearTokens } from "@/storage/tokenStorage";
 import { getAddressFromCoords } from "@/utils/getAddressFromCoords";
 import { Ionicons } from "@expo/vector-icons";
@@ -9,7 +11,7 @@ import { useAuth0 } from "react-native-auth0";
 import { T_PROFILESETTINGS } from "./types";
 
 // --- THEME ---
-const GREEN = "#1f3d18";
+const GREEN = "#0f4c3a";
 const BG_LIGHT = "#F4F7F4";
 const RED_ALERT = "#DC2626";
 
@@ -39,6 +41,15 @@ const ProfileSettings: React.FC<T_PROFILESETTINGS> = ({ navigation, route }) => 
                 text: "Logout",
                 style: "destructive",
                 onPress: async () => {
+                    try {
+                        const { accessToken } = await getCredentials();
+                        const pushToken = await getExpoPushTokenSilently();
+                        if (accessToken && pushToken) {
+                            await deleteRegisterPushToken(accessToken, pushToken);
+                        }
+                    } catch (e) {
+                        console.log("Failed to unregister push token on logout", e);
+                    }
                     await clearTokens();
                     navigation.reset({
                         index: 0,
@@ -51,7 +62,7 @@ const ProfileSettings: React.FC<T_PROFILESETTINGS> = ({ navigation, route }) => 
 
     return (
         <View style={styles.container}>
-            <StatusBar barStyle="light-content" />
+            <StatusBar barStyle="light-content" backgroundColor="#0f4c3a" />
             
             <FancyAppHeader
                 title="My Profile"
@@ -83,11 +94,23 @@ const ProfileSettings: React.FC<T_PROFILESETTINGS> = ({ navigation, route }) => 
                 </View>
 
                 <View style={styles.card}>
-                    <ProfileOption icon="person-outline" label="Edit Personal Info" />
+                    <ProfileOption
+                        icon="person-outline"
+                        label="Edit Personal Info"
+                        onPress={() => navigation.navigate("EditPersonalInfo", {})}
+                    />
                     <View style={styles.divider} />
-                    <ProfileOption icon="shield-checkmark-outline" label="Security & Privacy" />
+                    <ProfileOption
+                        icon="shield-checkmark-outline"
+                        label="Security & Privacy"
+                        onPress={() => navigation.navigate("DataBackupSecurity", {})}
+                    />
                     <View style={styles.divider} />
-                    <ProfileOption icon="notifications-outline" label="Push Notifications" />
+                    <ProfileOption
+                        icon="notifications-outline"
+                        label="Push Notifications"
+                        onPress={() => navigation.navigate("PushNotifications", {})}
+                    />
                 </View>
 
                 {/* --- APP INFO --- */}
@@ -97,9 +120,17 @@ const ProfileSettings: React.FC<T_PROFILESETTINGS> = ({ navigation, route }) => 
                 </View>
 
                 <View style={styles.card}>
-                    <ProfileOption icon="help-circle-outline" label="Help Center" />
+                    <ProfileOption
+                        icon="help-circle-outline"
+                        label="Help Center"
+                        onPress={() => navigation.navigate("HelpCenter", {})}
+                    />
                     <View style={styles.divider} />
-                    <ProfileOption icon="document-text-outline" label="Terms of Service" />
+                    <ProfileOption
+                        icon="document-text-outline"
+                        label="Terms of Service"
+                        onPress={() => navigation.navigate("TermsOfService", {})}
+                    />
                     <View style={styles.divider} />
                     <View style={styles.versionRow}>
                         <Ionicons name="information-circle-outline" size={22} color="#666" />
@@ -121,8 +152,8 @@ const ProfileSettings: React.FC<T_PROFILESETTINGS> = ({ navigation, route }) => 
 }
 
 // --- SUB-COMPONENTS ---
-const ProfileOption = ({ icon, label }: any) => (
-    <TouchableOpacity style={styles.optionRow}>
+const ProfileOption = ({ icon, label, onPress }: any) => (
+    <TouchableOpacity style={styles.optionRow} onPress={onPress}>
         <Ionicons name={icon} size={22} color="#444" />
         <Text style={styles.optionLabel}>{label}</Text>
         <Ionicons name="chevron-forward" size={18} color="#CCC" />

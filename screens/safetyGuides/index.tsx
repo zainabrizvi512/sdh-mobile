@@ -16,7 +16,7 @@ import {
 } from "react-native";
 import { T_SAFETYGUIDES } from "./types";
 
-const GREEN = "#1f3d18";
+const GREEN = "#0f4c3a";
 const BG_LIGHT = "#F4F7F4";
 
 const SafetyGuides: React.FC<T_SAFETYGUIDES> = ({ navigation }) => {
@@ -55,7 +55,7 @@ const SafetyGuides: React.FC<T_SAFETYGUIDES> = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <StatusBar barStyle="light-content" />
+            <StatusBar barStyle="light-content" backgroundColor="#0f4c3a" />
             
             <FancyAppHeader
                 title="Safety Guides"

@@ -3,9 +3,8 @@ import axios, { AxiosRequestConfig } from "axios";
 
 type PostDisasterFrameworkTaskPayload = {
   title: string;
-  assignee: string;
+  assignedTeam?: string;
   priority?: string;
-  status?: string;
   [key: string]: any;
 };
 

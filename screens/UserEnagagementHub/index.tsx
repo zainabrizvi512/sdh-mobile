@@ -40,7 +40,9 @@ const defaultDashboard: EngagementDashboardState = {
   rank: "VOLUNTEER",
   level: 1,
   currentXp: 0,
-  maxXp: 1200,
+  maxXp: 75,
+  totalXp: 0,
+  xpToNextLevel: 75,
   missions: 0,
   livesImpacted: 0,
 };
@@ -63,6 +65,7 @@ const UserEngagementHub: React.FC<T_USERENGAGEMENTHUB> = ({ navigation }) => {
   const [oppDescription, setOppDescription] = useState("");
   const [manualLat, setManualLat] = useState("");
   const [manualLng, setManualLng] = useState("");
+  const [showManualCoords, setShowManualCoords] = useState(false);
 
   const loadToken = useCallback(async () => {
     try {
@@ -75,16 +78,25 @@ const UserEngagementHub: React.FC<T_USERENGAGEMENTHUB> = ({ navigation }) => {
 
   const loadDashboard = useCallback(async (t: string) => {
     const data = await getEngagementHubDashboard(t);
-    const maxXp = data.maxXp ?? data.xpToNextLevel ?? 1200;
-    const currentXp = data.currentXp ?? data.xp ?? 0;
-    const missions = data.missionsCount ?? data.missions ?? 0;
-    const lives = data.livesImpacted ?? data.livesSaved ?? 0;
+    // Backend nests everything under `user` and `stats` (see engagement-hub.service.ts#getDashboard).
+    const user = data.user ?? data;
+    const stats = data.stats ?? data;
+
+    const totalXp = stats.totalXp ?? data.currentXp ?? data.xp ?? 0;
+    const level = stats.level ?? user.level ?? defaultDashboard.level;
+    const currentLevelXp = stats.currentLevelXp ?? 0;
+    const nextLevelXp = stats.nextLevelXp ?? data.maxXp ?? currentLevelXp + 75;
+    const missions = stats.missionsInProgress ?? data.missionsCount ?? data.missions ?? 0;
+    const lives = stats.livesImpacted ?? data.livesSaved ?? 0;
+
     setDashboard({
-      displayName: data.displayName ?? data.name ?? defaultDashboard.displayName,
-      rank: data.rank ?? data.rankLabel ?? defaultDashboard.rank,
-      level: data.level ?? data.userLevel ?? defaultDashboard.level,
-      currentXp,
-      maxXp: maxXp > 0 ? maxXp : 1200,
+      displayName: user.name ?? user.displayName ?? defaultDashboard.displayName,
+      rank: user.rank ?? data.rankLabel ?? defaultDashboard.rank,
+      level,
+      currentXp: Math.max(0, totalXp - currentLevelXp),
+      maxXp: Math.max(1, nextLevelXp - currentLevelXp),
+      totalXp,
+      xpToNextLevel: Math.max(0, nextLevelXp - totalXp),
       missions,
       livesImpacted: lives,
     });
@@ -163,6 +175,18 @@ const UserEngagementHub: React.FC<T_USERENGAGEMENTHUB> = ({ navigation }) => {
 
   const xpPercent = Math.min(100, Math.round((dashboard.currentXp / dashboard.maxXp) * 100));
 
+  const encouragingMessage = (() => {
+    if (dashboard.totalXp === 0) {
+      return "Complete your first activity to start earning XP and climb the ranks!";
+    }
+    if (dashboard.missions > 0) {
+      return `You have ${dashboard.missions} mission${dashboard.missions > 1 ? "s" : ""} in progress — finish ${
+        dashboard.missions > 1 ? "them" : "it"
+      } to earn more XP!`;
+    }
+    return `Just ${dashboard.xpToNextLevel} XP away from Level ${dashboard.level + 1}. Keep going!`;
+  })();
+
   const formatLives = (n: number) => {
     if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
     return String(n);
@@ -179,6 +203,24 @@ const UserEngagementHub: React.FC<T_USERENGAGEMENTHUB> = ({ navigation }) => {
         description: newActivityDescription.trim() || undefined,
         status: "IN_PROGRESS",
       });
+
+      // Also list it as a nearby opportunity so others can see and join it.
+      try {
+        const c = coords ?? (await resolveCoords());
+        if (c) {
+          await postEngagementHubOpportunity(token, {
+            title: newActivityTitle.trim(),
+            description: newActivityDescription.trim() || undefined,
+            latitude: c.latitude,
+            longitude: c.longitude,
+            radiusKm,
+          });
+          await loadOpportunities(token);
+        }
+      } catch {
+        // Activity is still created even if it couldn't be listed as an opportunity.
+      }
+
       setNewActivityTitle("");
       setNewActivityDescription("");
       await loadActivities(token);
@@ -188,12 +230,38 @@ const UserEngagementHub: React.FC<T_USERENGAGEMENTHUB> = ({ navigation }) => {
     }
   };
 
-  const handleCompleteActivity = async (id: string) => {
+  const handleCompleteActivity = async (id: string, xpReward?: number) => {
     try {
       await patchEngagementHubActivityStatus(token, id, "COMPLETED");
-      await loadActivities(token);
+      await Promise.all([loadActivities(token), loadHistory(token), loadDashboard(token)]);
+      Alert.alert(
+        "Mission Complete! 🎉",
+        xpReward ? `You earned +${xpReward} XP. Keep it up!` : "Great work! Keep it up!"
+      );
     } catch {
       Alert.alert("Error", "Could not update activity status.");
+    }
+  };
+
+  const handleJoinOpportunity = async (opp: EngagementHubOpportunity) => {
+    try {
+      await postEngagementHubActivity(token, {
+        title: opp.title || opp.name || "Opportunity",
+        description: opp.description,
+        status: "IN_PROGRESS",
+        xpReward: opp.xpReward,
+        latitude: opp.latitude,
+        longitude: opp.longitude,
+        city: opp.city,
+        metadata: { opportunityId: opp.id },
+      });
+      await loadActivities(token);
+      Alert.alert("Joined", "Added to your in-progress activities.", [
+        { text: "View Activities", onPress: () => setTab("activities") },
+        { text: "OK" },
+      ]);
+    } catch {
+      Alert.alert("Error", "Could not join this opportunity.");
     }
   };
 
@@ -224,11 +292,11 @@ const UserEngagementHub: React.FC<T_USERENGAGEMENTHUB> = ({ navigation }) => {
     <Animated.View>
       <View style={styles.premiumCard}>
         <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 25 }}>
-          <View style={[styles.iconCircle, { backgroundColor: "#1f3d18" }]}>
+          <View style={[styles.iconCircle, { backgroundColor: "#0f4c3a" }]}>
             <Ionicons name="shield-checkmark" size={22} color="#FFF" />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 18, fontWeight: "900", color: "#1f3d18" }}>{dashboard.displayName}</Text>
+            <Text style={{ fontSize: 18, fontWeight: "900", color: "#0f4c3a" }}>{dashboard.displayName}</Text>
             <Text style={{ fontSize: 11, color: "#888", fontWeight: "700" }}>RANK: {dashboard.rank.toUpperCase()}</Text>
           </View>
           <TouchableOpacity style={styles.backBtn} onPress={() => navigation.navigate("ProfileSettings", {})}>
@@ -245,18 +313,38 @@ const UserEngagementHub: React.FC<T_USERENGAGEMENTHUB> = ({ navigation }) => {
         <View style={styles.xpTrack}>
           <View style={[styles.xpFill, { width: `${xpPercent}%` }]} />
         </View>
+
+        <View style={{ flexDirection: "row", alignItems: "center", marginTop: 12 }}>
+          <Ionicons name="rocket-outline" size={16} color="#0f4c3a" />
+          <Text style={{ fontSize: 12, color: "#555", fontWeight: "600", marginLeft: 6, flex: 1 }}>
+            {encouragingMessage}
+          </Text>
+        </View>
       </View>
 
       <View style={styles.statGrid}>
         <View style={styles.statCard}>
-          <Ionicons name="flash-outline" size={24} color="#1f3d18" />
-          <Text style={styles.statValue}>{dashboard.missions}</Text>
-          <Text style={styles.statLabel}>MISSIONS</Text>
+          <Ionicons name="flash-outline" size={24} color="#0f4c3a" />
+          <Text style={styles.statValue}>{dashboard.totalXp}</Text>
+          <Text style={styles.statLabel}>TOTAL XP EARNED</Text>
         </View>
         <View style={styles.statCard}>
-          <Ionicons name="heart-outline" size={24} color="#1f3d18" />
+          <Ionicons name="heart-outline" size={24} color="#0f4c3a" />
           <Text style={styles.statValue}>{formatLives(dashboard.livesImpacted)}</Text>
           <Text style={styles.statLabel}>LIVES IMPACTED</Text>
+        </View>
+      </View>
+
+      <View style={styles.statGrid}>
+        <View style={styles.statCard}>
+          <Ionicons name="hourglass-outline" size={24} color="#0f4c3a" />
+          <Text style={styles.statValue}>{dashboard.missions}</Text>
+          <Text style={styles.statLabel}>IN PROGRESS</Text>
+        </View>
+        <View style={styles.statCard}>
+          <Ionicons name="trending-up-outline" size={24} color="#0f4c3a" />
+          <Text style={styles.statValue}>{dashboard.xpToNextLevel}</Text>
+          <Text style={styles.statLabel}>XP TO NEXT LEVEL</Text>
         </View>
       </View>
     </Animated.View>
@@ -293,8 +381,12 @@ const UserEngagementHub: React.FC<T_USERENGAGEMENTHUB> = ({ navigation }) => {
                 {item.description}
               </Text>
             ) : null}
+            {!!item.xpReward && <Text style={styles.xpBadge}>+{item.xpReward} XP on completion</Text>}
           </View>
-          <TouchableOpacity style={styles.secondaryBtn} onPress={() => handleCompleteActivity(String(item.id))}>
+          <TouchableOpacity
+            style={styles.secondaryBtn}
+            onPress={() => handleCompleteActivity(String(item.id), item.xpReward)}
+          >
             <Text style={styles.secondaryBtnText}>COMPLETE</Text>
           </TouchableOpacity>
         </View>
@@ -316,7 +408,7 @@ const UserEngagementHub: React.FC<T_USERENGAGEMENTHUB> = ({ navigation }) => {
         return (
           <View key={item.id || String(idx)} style={styles.timelineItem}>
             <View style={styles.iconCircle}>
-              <Ionicons name={icon as any} size={20} color="#1f3d18" />
+              <Ionicons name={icon as any} size={20} color="#0f4c3a" />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.itemTitle}>{title}</Text>
@@ -333,23 +425,12 @@ const UserEngagementHub: React.FC<T_USERENGAGEMENTHUB> = ({ navigation }) => {
 
   const renderOpportunities = () => (
     <View>
-      <Text style={styles.sectionTitle}>NEARBY (WITHIN {radiusKm} KM)</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Latitude (optional if GPS allowed)"
-        placeholderTextColor="#999"
-        value={manualLat}
-        onChangeText={setManualLat}
-        keyboardType="decimal-pad"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Longitude"
-        placeholderTextColor="#999"
-        value={manualLng}
-        onChangeText={setManualLng}
-        keyboardType="decimal-pad"
-      />
+      <Text style={styles.sectionTitle}>OPPORTUNITIES NEARBY ({radiusKm} KM)</Text>
+      <Text style={{ fontSize: 12, color: "#666", marginBottom: 12 }}>
+        These are volunteer opportunities posted by others near your location. Tap JOIN to add
+        one to your in-progress activities — complete it later to earn XP and see it in History.
+      </Text>
+
       <TouchableOpacity
         style={[styles.actionBtn, { marginBottom: 10 }]}
         onPress={async () => {
@@ -357,12 +438,49 @@ const UserEngagementHub: React.FC<T_USERENGAGEMENTHUB> = ({ navigation }) => {
           if (token) await loadOpportunities(token);
         }}
       >
-        <Text style={styles.actionBtnText}>USE COORDS & REFRESH</Text>
+        <Text style={styles.actionBtnText}>USE MY LOCATION & REFRESH</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => setShowManualCoords((v) => !v)} style={{ marginBottom: 10 }}>
+        <Text style={{ fontSize: 12, color: "#0f4c3a", fontWeight: "700", textAlign: "center" }}>
+          {showManualCoords ? "Hide manual coordinates" : "Location not working? Enter coordinates manually"}
+        </Text>
+      </TouchableOpacity>
+
+      {showManualCoords && (
+        <>
+          <TextInput
+            style={styles.input}
+            placeholder="Latitude"
+            placeholderTextColor="#999"
+            value={manualLat}
+            onChangeText={setManualLat}
+            keyboardType="decimal-pad"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Longitude"
+            placeholderTextColor="#999"
+            value={manualLng}
+            onChangeText={setManualLng}
+            keyboardType="decimal-pad"
+          />
+          <TouchableOpacity
+            style={[styles.actionBtn, { marginBottom: 10 }]}
+            onPress={async () => {
+              await resolveCoords();
+              if (token) await loadOpportunities(token);
+            }}
+          >
+            <Text style={styles.actionBtnText}>SAVE COORDINATES & REFRESH</Text>
+          </TouchableOpacity>
+        </>
+      )}
+
       {opportunities.length === 0 ? (
         <View style={[styles.premiumCard, { alignItems: "center", borderStyle: "dashed", backgroundColor: "transparent" }]}>
-          <Ionicons name="navigate-circle-outline" size={50} color="#1f3d18" />
-          <Text style={{ fontWeight: "800", marginTop: 15 }}>No Local Missions Found</Text>
+          <Ionicons name="navigate-circle-outline" size={50} color="#0f4c3a" />
+          <Text style={{ fontWeight: "800", marginTop: 15 }}>No Opportunities Found Nearby</Text>
           <Text style={{ fontSize: 12, color: "#999", textAlign: "center", marginTop: 5 }}>
             Try expanding radius or post a new opportunity below.
           </Text>
@@ -371,9 +489,9 @@ const UserEngagementHub: React.FC<T_USERENGAGEMENTHUB> = ({ navigation }) => {
         opportunities.map((opp, idx) => (
           <View key={opp.id || String(idx)} style={styles.timelineItem}>
             <View style={styles.iconCircle}>
-              <Ionicons name="location-outline" size={20} color="#1f3d18" />
+              <Ionicons name="location-outline" size={20} color="#0f4c3a" />
             </View>
-            <View style={{ flex: 1 }}>
+            <View style={{ flex: 1, marginRight: 10 }}>
               <Text style={styles.itemTitle}>{opp.title || opp.name || "Opportunity"}</Text>
               {opp.description ? (
                 <Text style={styles.itemDate} numberOfLines={2}>
@@ -381,6 +499,9 @@ const UserEngagementHub: React.FC<T_USERENGAGEMENTHUB> = ({ navigation }) => {
                 </Text>
               ) : null}
             </View>
+            <TouchableOpacity style={styles.secondaryBtn} onPress={() => handleJoinOpportunity(opp)}>
+              <Text style={styles.secondaryBtnText}>JOIN</Text>
+            </TouchableOpacity>
           </View>
         ))
       )}
@@ -423,7 +544,7 @@ const UserEngagementHub: React.FC<T_USERENGAGEMENTHUB> = ({ navigation }) => {
 
   return (
     <View style={styles.screen}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="light-content" backgroundColor="#0f4c3a" />
 
       <FancyAppHeader
         title="Engagement Hub"
@@ -450,7 +571,7 @@ const UserEngagementHub: React.FC<T_USERENGAGEMENTHUB> = ({ navigation }) => {
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {isLoading ? (
-          <ActivityIndicator size="large" color="#1f3d18" style={{ marginTop: 40 }} />
+          <ActivityIndicator size="large" color="#0f4c3a" style={{ marginTop: 40 }} />
         ) : (
           <>
             {tab === "dashboard" && renderDashboard()}

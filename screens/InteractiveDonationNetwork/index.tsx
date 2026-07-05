@@ -307,7 +307,7 @@ const InteractiveDonationNetwork: React.FC<T_INTERACTIVEDONATION> = ({ navigatio
               </View>
               <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
                 <Text style={{ fontSize: 11, fontWeight: "700" }}>Goal: {g > 0 ? `$${g.toLocaleString()}` : "—"}</Text>
-                <Text style={{ fontSize: 11, fontWeight: "900", color: "#1f3d18" }}>{pct}% funded</Text>
+                <Text style={{ fontSize: 11, fontWeight: "900", color: "#0f4c3a" }}>{pct}% funded</Text>
               </View>
               {r > 0 && (
                 <Text style={{ fontSize: 10, color: "#666", marginTop: 4 }}>Raised: ${r.toLocaleString()}</Text>
@@ -321,7 +321,7 @@ const InteractiveDonationNetwork: React.FC<T_INTERACTIVEDONATION> = ({ navigatio
 
   const SmartPortal = () => (
     <View style={styles.portalCard}>
-      <Text style={{ fontSize: 14, fontWeight: "900", color: "#1f3d18", marginBottom: 12 }}>PORTAL</Text>
+      <Text style={{ fontSize: 14, fontWeight: "900", color: "#0f4c3a", marginBottom: 12 }}>PORTAL</Text>
       {portal?.headline ? (
         <Text style={{ fontSize: 18, fontWeight: "800", color: "#111", marginBottom: 8 }}>{portal.headline}</Text>
       ) : null}
@@ -331,7 +331,7 @@ const InteractiveDonationNetwork: React.FC<T_INTERACTIVEDONATION> = ({ navigatio
         <Text style={styles.emptyText}>Your giving hub — enter an amount to donate.</Text>
       ) : null}
 
-      <Text style={{ fontSize: 14, fontWeight: "900", color: "#1f3d18", marginBottom: 12 }}>QUICK AMOUNTS</Text>
+      <Text style={{ fontSize: 14, fontWeight: "900", color: "#0f4c3a", marginBottom: 12 }}>QUICK AMOUNTS</Text>
       <View style={styles.amountChipsRow}>
         {suggestedAmounts.map((n) => (
           <TouchableOpacity key={n} style={styles.amountChip} onPress={() => setDonateAmount(String(n))}>
@@ -340,7 +340,7 @@ const InteractiveDonationNetwork: React.FC<T_INTERACTIVEDONATION> = ({ navigatio
         ))}
       </View>
 
-      <Text style={{ fontSize: 14, fontWeight: "900", color: "#1f3d18", marginBottom: 12 }}>QUICK DONATE</Text>
+      <Text style={{ fontSize: 14, fontWeight: "900", color: "#0f4c3a", marginBottom: 12 }}>QUICK DONATE</Text>
       <TextInput
         style={styles.input}
         placeholder="Amount"
@@ -358,7 +358,7 @@ const InteractiveDonationNetwork: React.FC<T_INTERACTIVEDONATION> = ({ navigatio
         <Text style={styles.dropdownTriggerText} numberOfLines={2}>
           {donateCampaignLabel}
         </Text>
-        <Ionicons name="chevron-down" size={22} color="#1f3d18" />
+        <Ionicons name="chevron-down" size={22} color="#0f4c3a" />
       </TouchableOpacity>
 
       <Modal visible={campaignPickerVisible} transparent animationType="slide" onRequestClose={() => setCampaignPickerVisible(false)}>
@@ -515,7 +515,7 @@ const InteractiveDonationNetwork: React.FC<T_INTERACTIVEDONATION> = ({ navigatio
 
   return (
     <View style={styles.screen}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="light-content" backgroundColor="#0f4c3a" />
       <FancyAppHeader
         title="Donation Network"
         subtitle="Campaigns, portal, chat & community stories"
@@ -541,14 +541,14 @@ const InteractiveDonationNetwork: React.FC<T_INTERACTIVEDONATION> = ({ navigatio
 
       {tab === "chat" ? (
         isLoading ? (
-          <ActivityIndicator size="large" color="#1f3d18" style={{ marginTop: 40 }} />
+          <ActivityIndicator size="large" color="#0f4c3a" style={{ marginTop: 40 }} />
         ) : (
           <DonorNGOCommunication />
         )
       ) : (
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           {isLoading ? (
-            <ActivityIndicator size="large" color="#1f3d18" style={{ marginTop: 40 }} />
+            <ActivityIndicator size="large" color="#0f4c3a" style={{ marginTop: 40 }} />
           ) : (
             <>
               {tab === "campaigns" && <CampaignDirectory />}

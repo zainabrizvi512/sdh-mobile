@@ -1,12 +1,14 @@
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { Buffer } from "buffer";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, LogBox, View } from "react-native";
 import { Auth0Provider } from "react-native-auth0";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { envConfig } from "./config/envConfig";
 import useAppReady from "./hooks/useAppReady";
 import RootStack from "./navigation/rootStack";
 if (typeof global.Buffer === "undefined") global.Buffer = Buffer;
+
+LogBox.ignoreAllLogs(true);
 
 export default function App() {
     const { appIsReady, onLayoutRootView } = useAppReady();

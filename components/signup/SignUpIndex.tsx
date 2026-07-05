@@ -12,7 +12,7 @@ import {
   View,
 } from "react-native";
 
-const GREEN = "#1f3d18";
+const GREEN = "#0f4c3a";
 const TEXT = "#0f0f0f";
 const MUTED = "#7a7a7a";
 const INPUT_BG = "#efefef";

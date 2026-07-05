@@ -1,5 +1,7 @@
 import { UpdateProfileDto, updateProfile } from "@/api/patchUpdateProfile";
 import { postUploadMyPicture } from "@/api/postUploadMyPicture";
+import BackButton from "@/components/backButton";
+import { MUTED, TEXT } from "@/constants/theme";
 import { RootStackParamList } from "@/navigation/types";
 import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import { useNavigation } from "@react-navigation/native";
@@ -148,12 +150,7 @@ const SetProfile: React.FC<T_SETPROFILE> = ({ navigation, route }) => {
         keyboardShouldPersistTaps="handled"
       >
         {/* Back */}
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backBtn}
-        >
-          <Text style={{ fontSize: 28, color: PRIMARY }}>‹</Text>
-        </TouchableOpacity>
+        <BackButton onPress={() => navigation.goBack()} />
 
         <Text style={styles.title}>Set up your profile</Text>
         <Text style={styles.subtitle}>Complete your details to continue.</Text>
@@ -168,7 +165,7 @@ const SetProfile: React.FC<T_SETPROFILE> = ({ navigation, route }) => {
                   style={{ width: "100%", height: "100%" }}
                 />
               ) : (
-                <Text style={{ color: "#9CA3AF" }}>Add photo</Text>
+                <Text style={{ color: MUTED }}>Add photo</Text>
               )}
             </View>
           </TouchableOpacity>
@@ -179,7 +176,7 @@ const SetProfile: React.FC<T_SETPROFILE> = ({ navigation, route }) => {
           <View style={{ marginTop: 24 }}>
             <Text style={styles.inputLabel}>Email</Text>
             <View style={styles.input}>
-              <Text style={{ color: "#6B7280" }}>{email}</Text>
+              <Text style={{ color: MUTED }}>{email}</Text>
             </View>
           </View>
         ) : null}
@@ -192,7 +189,7 @@ const SetProfile: React.FC<T_SETPROFILE> = ({ navigation, route }) => {
             value={state.fullName}
             onChangeText={(v) => updateField("fullName", v)}
             style={styles.input}
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={MUTED}
             autoCapitalize="words"
           />
         </View>
@@ -206,7 +203,7 @@ const SetProfile: React.FC<T_SETPROFILE> = ({ navigation, route }) => {
             value={state.phone}
             onChangeText={(v) => updateField("phone", v)}
             style={styles.input}
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={MUTED}
             maxLength={15}
           />
         </View>
@@ -218,7 +215,7 @@ const SetProfile: React.FC<T_SETPROFILE> = ({ navigation, route }) => {
             onPress={() => setShowGenderModal(true)}
             style={[styles.input, { justifyContent: "center" }]}
           >
-            <Text style={{ color: state.gender ? "#111827" : "#9CA3AF" }}>
+            <Text style={{ color: state.gender ? TEXT : MUTED }}>
               {state.gender
                 ? state.gender.charAt(0).toUpperCase() + state.gender.slice(1)
                 : "Select gender"}
@@ -236,7 +233,7 @@ const SetProfile: React.FC<T_SETPROFILE> = ({ navigation, route }) => {
             }}
             style={[styles.input, { justifyContent: "center" }]}
           >
-            <Text style={{ color: state.dob ? "#111827" : "#9CA3AF" }}>
+            <Text style={{ color: state.dob ? TEXT : MUTED }}>
               {state.dob ? state.dob.toDateString() : "Select date"}
             </Text>
           </Pressable>
@@ -249,7 +246,7 @@ const SetProfile: React.FC<T_SETPROFILE> = ({ navigation, route }) => {
           onPress={onContinue}
           activeOpacity={0.9}
           disabled={!canContinue || submitting}
-          style={[styles.footerBtn, { backgroundColor: canContinue ? PRIMARY : "#9CA3AF" }]}
+          style={[styles.footerBtn, { backgroundColor: canContinue ? PRIMARY : MUTED }]}
         >
           {submitting ? (
             <ActivityIndicator color="#fff" />
@@ -284,7 +281,7 @@ const SetProfile: React.FC<T_SETPROFILE> = ({ navigation, route }) => {
                   styles.genderItem,
                   {
                     backgroundColor:
-                      state.gender === g ? "#EEF2FF" : "transparent",
+                      state.gender === g ? "rgba(15, 76, 58,0.08)" : "transparent",
                   },
                 ]}
               >

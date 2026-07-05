@@ -157,7 +157,7 @@ const MentalHealthSupport: React.FC<any> = ({ navigation }) => {
 
   return (
     <View style={styles.screen}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="light-content" backgroundColor="#0f4c3a" />
       <FancyAppHeader
         title="Mental Health"
         subtitle="Professional care, self-help tools & community support"

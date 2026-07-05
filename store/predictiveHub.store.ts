@@ -39,7 +39,6 @@ const creator: StateCreator<HubState> = (set, get) => ({
       getDecisionsByRegion(region),
       getDashboardSummary(region),
     ]);
-    console.log("latest", latest);
     const riskMap = Object.fromEntries(latest.map((r) => [r.disasterTypeId, r]));
     set({
       region,

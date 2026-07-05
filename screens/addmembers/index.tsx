@@ -163,7 +163,7 @@ const AddMembers: React.FC<T_ADDMEMBERS> = ({ navigation, route }) => {
       style={styles.container}
       behavior={Platform.select({ ios: "padding", android: undefined })}
     >
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="light-content" backgroundColor="#0f4c3a" />
       <FancyAppHeader
         title="Add Members"
         subtitle="Search and invite users to your group"

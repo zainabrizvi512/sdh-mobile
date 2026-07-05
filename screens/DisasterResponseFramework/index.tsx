@@ -54,7 +54,9 @@ const DisasterResponseFramework: React.FC<T_DISASTERRESPONSE> = ({ navigation })
   const [dashboard, setDashboard] = useState<DisasterDashboardData>({
     activeIncidents: 0,
     responders: 0,
+    criticalTasks: 0,
     sector: "Unknown",
+    mapLayers: [],
   });
   const [communication, setCommunication] = useState<DisasterCommunicationMessage[]>([]);
   const [tasks, setTasks] = useState<DisasterTask[]>([]);
@@ -66,6 +68,7 @@ const DisasterResponseFramework: React.FC<T_DISASTERRESPONSE> = ({ navigation })
   const [newCommunicationMessage, setNewCommunicationMessage] = useState<string>("");
   const [newTaskTitle, setNewTaskTitle] = useState<string>("");
   const [newTaskAssignee, setNewTaskAssignee] = useState<string>("");
+  const [newTaskPriority, setNewTaskPriority] = useState<"LOW" | "MEDIUM" | "HIGH" | "CRITICAL">("HIGH");
   const [newTimelineDescription, setNewTimelineDescription] = useState<string>("");
   const [incidents, setIncidents] = useState<DisasterIncidentOption[]>([]);
   const [incidentPickerVisible, setIncidentPickerVisible] = useState(false);
@@ -110,18 +113,15 @@ const DisasterResponseFramework: React.FC<T_DISASTERRESPONSE> = ({ navigation })
         getDisasterFrameworkTasks(currentToken, "ASSIGNED"),
       ]);
 
+      const metrics = (dashboardData as any)?.metrics ?? {};
+      const map = (dashboardData as any)?.map ?? {};
       setDashboard({
-        activeIncidents: dashboardData?.activeIncidents ?? 0,
-        responders: dashboardData?.responders ?? 0,
+        activeIncidents: metrics.activeIncidents ?? 0,
+        responders: metrics.responders ?? 0,
+        criticalTasks: metrics.criticalTasks ?? 0,
         sector: dashboardData?.sector || "Unknown",
+        mapLayers: Array.isArray(map.layers) ? map.layers : [],
       });
-      const dash = dashboardData as Record<string, unknown>;
-      const embedded = [
-        ...extractResponseArray<DisasterIncidentOption>(dash.incidents),
-        ...extractResponseArray<DisasterIncidentOption>(dash.openIncidents),
-        ...extractResponseArray<DisasterIncidentOption>(dash.recentIncidents),
-      ];
-      if (embedded.length) setIncidents((prev) => mergeIncidents(prev, embedded));
 
       await loadIncidentsList(currentToken);
 
@@ -131,7 +131,6 @@ const DisasterResponseFramework: React.FC<T_DISASTERRESPONSE> = ({ navigation })
       const idToUse = selectedIncidentId || incidentId;
       if (idToUse) {
         const timelineData = await getDisasterFrameworkTimeline(currentToken, idToUse);
-        console.log("timelineData", timelineData);
         setTimeline(extractResponseArray<DisasterTimelineEvent>(timelineData));
       }
     } catch (error) {
@@ -158,7 +157,7 @@ const DisasterResponseFramework: React.FC<T_DISASTERRESPONSE> = ({ navigation })
     try {
       const response = await postDisasterFrameworkIncident(token, {
         title: titleSnapshot,
-        location: newIncidentLocation.trim() || undefined,
+        sector: newIncidentLocation.trim() || undefined,
       });
       const createdIncidentId = response?.id || response?.incidentId;
       if (createdIncidentId) {
@@ -198,12 +197,12 @@ const DisasterResponseFramework: React.FC<T_DISASTERRESPONSE> = ({ navigation })
     try {
       await postDisasterFrameworkTask(token, {
         title: newTaskTitle.trim(),
-        assignee: newTaskAssignee.trim(),
-        priority: "HIGH",
-        status: "ASSIGNED",
+        assignedTeam: newTaskAssignee.trim(),
+        priority: newTaskPriority,
       });
       setNewTaskTitle("");
       setNewTaskAssignee("");
+      setNewTaskPriority("HIGH");
       const tasksData = await getDisasterFrameworkTasks(token, "ASSIGNED");
       setTasks(extractResponseArray<DisasterTask>(tasksData));
     } catch (error) {
@@ -213,7 +212,7 @@ const DisasterResponseFramework: React.FC<T_DISASTERRESPONSE> = ({ navigation })
 
   const handleTaskStatusUpdate = async (taskId: string) => {
     try {
-      await patchDisasterFrameworkTaskStatus(token, taskId, "COMPLETED");
+      await patchDisasterFrameworkTaskStatus(token, taskId, "DONE");
       const tasksData = await getDisasterFrameworkTasks(token, "ASSIGNED");
       setTasks(extractResponseArray<DisasterTask>(tasksData));
     } catch (error) {
@@ -240,8 +239,18 @@ const DisasterResponseFramework: React.FC<T_DISASTERRESPONSE> = ({ navigation })
     }
   };
 
+  const severityColor = (severity?: string) => {
+    if (severity === "CRITICAL") return "#991B1B";
+    if (severity === "HIGH") return "#C2410C";
+    if (severity === "MEDIUM") return "#B45309";
+    return "#1D4ED8";
+  };
+
   const Dashboard = () => (
     <View>
+      <Text style={{ fontSize: 12, color: "#666", marginBottom: 12 }}>
+        Live snapshot of active incidents, responders, and critical tasks across your sector.
+      </Text>
       <View style={styles.statGrid}>
         <View style={styles.miniCard}>
           <Text style={{fontSize: 10, fontWeight: '800', color: '#666'}}>ACTIVE INCIDENTS</Text>
@@ -251,15 +260,35 @@ const DisasterResponseFramework: React.FC<T_DISASTERRESPONSE> = ({ navigation })
         </View>
         <View style={styles.miniCard}>
           <Text style={{fontSize: 10, fontWeight: '800', color: '#666'}}>RESPONDERS</Text>
-          <Text style={{fontSize: 24, fontWeight: '900', color: '#1f3d18'}}>{dashboard.responders}</Text>
+          <Text style={{fontSize: 24, fontWeight: '900', color: '#0f4c3a'}}>{dashboard.responders}</Text>
+        </View>
+        <View style={styles.miniCard}>
+          <Text style={{fontSize: 10, fontWeight: '800', color: '#666'}}>CRITICAL TASKS</Text>
+          <Text style={{fontSize: 24, fontWeight: '900', color: '#C2410C'}}>{dashboard.criticalTasks}</Text>
         </View>
       </View>
-      <View style={[styles.miniCard, {width: '100%', height: 150, justifyContent: 'center', alignItems: 'center'}]}>
-        <Ionicons name="map" size={40} color="#DDD" />
-        <Text style={{color: '#999', fontWeight: '700'}}>
-          Crises Layer Map Active - {dashboard.sector || "Unknown Sector"}
-        </Text>
+
+      <View style={styles.miniCard}>
+        <Text style={styles.sectionTitle}>Recent Incidents ({dashboard.sector || "Unknown Sector"})</Text>
+        {dashboard.mapLayers.length === 0 ? (
+          <Text style={styles.emptyText}>No incidents reported yet. Create one below.</Text>
+        ) : (
+          dashboard.mapLayers.map((layer) => (
+            <View key={layer.incidentId} style={{ flexDirection: "row", alignItems: "center", paddingVertical: 8 }}>
+              <View style={[styles.priorityTag, { backgroundColor: severityColor(layer.severity) + "22", marginRight: 10 }]}>
+                <Text style={{ color: severityColor(layer.severity), fontSize: 10, fontWeight: "900" }}>
+                  {layer.severity}
+                </Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontWeight: "700" }}>{layer.title}</Text>
+                <Text style={{ fontSize: 11, color: "#999" }}>{layer.sector} • {layer.status}</Text>
+              </View>
+            </View>
+          ))
+        )}
       </View>
+
       <View style={styles.miniCard}>
         <Text style={styles.sectionTitle}>Create Incident</Text>
         <TextInput
@@ -272,7 +301,7 @@ const DisasterResponseFramework: React.FC<T_DISASTERRESPONSE> = ({ navigation })
         <TextInput
           value={newIncidentLocation}
           onChangeText={setNewIncidentLocation}
-          placeholder="Location (optional)"
+          placeholder="Sector / location (optional)"
           placeholderTextColor="#9CA3AF"
           style={styles.input}
         />
@@ -285,7 +314,10 @@ const DisasterResponseFramework: React.FC<T_DISASTERRESPONSE> = ({ navigation })
 
   const CommConsole = () => (
     <View>
-      <Text style={{fontSize: 12, fontWeight: '900', marginBottom: 10}}>LIVE COMMS FEED</Text>
+      <Text style={{fontSize: 12, fontWeight: '900', marginBottom: 4}}>LIVE COMMS FEED</Text>
+      <Text style={{ fontSize: 12, color: "#666", marginBottom: 10 }}>
+        Broadcasts go out to every responder in your sector.
+      </Text>
       <TextInput
         value={newCommunicationMessage}
         onChangeText={setNewCommunicationMessage}
@@ -301,7 +333,7 @@ const DisasterResponseFramework: React.FC<T_DISASTERRESPONSE> = ({ navigation })
         <View key={item.id || `${i}`} style={styles.msgBox}>
           <Text style={{fontSize: 13, color: '#333'}}>{item.message}</Text>
           <Text style={{fontSize: 10, color: '#999', marginTop: 5}}>
-            {(item.createdAt ? new Date(item.createdAt).toLocaleTimeString() : "N/A")} • {item.channel || "SECURE CHANNEL"}
+            {item.sender || "Responder"} • {(item.timestamp ? new Date(item.timestamp).toLocaleTimeString() : "N/A")} • {item.channel || "SECURE CHANNEL"}
           </Text>
         </View>
       ))}
@@ -310,6 +342,9 @@ const DisasterResponseFramework: React.FC<T_DISASTERRESPONSE> = ({ navigation })
 
   const TaskAssignment = () => (
     <View>
+      <Text style={{ fontSize: 12, color: "#666", marginBottom: 10 }}>
+        Assign response tasks to a team and track them through to completion.
+      </Text>
       <TextInput
         value={newTaskTitle}
         onChangeText={setNewTaskTitle}
@@ -320,10 +355,30 @@ const DisasterResponseFramework: React.FC<T_DISASTERRESPONSE> = ({ navigation })
       <TextInput
         value={newTaskAssignee}
         onChangeText={setNewTaskAssignee}
-        placeholder="Assigned to"
+        placeholder="Assigned team (e.g. Sector F7 Rescue)"
         placeholderTextColor="#9CA3AF"
         style={styles.input}
       />
+      <Text style={styles.fieldLabel}>PRIORITY</Text>
+      <View style={{ flexDirection: "row", marginBottom: 12 }}>
+        {(["LOW", "MEDIUM", "HIGH", "CRITICAL"] as const).map((p) => (
+          <TouchableOpacity
+            key={p}
+            onPress={() => setNewTaskPriority(p)}
+            style={[
+              styles.priorityTag,
+              {
+                marginRight: 8,
+                backgroundColor: newTaskPriority === p ? severityColor(p) : "#EEE",
+              },
+            ]}
+          >
+            <Text style={{ color: newTaskPriority === p ? "#FFF" : "#666", fontSize: 10, fontWeight: "900" }}>
+              {p}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
       <TouchableOpacity style={[styles.actionBtn, { marginBottom: 12 }]} onPress={handleCreateTask}>
         <Text style={styles.actionBtnText}>CREATE TASK</Text>
       </TouchableOpacity>
@@ -332,22 +387,34 @@ const DisasterResponseFramework: React.FC<T_DISASTERRESPONSE> = ({ navigation })
         <View key={task.id || `${i}`} style={styles.taskCard}>
           <View style={{ flex: 1, marginRight: 8 }}>
             <Text style={{fontWeight: '800'}}>{task.title || "Untitled Task"}</Text>
-            <Text style={{fontSize: 12, color: '#666'}}>
-              Assigned to: {task.assignee || "Unassigned"} • {task.status || "ASSIGNED"}
+            {!!task.details && (
+              <Text style={{ fontSize: 12, color: "#777", marginTop: 2 }} numberOfLines={2}>
+                {task.details}
+              </Text>
+            )}
+            <Text style={{fontSize: 12, color: '#666', marginTop: 2}}>
+              Assigned to: {task.assignedTeam ?? task.assignedTo?.name ?? "Unassigned"} • {task.status || "ASSIGNED"}
             </Text>
+            {!!task.incident && (
+              <Text style={{ fontSize: 11, color: "#999", marginTop: 2 }}>
+                Linked incident: {task.incident.title}
+              </Text>
+            )}
           </View>
           <View style={{ alignItems: "flex-end" }}>
-            <View style={[styles.priorityTag, {backgroundColor: task.priority === "CRITICAL" ? "#FEE2E2" : "#DBEAFE"}]}>
-              <Text style={{color: task.priority === "CRITICAL" ? '#991B1B' : "#1D4ED8", fontSize: 10, fontWeight: '900'}}>
+            <View style={[styles.priorityTag, {backgroundColor: severityColor(task.priority) + "22"}]}>
+              <Text style={{color: severityColor(task.priority), fontSize: 10, fontWeight: '900'}}>
                 {task.priority || "HIGH"}
               </Text>
             </View>
-            <TouchableOpacity
-              style={[styles.actionBtn, { marginTop: 8, paddingVertical: 6, paddingHorizontal: 8 }]}
-              onPress={() => handleTaskStatusUpdate(task.id)}
-            >
-              <Text style={[styles.actionBtnText, { fontSize: 9 }]}>MARK COMPLETE</Text>
-            </TouchableOpacity>
+            {task.status !== "DONE" && (
+              <TouchableOpacity
+                style={[styles.actionBtn, { marginTop: 8, paddingVertical: 6, paddingHorizontal: 8 }]}
+                onPress={() => handleTaskStatusUpdate(task.id)}
+              >
+                <Text style={[styles.actionBtnText, { fontSize: 9 }]}>MARK COMPLETE</Text>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
       ))}
@@ -356,6 +423,10 @@ const DisasterResponseFramework: React.FC<T_DISASTERRESPONSE> = ({ navigation })
 
   const IncidentTimeline = () => (
     <View style={{paddingLeft: 10, paddingRight: 10}}>
+      <Text style={{ fontSize: 12, color: "#666", marginBottom: 12 }}>
+        Timeline shows chronological updates for one incident. Select an incident below, then
+        review or add updates as the situation develops.
+      </Text>
       <Text style={styles.fieldLabel}>INCIDENT</Text>
       <TouchableOpacity
         style={styles.dropdownTrigger}
@@ -365,7 +436,7 @@ const DisasterResponseFramework: React.FC<T_DISASTERRESPONSE> = ({ navigation })
         <Text style={styles.dropdownTriggerText} numberOfLines={2}>
           {incidentSelectLabel}
         </Text>
-        <Ionicons name="chevron-down" size={22} color="#152b11" />
+        <Ionicons name="chevron-down" size={22} color="#0f4c3a" />
       </TouchableOpacity>
 
       <Modal
@@ -396,7 +467,7 @@ const DisasterResponseFramework: React.FC<T_DISASTERRESPONSE> = ({ navigation })
               </TouchableOpacity>
               {incidents.length === 0 ? (
                 <Text style={[styles.emptyText, { paddingHorizontal: 16, paddingVertical: 14 }]}>
-                  No incidents loaded. Create one on the Dashboard tab, or ensure GET /disaster-framework/incidents is available.
+                  No incidents yet. Create one on the Dashboard tab first.
                 </Text>
               ) : (
                 incidents.map((inc, idx) => {
@@ -459,7 +530,8 @@ const DisasterResponseFramework: React.FC<T_DISASTERRESPONSE> = ({ navigation })
             <Text style={{fontWeight: '900', fontSize: 12}}>
               {item.time ? new Date(item.time).toLocaleTimeString() : "N/A"}
             </Text>
-            <Text style={{color: '#444'}}>{item.title}</Text>
+            <Text style={{color: '#444', fontWeight: "700"}}>{item.title}</Text>
+            {!!item.report && <Text style={{color: '#777', fontSize: 12, marginTop: 2}}>{item.report}</Text>}
           </View>
         </View>
       ))}
@@ -468,7 +540,7 @@ const DisasterResponseFramework: React.FC<T_DISASTERRESPONSE> = ({ navigation })
 
   return (
     <View style={styles.screen}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="light-content" backgroundColor="#0f4c3a" />
       <FancyAppHeader
         title="Response Framework"
         subtitle="Multi-layer disaster command & coordination"
@@ -487,7 +559,7 @@ const DisasterResponseFramework: React.FC<T_DISASTERRESPONSE> = ({ navigation })
 
       <ScrollView contentContainerStyle={styles.content}>
         {isLoading ? (
-          <ActivityIndicator size="large" color="#152b11" style={{ marginTop: 40 }} />
+          <ActivityIndicator size="large" color="#0f4c3a" style={{ marginTop: 40 }} />
         ) : (
           <>
             {tab === "dashboard" && <Dashboard />}

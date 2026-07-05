@@ -1,12 +1,13 @@
+import { BORDER, GREEN, INPUT_BG, MUTED, PRIMARY_BG, TEXT } from "@/constants/theme";
 import { StyleSheet } from "react-native";
 
-export const PRIMARY = "#154617";
-export const RADIUS = 24;
+export const PRIMARY = GREEN;
+export const RADIUS = 28;
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: PRIMARY_BG,
   },
 
   scrollContainer: {
@@ -14,20 +15,15 @@ export const styles = StyleSheet.create({
     paddingBottom: 40, // extra padding added again via component to reach ~120
   },
 
-  backBtn: {
-    width: 44,
-    height: 44,
-    justifyContent: "center",
-  },
-
   title: {
     fontSize: 34,
     fontWeight: "800",
+    color: TEXT,
     marginTop: 6,
   },
 
   subtitle: {
-    color: "#6B7280",
+    color: MUTED,
     marginTop: 6,
   },
 
@@ -40,7 +36,9 @@ export const styles = StyleSheet.create({
     width: 112,
     height: 112,
     borderRadius: 56,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: INPUT_BG,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: BORDER,
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
@@ -48,16 +46,19 @@ export const styles = StyleSheet.create({
 
   inputLabel: {
     fontWeight: "600",
+    color: TEXT,
     marginBottom: 8,
   },
 
   input: {
     borderRadius: RADIUS,
-    backgroundColor: "#F3F4F6",
-    paddingHorizontal: 16,
+    backgroundColor: INPUT_BG,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: BORDER,
+    paddingHorizontal: 18,
     paddingVertical: 16,
     fontSize: 16,
-    color: "#111827",
+    color: TEXT,
   },
 
   // ---------- Sticky footer ----------
@@ -71,7 +72,7 @@ export const styles = StyleSheet.create({
     paddingBottom: 16,
     backgroundColor: "#FFFFFF",
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: "#E5E7EB",
+    borderTopColor: BORDER,
     // iOS shadow
     shadowColor: "#000",
     shadowOpacity: 0.06,
@@ -131,7 +132,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#E5E7EB",
+    borderBottomColor: BORDER,
   },
   iosSheetBtn: {
     paddingVertical: 6,
@@ -139,12 +140,12 @@ export const styles = StyleSheet.create({
   },
   iosSheetBtnText: {
     fontSize: 16,
-    color: "#111827",
+    color: TEXT,
   },
   iosSheetTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#111827",
+    color: TEXT,
   },
   iosPicker: {
     backgroundColor: "#FFFFFF",

@@ -14,7 +14,7 @@ import {
 } from "react-native";
 
 // --- THEME COLORS ---
-const GREEN = "#1f3d18";
+const GREEN = "#0f4c3a";
 const ACCENT_GREEN = "#2e5c24";
 const OFF_WHITE = "#F8FAF8";
 const BORDER_COLOR = "#E2E8E2";
@@ -61,7 +61,7 @@ const PredictiveHubScreen: React.FC<T_PREDICVIVECOORDINATIONHUB> = ({ navigation
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="light-content" backgroundColor="#0f4c3a" />
       
       <FancyAppHeader
         title="Predictive Hub"

@@ -22,7 +22,7 @@ import { useAuth0 } from "react-native-auth0";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { T_GROUPLISTING } from "./types";
 
-const GREEN = "#1f3d18";
+const GREEN = "#0f4c3a";
 const BG_LIGHT = "#F4F7F4";
 
 const GroupListing: React.FC<T_GROUPLISTING> = ({ navigation }) => {
@@ -107,7 +107,7 @@ const GroupListing: React.FC<T_GROUPLISTING> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="light-content" backgroundColor="#0f4c3a" />
       
       <FancyAppHeader
         title="Groups"
@@ -173,7 +173,10 @@ const GroupListing: React.FC<T_GROUPLISTING> = ({ navigation }) => {
       <CreateGroupModal
         visible={loadCreateGroupModal}
         onClose={() => { setLoadCreateGroupModal(false) }}
-        onAddMembers={() => { }}
+        onAddMembers={() => {
+          setLoadCreateGroupModal(false);
+          fetchGroups();
+        }}
       />
     </View>
   );

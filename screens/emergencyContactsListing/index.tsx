@@ -16,7 +16,7 @@ import {
 } from "react-native";
 
 // --- THEME ---
-const GREEN = "#1f3d18";
+const GREEN = "#0f4c3a";
 const BG_LIGHT = "#F4F7F4";
 const RED_ALERT = "#d32f2f";
 export const FAV_KEY = "fav_contacts_v1";
@@ -61,7 +61,7 @@ const EmergencyContactsListing = ({ navigation }: any) => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="light-content" backgroundColor="#0f4c3a" />
       
       <FancyAppHeader
         title="Emergency Contacts"

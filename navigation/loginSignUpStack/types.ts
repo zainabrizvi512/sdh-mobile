@@ -1,7 +1,6 @@
 import { ChooseLocationRouteParams } from "@/screens/chooseLocation/types";
 import { LoginRouteParams } from "@/screens/login/types";
 import { MapLocationRouteParams } from "@/screens/mapLocation/types";
-import { TestRouteParams } from "@/screens/test/types";
 import { VerifyOTPRouteParams } from "@/screens/verifyOTP/types";
 
 export type LoginSignupStackParamList = {
@@ -13,5 +12,4 @@ export type LoginSignupStackParamList = {
     ChooseLocation: ChooseLocationRouteParams;
     MapLocation: MapLocationRouteParams;
     SetProfile: { email?: string }
-    Test: TestRouteParams
 };

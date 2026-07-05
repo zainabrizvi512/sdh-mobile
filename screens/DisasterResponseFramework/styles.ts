@@ -1,6 +1,6 @@
 import { Platform, StyleSheet } from "react-native";
 
-const DARK_GREEN = "#152b11";
+const DARK_GREEN = "#0f4c3a";
 const CRISIS_RED = "#991b1b";
 
 export const styles = StyleSheet.create({

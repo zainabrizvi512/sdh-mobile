@@ -50,7 +50,7 @@ const ReportingTab = ({ baseUrl, token }: { baseUrl: string, token: string }) =>
     }, 1000);
   };
 
-  if (loading) return <ActivityIndicator size="large" color="#1f3d18" style={{ marginTop: 20 }} />;
+  if (loading) return <ActivityIndicator size="large" color="#0f4c3a" style={{ marginTop: 20 }} />;
 
   return (
     // 1. Root Container is a View (Not ScrollView)
@@ -104,7 +104,7 @@ const ReportingTab = ({ baseUrl, token }: { baseUrl: string, token: string }) =>
                 <View 
                     style={[
                         styles.requestRow, 
-                        isSelected && { borderColor: '#1f3d18', borderWidth: 2, backgroundColor: '#F4F9F4' } 
+                        isSelected && { borderColor: '#0f4c3a', borderWidth: 2, backgroundColor: '#F4F9F4' } 
                     ]}
                 >
                     <View style={[styles.requestChip, { backgroundColor: inc.risk_type === 'SOS' ? '#FFE5E5' : '#FFF4E5' }]}>
@@ -113,7 +113,7 @@ const ReportingTab = ({ baseUrl, token }: { baseUrl: string, token: string }) =>
                     </Text>
                     </View>
                     <View style={styles.requestMeta}>
-                    <Text style={{ fontWeight: 'bold', color: isSelected ? '#1f3d18' : '#000' }}>
+                    <Text style={{ fontWeight: 'bold', color: isSelected ? '#0f4c3a' : '#000' }}>
                         {inc.source === 'USER_SOS' ? "User Alert" : "System Alert"}
                     </Text>
                     <Text style={{ fontSize: 12, color: '#666' }} numberOfLines={1}>

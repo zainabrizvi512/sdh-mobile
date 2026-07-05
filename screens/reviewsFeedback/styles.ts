@@ -1,6 +1,6 @@
 import { Platform, StyleSheet } from "react-native";
 
-const GREEN = "#1f3d18";
+const GREEN = "#0f4c3a";
 const GOLD = "#f59e0b";
 const CREAM = "#fffbeb";
 

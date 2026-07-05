@@ -41,7 +41,7 @@ const RootStack = () => {
 
     return (
         <NavigationContainer>
-            <StatusBar animated style="light" backgroundColor="#fff" />
+            <StatusBar animated style="light" backgroundColor="#0f4c3a" />
             <Stack.Navigator
                 initialRouteName={isLoggedIn ? "DashboardStack" : "LoginSignupStack"}
                 screenOptions={{

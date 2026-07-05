@@ -11,6 +11,8 @@ export type EngagementDashboardState = {
   level: number;
   currentXp: number;
   maxXp: number;
+  totalXp: number;
+  xpToNextLevel: number;
   missions: number;
   livesImpacted: number;
 };

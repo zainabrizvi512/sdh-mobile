@@ -2,6 +2,7 @@
 import AddMembers from "@/screens/addMembers";
 import Dashboard from "@/screens/dashboard";
 import EmergencyContactsListing from "@/screens/emergencyContactsListing";
+import FamilyLiveLocation from "@/screens/familyLiveLocation";
 import GroupChat from "@/screens/groupChat";
 import GroupInfo from "@/screens/groupInfo";
 import GroupListing from "@/screens/groupListing";
@@ -12,21 +13,28 @@ import React from "react";
 import { View } from "react-native";
 
 import BottomNav from "@/components/bottomNav";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 import DisasterResponseFramework from "@/screens/DisasterResponseFramework";
 import InteractiveDonationNetwork from "@/screens/InteractiveDonationNetwork";
 import DataBackupSecurity from "@/screens/dataBackupSecurity";
+import EditPersonalInfo from "@/screens/editPersonalInfo";
+import HelpCenter from "@/screens/helpCenter";
 import MentalHealthSupport from "@/screens/mentalHealthSupport";
 import UserEnagagementHub from "@/screens/UserEnagagementHub";
 import EmergencyAidNetworkHome from "@/screens/emergencyAidNetwork";
 import NewsDetails from "@/screens/newsDetails";
 import NewsListing from "@/screens/newsListing";
+import Notifications from "@/screens/notifications";
 import PredictiveHubIndex from "@/screens/predictiveHub/PredictiveHubIndex";
 import ProfileSettings from "@/screens/profileSettings";
+import PushNotifications from "@/screens/pushNotifications";
 import RescueCoordinationSystem from "@/screens/rescueCoordinationSystem";
 import ReviewsFeedback from "@/screens/reviewsFeedback";
 import RiskLevels from "@/screens/riskLevels";
 import SafetyGuideDetail from "@/screens/safetyGuideDetail";
 import SafetyGuides from "@/screens/safetyGuides";
+import StaticGuideDetail from "@/screens/staticGuideDetail";
+import TermsOfService from "@/screens/termsOfService";
 import { DashboardStackParamList } from "./types";
 
 const Stack = createNativeStackNavigator<DashboardStackParamList>();
@@ -41,6 +49,8 @@ const BOTTOM_BAR_ROUTES = new Set<keyof DashboardStackParamList>([
 ]);
 
 const DashboardStack = () => {
+    usePushNotifications();
+
     // What's the focused route inside this stack?
     function getActiveRouteName(state: any): string | undefined {
         let current = state;
@@ -93,6 +103,13 @@ const DashboardStack = () => {
                 <Stack.Screen name="MentalHealthSupport" component={MentalHealthSupport} />
                 <Stack.Screen name="DataBackupSecurity" component={DataBackupSecurity} />
                 <Stack.Screen name="ReviewsFeedback" component={ReviewsFeedback} />
+                <Stack.Screen name="EditPersonalInfo" component={EditPersonalInfo} />
+                <Stack.Screen name="PushNotifications" component={PushNotifications} />
+                <Stack.Screen name="HelpCenter" component={HelpCenter} />
+                <Stack.Screen name="TermsOfService" component={TermsOfService} />
+                <Stack.Screen name="StaticGuideDetail" component={StaticGuideDetail} />
+                <Stack.Screen name="FamilyLiveLocation" component={FamilyLiveLocation} />
+                <Stack.Screen name="Notifications" component={Notifications} />
             </Stack.Navigator>
 
             {showBottomBar ? <BottomNav /> : null}

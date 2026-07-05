@@ -1,12 +1,12 @@
 import { getAllNews } from "@/api/getAllNews";
 import CreateGroupModal from "@/components/createGroup";
 import FancyAppHeader, { fancyHeaderStyles } from "@/components/fancyAppHeader";
+import { getNewsCategoryStyle, STATIC_NEWS_FEED } from "@/utils/newsDisplay";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useCallback, useEffect, useState } from "react";
 import {
     ActivityIndicator,
     FlatList,
-    Image,
     RefreshControl,
     StatusBar,
     StyleSheet,
@@ -17,7 +17,7 @@ import {
 import { useAuth0 } from "react-native-auth0";
 import { T_NEWSLISTING } from "./types";
 
-const GREEN = "#1f3d18";
+const GREEN = "#0f4c3a";
 const BG_LIGHT = "#F4F7F4";
 
 const NewsListing: React.FC<T_NEWSLISTING> = ({ navigation }) => {
@@ -60,46 +60,51 @@ const NewsListing: React.FC<T_NEWSLISTING> = ({ navigation }) => {
         fetchNews();
     }, [fetchNews]);
 
-    const renderItem = ({ item }: { item: any }) => (
-        <TouchableOpacity
-            activeOpacity={0.9}
-            style={styles.newsCard}
-            onPress={() => { 
-                navigation?.navigate?.("NewsDetails", { 
-                    imageUrl: item.url, 
-                    title: item.title, 
-                    body: item.description, 
-                    timeAgo: item.createdAt 
-                }) 
-            }}
-        >
-            <Image
-                style={styles.cardImage}
-                source={{ uri: item.url ?? "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400" }}
-            />
-            <View style={styles.cardContent}>
-                <View style={styles.badgeRow}>
-                    <View style={styles.liveBadge}>
-                        <View style={styles.dot} />
-                        <Text style={styles.liveText}>UPDATE</Text>
+    const displayNews = news.length > 0 ? news : STATIC_NEWS_FEED;
+
+    const renderItem = ({ item, index }: { item: any; index: number }) => {
+        const preset = getNewsCategoryStyle(index);
+        const timeLabel = item.createdAt ? new Date(item.createdAt).toLocaleDateString() : (item.meta ?? 'Recent');
+        return (
+            <TouchableOpacity
+                activeOpacity={0.9}
+                style={styles.newsCard}
+                onPress={() => {
+                    navigation?.navigate?.("NewsDetails", {
+                        title: item.title,
+                        body: item.description,
+                        timeAgo: timeLabel,
+                        category: preset.category,
+                        icon: preset.icon,
+                        tint: preset.tint,
+                    })
+                }}
+            >
+                <View style={[styles.cardImage, styles.cardImageIcon, { backgroundColor: preset.tint + "17" }]}>
+                    <Ionicons name={preset.icon} size={32} color={preset.tint} />
+                </View>
+                <View style={styles.cardContent}>
+                    <View style={styles.badgeRow}>
+                        <View style={[styles.liveBadge, { backgroundColor: preset.tint + "17" }]}>
+                            <View style={[styles.dot, { backgroundColor: preset.tint }]} />
+                            <Text style={[styles.liveText, { color: preset.tint }]}>{preset.category.toUpperCase()}</Text>
+                        </View>
+                        <Text style={styles.timeText}>{timeLabel}</Text>
                     </View>
-                    <Text style={styles.timeText}>
-                        {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'Recent'}
+                    <Text style={styles.itemTitle} numberOfLines={2}>
+                        {item.title}
+                    </Text>
+                    <Text style={styles.itemSubtitle} numberOfLines={2}>
+                        {item.description}
                     </Text>
                 </View>
-                <Text style={styles.itemTitle} numberOfLines={2}>
-                    {item.title}
-                </Text>
-                <Text style={styles.itemSubtitle} numberOfLines={2}>
-                    {item.description}
-                </Text>
-            </View>
-        </TouchableOpacity>
-    );
+            </TouchableOpacity>
+        );
+    };
 
     return (
         <View style={styles.container}>
-            <StatusBar barStyle="light-content" />
+            <StatusBar barStyle="light-content" backgroundColor="#0f4c3a" />
             
             <FancyAppHeader
                 title="News Feed"
@@ -119,7 +124,7 @@ const NewsListing: React.FC<T_NEWSLISTING> = ({ navigation }) => {
                 </View>
             ) : (
                 <FlatList
-                    data={news}
+                    data={displayNews}
                     keyExtractor={(g) => g.id}
                     renderItem={renderItem}
                     contentContainerStyle={styles.listPadding}
@@ -167,6 +172,7 @@ const styles = StyleSheet.create({
         overflow: 'hidden', borderWidth: 1, borderColor: '#EEE'
     },
     cardImage: { width: '100%', height: 180 },
+    cardImageIcon: { justifyContent: 'center', alignItems: 'center' },
     cardContent: { padding: 16 },
     badgeRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
     liveBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F0F4F0', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },

@@ -14,7 +14,7 @@ import ReportIncident from './ReportIncident';
 import RiskDashboard from './RiskDashboard';
 import VolunteerHubChat from './VolunteerHubChat';
 
-const GREEN = "#1f3d18";
+const GREEN = "#0f4c3a";
 
 export default function PredictiveHubIndex() {
     const navigation = useNavigation();
@@ -22,10 +22,12 @@ export default function PredictiveHubIndex() {
     const region = usePredictiveHub(s => s.region);
     const setRegion = usePredictiveHub(s => s.setRegion);
     const loadInitial = usePredictiveHub(s => s.loadInitial);
+    const risk = usePredictiveHub(s => s.risk);
     const { getCredentials } = useAuth0();
     const [token, setToken] = useState<string>('');
     const [userNgoId, setUserNgoId] = useState<string | null>(null);
     const [currentUserId, setCurrentUserId] = useState<string>('');
+    const [profileLoaded, setProfileLoaded] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -45,17 +47,30 @@ export default function PredictiveHubIndex() {
             if (creds?.accessToken) {
                 setToken(creds.accessToken);
                 const user = await getLoggedInUser(creds.accessToken); // Uses your existing API
-                if (user.ngo.id) setUserNgoId(user.ngo.id);
+                if (user.ngo?.id) setUserNgoId(user.ngo.id);
                 if (user.id) setCurrentUserId(user.id);
             }
+            setProfileLoaded(true);
         };
         init();
     }, []);
 
+    const topRisk = Object.values(risk).reduce<typeof risk[string] | null>(
+        (max, r) => (r.score > (max?.score ?? -1) ? r : max),
+        null
+    );
+    const riskLevel = !topRisk ? 'low' : topRisk.score >= 70 ? 'high' : topRisk.score >= 40 ? 'medium' : 'low';
+    const riskLevelLabel = riskLevel === 'high' ? 'High Alert' : riskLevel === 'medium' ? 'Elevated Risk' : 'Low Risk';
+    const riskLevelColor = riskLevel === 'high' ? '#D32F2F' : riskLevel === 'medium' ? '#E67E22' : GREEN;
+    const riskScore = topRisk?.score ?? 0;
+    const riskDesc = topRisk
+        ? `${topRisk.disasterName ?? 'Risk'} risk is currently ${riskLevel} in ${region ?? 'your area'}.`
+        : `No active risk signals for ${region ?? 'your area'} right now.`;
+
     const tabs = [
         { id: 'dashboard', icon: 'analytics', label: 'Risk' },
         { id: 'decisions', icon: 'git-network', label: 'Action' },
-        { id: 'chat', icon: 'chatbubbles', label: 'Intel' },
+        { id: 'chat', icon: 'chatbubbles', label: 'NGO Chat' },
         { id: 'report', icon: 'alert-circle', label: 'Alert' },
     ];
 
@@ -80,9 +95,9 @@ export default function PredictiveHubIndex() {
                     <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.tabContentPadding}>
                         <View style={styles.riskCard}>
                             <Text style={styles.cardInfoLabel}>CURRENT RISK STATUS</Text>
-                            <Text style={styles.riskLevel}>High Alert (78%)</Text>
-                            <View style={styles.progressBg}><View style={[styles.progressFill, { width: '78%' }]} /></View>
-                            <Text style={styles.riskDesc}>Preemptive measures recommended in Northern sectors.</Text>
+                            <Text style={[styles.riskLevel, { color: riskLevelColor }]}>{riskLevelLabel} ({riskScore}%)</Text>
+                            <View style={styles.progressBg}><View style={[styles.progressFill, { width: `${riskScore}%`, backgroundColor: riskLevelColor }]} /></View>
+                            <Text style={styles.riskDesc}>{riskDesc}</Text>
                         </View>
                         <RiskDashboard />
                     </ScrollView>
@@ -99,8 +114,15 @@ export default function PredictiveHubIndex() {
                 {tab === 'chat' && (
                     currentUserId && userNgoId && token ? (
                         <VolunteerHubChat ngoId={userNgoId} token={token} currentUserId={currentUserId}/>
+                    ) : profileLoaded ? (
+                        <View style={{ padding: 30, alignItems: 'center' }}>
+                            <Ionicons name="people-outline" size={32} color="#AAA" />
+                            <Text style={{ color: '#777', marginTop: 10, textAlign: 'center' }}>
+                                Join an NGO from the Dashboard to chat with its volunteers.
+                            </Text>
+                        </View>
                     ) : (
-                        <ActivityIndicator color="#1f3d18" style={{ marginTop: 50 }} />
+                        <ActivityIndicator color="#0f4c3a" style={{ marginTop: 50 }} />
                     )
                 )}
 

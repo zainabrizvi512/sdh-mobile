@@ -1,4 +1,5 @@
 import { envConfig } from '@/config/envConfig';
+import { BOTTOM_NAV_SCROLL_PADDING } from '@/components/bottomNav/styles';
 import React, { useEffect, useRef, useState } from 'react';
 import { FlatList, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import io, { Socket } from 'socket.io-client';
@@ -87,7 +88,7 @@ export default function VolunteerHubChat({ ngoId, token, currentUserId }: Props)
                 )}
 
                 <View style={{ 
-                    backgroundColor: isSelf ? '#1f3d18' : '#F4F7F4', // Dark Green for Self, Light Grey for Others
+                    backgroundColor: isSelf ? '#0f4c3a' : '#F4F7F4', // Dark Green for Self, Light Grey for Others
                     padding: 12, 
                     borderRadius: 16,
                     borderBottomRightRadius: isSelf ? 2 : 16, // Chat bubble effect
@@ -111,7 +112,7 @@ export default function VolunteerHubChat({ ngoId, token, currentUserId }: Props)
         }}
       />
 
-      <View style={{ flexDirection: 'row', padding: 10, marginBottom: 15, borderTopWidth: 1, borderColor: '#EEE' }}>
+      <View style={{ flexDirection: 'row', padding: 10, marginBottom: BOTTOM_NAV_SCROLL_PADDING, borderTopWidth: 1, borderColor: '#EEE' }}>
         <TextInput
           style={{ flex: 1, backgroundColor: '#F5F5F5', borderRadius: 20, paddingHorizontal: 15, paddingVertical: 10, marginRight: 10 }}
           placeholder="Type a message..."
@@ -119,7 +120,7 @@ export default function VolunteerHubChat({ ngoId, token, currentUserId }: Props)
           onChangeText={setText}
         />
         <TouchableOpacity onPress={sendMessage} disabled={!text.trim()}>
-          <Text style={{ color: '#1f3d18', fontWeight: 'bold', padding: 10 }}>Send</Text>
+          <Text style={{ color: '#0f4c3a', fontWeight: 'bold', padding: 10 }}>Send</Text>
         </TouchableOpacity>
       </View>
     </View>

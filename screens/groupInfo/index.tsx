@@ -15,7 +15,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { T_GROUPINFO } from "./types";
 
 // --- THEME ---
-const GREEN = "#1f3d18";
+const GREEN = "#0f4c3a";
 const BG_LIGHT = "#F4F7F4";
 const RED_ALERT = "#DC2626";
 
@@ -35,7 +35,7 @@ const GroupInfo: React.FC<T_GROUPINFO> = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="light-content" backgroundColor="#0f4c3a" />
       
       <FancyAppHeader
         title="Group Info"
