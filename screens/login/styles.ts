@@ -8,6 +8,42 @@ export const styles = StyleSheet.create({
         flex: 1,
         paddingHorizontal: horizontalScale(32),
     },
+    heroWrap: {
+        position: "relative",
+        overflow: "hidden",
+        paddingTop: 4,
+        paddingBottom: 4,
+    },
+    decorGlowTop: {
+        position: "absolute",
+        width: 160,
+        height: 160,
+        borderRadius: 80,
+        backgroundColor: "rgba(15, 76, 58,0.08)",
+        top: -60,
+        right: -50,
+    },
+    decorGlowBottom: {
+        position: "absolute",
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        backgroundColor: "rgba(15, 76, 58,0.05)",
+        bottom: -20,
+        left: -40,
+    },
+    logoBadge: {
+        width: 56,
+        height: 56,
+        alignItems: "center",
+        justifyContent: "center",
+        marginTop: verticalScale(18),
+        shadowColor: "#000",
+        shadowOpacity: Platform.select({ ios: 0.15, android: 0.25 }) as number,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 4 },
+        elevation: 4,
+    },
     title: {
         fontSize: 32,
         lineHeight: 38,
@@ -28,13 +64,19 @@ export const styles = StyleSheet.create({
         marginBottom: 8,
         fontWeight: "600",
     },
-    input: {
+    inputWrap: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 10,
         height: 48,
         borderRadius: 28,
         paddingHorizontal: 18,
         backgroundColor: INPUT_BG,
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: BORDER,
+    },
+    inputInner: {
+        flex: 1,
         color: TEXT,
     },
     rowBetween: {
@@ -86,8 +128,27 @@ export const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 4 },
         elevation: 3,
     },
+    dividerRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 10,
+        marginTop: 20,
+        marginBottom: 16,
+    },
+    dividerLine: {
+        flex: 1,
+        height: StyleSheet.hairlineWidth,
+        backgroundColor: BORDER,
+    },
+    dividerText: {
+        color: MUTED,
+        fontSize: 12,
+        fontWeight: "600",
+    },
     socialMediaBtn: {
-        backgroundColor: PRIMARY_BG
+        backgroundColor: PRIMARY_BG,
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: BORDER,
     },
     primaryBtnText: {
         color: "#fff",

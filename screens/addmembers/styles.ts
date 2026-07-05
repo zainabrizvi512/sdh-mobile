@@ -1,33 +1,18 @@
-import { Platform, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#FFFFFF" },
 
-  header: {
-    height: 52,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    justifyContent: "space-between",
-  },
-  headerTitle: { fontSize: 18, fontWeight: "700", color: "#111827" },
-
   searchWrap: {
-    marginHorizontal: 16,
-    marginTop: 6,
-    marginBottom: 8,
-    borderRadius: 16,
-    backgroundColor: "#F3F4F6",
+    borderRadius: 15,
+    backgroundColor: "rgba(255,255,255,0.12)",
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 12,
-    height: 40,
-    ...(Platform.OS === "ios"
-      ? { shadowColor: "#000", shadowOpacity: 0.04, shadowRadius: 6, shadowOffset: { width: 0, height: 2 } }
-      : { elevation: 1 }),
+    paddingHorizontal: 15,
+    paddingVertical: 12,
   },
   searchIcon: { marginRight: 6 },
-  searchInput: { flex: 1, fontSize: 15, color: "#111827", paddingVertical: 8 },
+  searchInput: { flex: 1, fontSize: 14, color: "#FFF", fontWeight: "600", paddingVertical: 0 },
   clearBtn: { paddingLeft: 6 },
 
   row: {

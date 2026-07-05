@@ -5,6 +5,7 @@ import * as ImagePicker from "expo-image-picker";
 import React, { useMemo, useState } from "react";
 import {
     ActivityIndicator,
+    Alert,
     Image,
     KeyboardAvoidingView,
     Modal,
@@ -35,7 +36,6 @@ const CreateGroupModal: React.FC<CreateGroupParams> = ({ visible, onAddMembers, 
     const { getCredentials } = useAuth0();
 
     const canSubmit = useMemo(() => name.trim().length > 0 && !submitting, [name, submitting]);
-    console.log("canSubmit", canSubmit)
 
     const requestMediaPermission = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -63,11 +63,9 @@ const CreateGroupModal: React.FC<CreateGroupParams> = ({ visible, onAddMembers, 
     };
 
     const handleCreate = async () => {
-        console.log(canSubmit)
         if (!canSubmit) return;
         setSubmitting(true);
         try {
-            console.log(name, type, image?.uri)
             const creds = await getCredentials();
             const token = creds?.accessToken || "";
             const created = await createGroup({
@@ -76,16 +74,19 @@ const CreateGroupModal: React.FC<CreateGroupParams> = ({ visible, onAddMembers, 
                 image: image ? { uri: image.uri } : undefined,
             }, token);
 
-            // Hand off to your next step (e.g., navigate to member selection)
-            //   onAddMembers({
-            //     id: created?.id,
-            //     name: created?.name ?? name.trim(),
-            //     type: created?.type ?? type,
-            //     picture: created?.picture,
-            //   });
+            const createdName = name.trim();
+            const createdType = type;
+            setName("");
+            setImage(null);
+            setType("other");
+
+            onAddMembers({
+                id: created?.id,
+                name: created?.name ?? createdName,
+                type: created?.type ?? createdType,
+            });
         } catch (err: any) {
-            console.warn(err?.message || err);
-            // TODO: show a toast/snackbar for UX
+            Alert.alert("Couldn't create group", err?.message || "Please try again.");
         } finally {
             setSubmitting(false);
         }

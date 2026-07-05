@@ -4,6 +4,7 @@ import { getLoggedInUser } from "@/api/getLoggedInUser";
 import { postChatAudio } from "@/api/postChatAudio";
 import { postChatImages } from "@/api/postChatImages";
 import { createChatSocket, destroyChatSocket, getChatSocket } from "@/socket";
+import FancyAppHeader, { fancyHeaderStyles } from "@/components/fancyAppHeader";
 import { ensureLocationReady } from "@/utils/ensureLocationReady";
 import { isoToTime } from "@/utils/isoToTime";
 import { Ionicons } from "@expo/vector-icons";
@@ -226,7 +227,7 @@ const GroupChat: React.FC<T_GROUPCHAT> = ({ navigation, route }) => {
     useEffect(() => {
         const getMe = async () => {
             const user = await getLoggedInUser(token || "");
-            if (user && user.data) setMyUserId(user.data.id);
+            if (user) setMyUserId(user.id);
         };
         if (token) getMe();
     }, [token]);
@@ -690,31 +691,37 @@ const GroupChat: React.FC<T_GROUPCHAT> = ({ navigation, route }) => {
 
 
     const renderHeader = () => (
-        <View style={[styles.header, { paddingTop: insets.top }]} >
-            <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={{ top: 8, left: 8, right: 8, bottom: 8 }}>
-                <Ionicons name="chevron-back" size={24} color="#111827" />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-                onPress={() => navigation.navigate("GroupInfo", { id: groupId, avatar: groupAvatar, name: groupName, members: groupMembersCount })}
-                style={styles.headerCenter}
-            >
-                <Image source={{ uri: groupAvatar }} style={styles.groupAvatar} />
-                <View style={{ marginLeft: 10 }}>
-                    <Text style={styles.groupTitle}>{groupName}</Text>
-                    <Text style={styles.groupSubtitle}>{isSomeoneTyping ? "typing…" : `${groupMembersCount} Members`}</Text>
+        <FancyAppHeader
+            showBack={false}
+            headerContent={
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <TouchableOpacity onPress={() => navigation.goBack()} style={fancyHeaderStyles.backBtn}>
+                        <Ionicons name="chevron-back" size={20} color="#FFF" />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => navigation.navigate("GroupInfo", { id: groupId, avatar: groupAvatar, name: groupName, members: groupMembersCount })}
+                        style={[styles.headerCenter, { flex: 1 }]}
+                    >
+                        <Image source={{ uri: groupAvatar }} style={[styles.groupAvatar, { borderWidth: 2, borderColor: "rgba(255,255,255,0.4)" }]} />
+                        <View style={{ marginLeft: 10, flex: 1 }}>
+                            <Text style={[styles.groupTitle, { color: "#FFF" }]}>{groupName}</Text>
+                            <Text style={[styles.groupSubtitle, { color: "rgba(255,255,255,0.75)" }]}>
+                                {isSomeoneTyping ? "typing…" : `${groupMembersCount} Members`}
+                            </Text>
+                        </View>
+                    </TouchableOpacity>
+                    <View style={styles.headerActions}>
+                        <TouchableOpacity style={fancyHeaderStyles.backBtn}>
+                            <Ionicons name="videocam-outline" size={18} color="#FFF" />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={[fancyHeaderStyles.backBtn, { marginLeft: 6 }]}>
+                            <Ionicons name="call-outline" size={18} color="#FFF" />
+                        </TouchableOpacity>
+                    </View>
                 </View>
-            </TouchableOpacity>
-
-            <View style={styles.headerActions}>
-                <TouchableOpacity style={styles.headerIconBtn}>
-                    <Ionicons name="videocam-outline" size={20} color="#111827" />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.headerIconBtn}>
-                    <Ionicons name="call-outline" size={20} color="#111827" />
-                </TouchableOpacity>
-            </View>
-        </View>
+            }
+            badge={{ icon: "chatbubbles", label: "GROUP CHAT" }}
+        />
     );
 
     const DatePill = ({ label }: { label: string }) => (

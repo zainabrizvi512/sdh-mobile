@@ -1,15 +1,23 @@
+import FancyAppHeader, { fancyHeaderStyles } from "@/components/fancyAppHeader";
+import { Ionicons } from "@expo/vector-icons";
+import { DrawerActions } from "@react-navigation/native";
 import React from "react";
 import {
   Alert,
   Pressable,
   ScrollView,
+  StatusBar,
+  StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
-import { COLORS, styles } from "./styles";
-// at top
-import { DrawerActions } from "@react-navigation/native";
+
+// --- THEME COLORS ---
+const GREEN = "#0f4c3a";
+const ACCENT_GREEN = "#2e5c24";
+const OFF_WHITE = "#F8FAF8";
+const BORDER_COLOR = "#E2E8E2";
 
 import {
   QuickReply,
@@ -20,17 +28,10 @@ import {
 } from "./types";
 
 const RISK_COLORS: Record<Severity, string> = {
-  low: COLORS.badgeBlueBg,
-  medium: COLORS.badgeYellowBg,
-  high: COLORS.badgeRedBg,
-  critical: COLORS.badgeYellowBg,
-};
-
-const RISK_TEXT: Record<Severity, string> = {
-  low: "Low",
-  medium: "Medium",
-  high: "High",
-  critical: "Critical",
+  low: "#34D399",
+  medium: "#FBBF24",
+  high: "#FB923C",
+  critical: "#EF4444",
 };
 
 const DATA_RISKS: RiskItem[] = [
@@ -49,105 +50,95 @@ const SUGGESTED_ACTIONS: SuggestedAction[] = [
 
 const QUICK_REPLIES: QuickReply[] = [
   { id: "q1", text: "The evacuation is complete.", prefix: "✔️" },
-  { id: "q2", text: "Sure, will do", prefix: "⚠️" },
-  { id: "q3", text: "Sure, will do", avatar: "👩🏼‍💼" },
+  { id: "q2", text: "Coordination ongoing", prefix: "⚠️" },
+  { id: "q3", text: "Ready for deployment", avatar: "👩🏼‍💼" },
 ];
 
-function Badge({ label, bg }: { label: string; bg: string }) {
-  return (
-    <View style={[styles.badge, { backgroundColor: bg }]}>
-      <Text style={styles.badgeText}>{label}</Text>
-    </View>
-  );
-}
-
-function RiskRow({ item }: { item: RiskItem }) {
-  const label = item.badgeValue ?? RISK_TEXT[item.severity];
-  const bg =
-    item.badgeValue != null ? COLORS.badgeRedBg : RISK_COLORS[item.severity];
-
-  return (
-    <View style={styles.row}>
-      <Text style={styles.rowTitle}>{item.hazard}</Text>
-      <Badge label={label} bg={bg} />
-    </View>
-  );
-}
-
-const PredictiveHubScreen: React.FC<T_PREDICVIVECOORDINATIONHUB> = ({ navigation, route }) => {
+const PredictiveHubScreen: React.FC<T_PREDICVIVECOORDINATIONHUB> = ({ navigation }) => {
   const onQuickReply = (qr: QuickReply) => {
-    Alert.alert("Message", qr.text);
+    Alert.alert("Dispatch Status", qr.text);
   };
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
-          style={styles.burger}
-          hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
-        >
-          <Text style={styles.burgerLines}>≡</Text>
-        </TouchableOpacity>
+      <StatusBar barStyle="light-content" backgroundColor="#0f4c3a" />
+      
+      <FancyAppHeader
+        title="Predictive Hub"
+        subtitle="Real-time predictive intelligence & dispatch"
+        badge={{ icon: "analytics", label: "INTELLIGENCE CENTER" }}
+        showBack={false}
+        leftElement={
+          <TouchableOpacity
+            onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
+            style={fancyHeaderStyles.backBtn}
+          >
+            <Ionicons name="menu-outline" size={20} color="#FFF" />
+          </TouchableOpacity>
+        }
+        rightElement={
+          <TouchableOpacity style={fancyHeaderStyles.backBtn}>
+            <Ionicons name="notifications-outline" size={18} color="#FFF" />
+          </TouchableOpacity>
+        }
+      />
 
-        <Text style={styles.headerTitle} numberOfLines={2}>
-          Predictive Coordination{"\n"}Hub
-        </Text>
-
-        <View style={{ width: 24 }} />
-      </View>
-
-      {/* Scroll Content */}
       <ScrollView
-        contentContainerStyle={styles.scroll}
-        bounces={false}
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.sectionTitle}>DATA-DRIVEN RISK PREDICTION</Text>
-
-        <View style={styles.card}>
+        {/* --- RISK PREDICTION SECTION --- */}
+        <View style={styles.sectionHeader}>
+            <Ionicons name="analytics" size={18} color={GREEN} />
+            <Text style={styles.sectionTitle}>DATA-DRIVEN RISK PREDICTION</Text>
+        </View>
+        
+        <View style={styles.glassCard}>
           {DATA_RISKS.map((r, idx) => (
             <View key={`${r.hazard}-${idx}`}>
-              <RiskRow item={r} />
+              <View style={styles.riskRow}>
+                <View style={styles.hazardInfo}>
+                    <View style={[styles.statusDot, {backgroundColor: RISK_COLORS[r.severity]}]} />
+                    <Text style={styles.hazardText}>{r.hazard}</Text>
+                </View>
+                <View style={[styles.badge, { backgroundColor: r.badgeValue ? '#EF4444' : RISK_COLORS[r.severity] + '20' }]}>
+                  <Text style={[styles.badgeText, { color: r.badgeValue ? '#FFF' : RISK_COLORS[r.severity] }]}>
+                    {r.badgeValue ?? r.severity.toUpperCase()}
+                  </Text>
+                </View>
+              </View>
               {idx < DATA_RISKS.length - 1 && <View style={styles.divider} />}
             </View>
           ))}
         </View>
 
-        <Text style={[styles.sectionTitle, { marginTop: 18 }]}>
-          Suggested Actions
-        </Text>
-
-        <View style={styles.actionsBox}>
+        {/* --- SUGGESTED ACTIONS --- */}
+        <Text style={styles.sectionTitleAlt}>SUGGESTED ACTIONS</Text>
+        <View style={styles.actionsContainer}>
           {SUGGESTED_ACTIONS.map((a, i) => (
-            <View key={i} style={styles.bulletRow}>
-              <Text style={styles.bulletDot}>•</Text>
-              <Text style={styles.bulletText}>{a.text}</Text>
+            <View key={i} style={styles.actionChip}>
+              <Ionicons name="flash" size={16} color={GREEN} style={{marginRight: 8}} />
+              <Text style={styles.actionText}>{a.text}</Text>
             </View>
           ))}
         </View>
 
-        <Text style={[styles.sectionTitle, { marginTop: 18 }]}>
-          Send a message
-        </Text>
-
-        <View style={styles.repliesBox}>
+        {/* --- QUICK DISPATCH / MESSAGING --- */}
+        <Text style={styles.sectionTitleAlt}>QUICK DISPATCH</Text>
+        <View style={styles.repliesContainer}>
           {QUICK_REPLIES.map((q) => (
             <Pressable
               key={q.id}
               onPress={() => onQuickReply(q)}
-              style={styles.replyRow}
+              style={styles.replyCard}
             >
-              {q.prefix ? (
-                <Text style={styles.replyPrefix}>{q.prefix}</Text>
-              ) : q.avatar ? (
-                <Text style={styles.replyAvatar}>{q.avatar}</Text>
-              ) : (
-                <View style={{ width: 20 }} />
-              )}
-
-              <Text style={styles.replyText}>{q.text}</Text>
+              <View style={styles.replyContent}>
+                <View style={styles.avatarCircle}>
+                   <Text style={{fontSize: 14}}>{q.prefix || q.avatar}</Text>
+                </View>
+                <Text style={styles.replyText}>{q.text}</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color="#CCC" />
             </Pressable>
           ))}
         </View>
@@ -155,5 +146,72 @@ const PredictiveHubScreen: React.FC<T_PREDICVIVECOORDINATIONHUB> = ({ navigation
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: OFF_WHITE },
+
+  scrollContent: { padding: 20 },
+
+  // Risk Table
+  sectionHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
+  sectionTitle: { fontSize: 12, fontWeight: '900', color: GREEN, marginLeft: 8, letterSpacing: 1 },
+  sectionTitleAlt: { fontSize: 12, fontWeight: '900', color: '#666', marginTop: 25, marginBottom: 15, letterSpacing: 1 },
+  
+  glassCard: { 
+    backgroundColor: '#FFF', 
+    borderRadius: 24, 
+    padding: 15,
+    borderWidth: 1,
+    borderColor: BORDER_COLOR,
+    shadowColor: '#000',
+    shadowOpacity: 0.03,
+    shadowRadius: 10,
+  },
+  riskRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 15 },
+  hazardInfo: { flexDirection: 'row', alignItems: 'center' },
+  statusDot: { width: 8, height: 8, borderRadius: 4, marginRight: 12 },
+  hazardText: { fontSize: 15, fontWeight: '700', color: '#333' },
+  badge: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10 },
+  badgeText: { fontSize: 10, fontWeight: '900' },
+  divider: { height: 1, backgroundColor: '#F0F0F0', width: '100%' },
+
+  // Suggested Actions
+  actionsContainer: { gap: 10 },
+  actionChip: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: '#FFF', 
+    padding: 15, 
+    borderRadius: 15, 
+    borderLeftWidth: 4, 
+    borderLeftColor: GREEN,
+    elevation: 2,
+  },
+  actionText: { fontSize: 14, color: '#444', fontWeight: '600' },
+
+  // Messaging/Replies
+  repliesContainer: { gap: 12 },
+  replyCard: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-between',
+    backgroundColor: '#FFF', 
+    padding: 15, 
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: '#EEE'
+  },
+  replyContent: { flexDirection: 'row', alignItems: 'center' },
+  avatarCircle: { 
+    width: 34, 
+    height: 34, 
+    borderRadius: 17, 
+    backgroundColor: '#F0F4F0', 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    marginRight: 15 
+  },
+  replyText: { fontSize: 14, color: '#333', fontWeight: '500' }
+});
 
 export default PredictiveHubScreen;

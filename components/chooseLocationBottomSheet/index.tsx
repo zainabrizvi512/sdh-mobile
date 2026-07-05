@@ -198,4 +198,6 @@ const ChooseLocationBottomSheet = forwardRef<BottomSheetModal, ChooseLocationBot
     }
 );
 
+ChooseLocationBottomSheet.displayName = "ChooseLocationBottomSheet";
+
 export default ChooseLocationBottomSheet;

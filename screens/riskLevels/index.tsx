@@ -1,9 +1,12 @@
-import ScreenWrapper from "@/components/screenWrapper";
+import FancyAppHeader from "@/components/fancyAppHeader";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useMemo } from "react";
-import { FlatList, Text, TouchableOpacity, View } from "react-native";
-import { LEVEL_COLORS, styles } from "./styles";
+import { FlatList, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { T_RISKLEVELS } from "./types";
+
+// --- THEME ---
+const GREEN = "#0f4c3a";
+const BG_LIGHT = "#F4F7F4";
 
 export type RiskLevel = {
     level: 1 | 2 | 3 | 4 | 5;
@@ -12,104 +15,135 @@ export type RiskLevel = {
     desc: string;
 };
 
-const RiskLevels: React.FC<T_RISKLEVELS> = ({ navigation, route }) => {
+const RiskLevels: React.FC<T_RISKLEVELS> = ({ navigation }) => {
+    
+    // Yahan main ne colors ko thora adjust kiya hai taake Green theme ke sath fancy lagain
     const DATA: RiskLevel[] = useMemo(
         () => [
             {
                 level: 1,
                 tag: "Low",
-                color: LEVEL_COLORS[1],
-                desc:
-                    "Routine conditions. Stay informed; keep your basic emergency kit ready.",
+                color: "#4CAF50",
+                desc: "Routine conditions. Stay informed; keep your basic emergency kit ready.",
             },
             {
                 level: 2,
                 tag: "Guarded",
-                color: LEVEL_COLORS[2],
-                desc:
-                    "Minor risk indicators. Review contact list and safe meeting points.",
+                color: "#8BC34A",
+                desc: "Minor risk indicators. Review contact list and safe meeting points.",
             },
             {
                 level: 3,
                 tag: "Elevated",
-                color: LEVEL_COLORS[3],
-                desc:
-                    "Noticeable threat. Avoid low-lying/unsafe areas; prepare go-bag & fuel.",
+                color: "#FFC107",
+                desc: "Noticeable threat. Avoid low-lying/unsafe areas; prepare go-bag & fuel.",
             },
             {
                 level: 4,
                 tag: "High",
-                color: LEVEL_COLORS[4],
-                desc:
-                    "Active risk. Follow local advisories, limit travel, charge devices.",
+                color: "#FF9800",
+                desc: "Active risk. Follow local advisories, limit travel, charge devices.",
             },
             {
                 level: 5,
                 tag: "Severe",
-                color: LEVEL_COLORS[5],
-                desc:
-                    "Extreme danger. Evacuate or shelter-in-place as instructed by NDMA/Rescue.",
+                color: "#D32F2F",
+                desc: "Extreme danger. Evacuate or shelter-in-place as instructed by NDMA/Rescue.",
             },
         ],
         []
     );
 
     const renderItem = ({ item }: { item: RiskLevel }) => {
-        const darkText = item.level <= 2; // better contrast on light colors
         return (
-            <View
-                accessibilityRole="summary"
-                accessibilityLabel={`Level ${item.level} ${item.tag}`}
-                style={[styles.card]}
-            >
-                <View style={[styles.badge, { backgroundColor: item.color }]}>
-                    <Ionicons
-                        name="shield-checkmark"
-                        size={18}
-                        color={darkText ? "#0b0f14" : "#ffffff"}
-                        style={{ marginRight: 6 }}
-                    />
-                    <Text
-                        style={[
-                            styles.badgeText,
-                            { color: darkText ? "#0b0f14" : "#ffffff" },
-                        ]}
-                    >
-                        Level {item.level} — {item.tag}
-                    </Text>
+            <View style={styles.card}>
+                <View style={styles.cardTop}>
+                    <View style={[styles.levelBadge, { backgroundColor: item.color }]}>
+                        <Text style={styles.levelNumber}>L{item.level}</Text>
+                    </View>
+                    <View style={styles.titleInfo}>
+                        <Text style={styles.tagLabel}>SEVERITY LEVEL</Text>
+                        <Text style={[styles.tagName, { color: item.color }]}>{item.tag}</Text>
+                    </View>
+                    <Ionicons name="shield-checkmark" size={24} color={item.color} opacity={0.6} />
                 </View>
-
-                <Text style={styles.title}>Severity: <Text style={styles.titleEm}>{item.tag}</Text></Text>
-                <Text style={styles.desc}>{item.desc}</Text>
+                
+                <View style={styles.divider} />
+                
+                <View style={styles.descRow}>
+                    <Ionicons name="information-circle-outline" size={18} color="#666" style={{marginTop: 2}} />
+                    <Text style={styles.descText}>{item.desc}</Text>
+                </View>
             </View>
         );
     };
 
-    const onBack = () => navigation?.goBack?.();
-
     return (
-        <ScreenWrapper>
+        <View style={styles.container}>
+            <StatusBar barStyle="light-content" backgroundColor="#0f4c3a" />
+            
+            <FancyAppHeader
+                title="Risk Levels"
+                subtitle="Security protocols & severity scale (1–5)"
+                badge={{ icon: "shield", label: "THREAT MATRIX" }}
+                onBack={() => navigation.goBack()}
+                footer={
+                    <View style={styles.summaryBox}>
+                        <Ionicons name="warning" size={20} color="rgba(255,255,255,0.8)" />
+                        <Text style={styles.summaryText}>
+                            Risk levels are determined based on real-time environmental data and government advisories.
+                        </Text>
+                    </View>
+                }
+            />
 
-            <View style={styles.headerWrap}>
-                <TouchableOpacity
-                    onPress={onBack}
-                    hitSlop={{ top: 10, left: 10, bottom: 10, right: 10 }}
-                >
-                    <Ionicons name="chevron-back" size={24} color="#101828" />
-                </TouchableOpacity>
-                <Ionicons name="warning" size={18} color="#fff" />
-                <Text style={styles.headerText}>Risk / Security Levels (1–5)</Text>
-            </View>
-
+            {/* --- LIST --- */}
             <FlatList
                 data={DATA}
                 keyExtractor={(it) => String(it.level)}
                 renderItem={renderItem}
-                contentContainerStyle={styles.listPad}
-                ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+                contentContainerStyle={styles.listPadding}
+                showsVerticalScrollIndicator={false}
             />
-        </ScreenWrapper>
+        </View>
     );
 };
+
+// --- STYLES ---
+
+const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: BG_LIGHT },
+
+    summaryBox: { 
+        flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.1)', 
+        padding: 15, borderRadius: 15, alignItems: 'center' 
+    },
+    summaryText: { 
+        flex: 1, color: 'rgba(255,255,255,0.8)', fontSize: 11, marginLeft: 10, 
+        lineHeight: 16, fontWeight: '500' 
+    },
+
+    listPadding: { paddingHorizontal: 20, paddingVertical: 20, paddingBottom: 40 },
+    
+    card: { 
+        backgroundColor: '#FFF', borderRadius: 24, padding: 20, 
+        marginBottom: 15, elevation: 3, shadowColor: '#000', 
+        shadowOpacity: 0.05, shadowRadius: 10, borderWidth: 1, borderColor: '#EEE' 
+    },
+    cardTop: { flexDirection: 'row', alignItems: 'center' },
+    levelBadge: { 
+        width: 50, height: 50, borderRadius: 15, 
+        justifyContent: 'center', alignItems: 'center', elevation: 2 
+    },
+    levelNumber: { fontSize: 20, fontWeight: '900', color: '#FFF' },
+    titleInfo: { flex: 1, marginLeft: 15 },
+    tagLabel: { fontSize: 10, fontWeight: '900', color: '#999', letterSpacing: 1 },
+    tagName: { fontSize: 18, fontWeight: '800' },
+    
+    divider: { height: 1, backgroundColor: '#F0F0F0', marginVertical: 15 },
+    
+    descRow: { flexDirection: 'row', alignItems: 'flex-start' },
+    descText: { flex: 1, marginLeft: 10, fontSize: 13, color: '#555', lineHeight: 20, fontWeight: '500' }
+});
 
 export default RiskLevels;

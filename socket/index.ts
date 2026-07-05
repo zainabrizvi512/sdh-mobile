@@ -37,3 +37,16 @@ export function destroyChatSocket() {
         socketRef = null;
     }
 }
+
+let singleton: Socket | undefined;
+
+export function getSocket(opts?: { query?: Record<string,string>; auth?: any }) {
+  if (singleton && singleton.connected) return singleton;
+  const url = (process.env.EXPO_PUBLIC_WS || process.env.EXPO_PUBLIC_API || 'http://localhost:3000') + '/chat';
+  singleton = io(url, { transports: ['websocket'], query: opts?.query, auth: opts?.auth });
+  return singleton;
+}
+
+export function closeSocket() {
+  if (singleton) { singleton.disconnect(); singleton = undefined; }
+}

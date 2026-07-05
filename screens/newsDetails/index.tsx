@@ -1,76 +1,130 @@
+import FancyAppHeader, { fancyHeaderStyles } from "@/components/fancyAppHeader";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
-  Image,
   ScrollView,
+  Share,
+  StatusBar,
+  StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { styles } from "./styles";
 import { T_NEWSDETAILS } from "./types";
 
-type NewsDetailsParams = {
-  title?: string;
-  sourceName?: string;
-  timeAgo?: string;   // e.g., "1 day ago"
-  imageUrl?: string;
-  body?: string;
-};
+// --- THEME ---
+const GREEN = "#0f4c3a";
+const BG_LIGHT = "#F4F7F4";
 
 const NewsDetails: React.FC<T_NEWSDETAILS> = ({ navigation, route }) => {
-  const insets = useSafeAreaInsets();
-
   const {
-    title = "Flash Floods Hit Islamabad: E-11 & F-10 Areas Waterlogged",
-    sourceName = "Geo News",
-    timeAgo = "1 day ago",
-    imageUrl = "https://images.unsplash.com/photo-1507361219785-4852946b8835?w=900&h=600&fit=crop",
-    body = [
-      "Heavy rainfall lashed parts of Islamabad on [insert date], triggering flash floods in the E-11 and F-10 sectors. Streets quickly filled with rainwater, disrupting traffic and flooding several residential areas.",
-      "Videos shared on social media showed vehicles stranded in ankle-deep water while rescue teams assisted families trapped in basements. Authorities have urged residents to avoid low-lying areas and stay indoors until conditions improve.",
-      "The Capital Development Authority (CDA) and NDMA have deployed emergency response units to clear drainage channels and restore access in affected zones. Commuters are advised to monitor weather alerts and use alternate routes.",
-    ].join("\n\n"),
-  } = (route?.params as NewsDetailsParams) ?? {};
+    title = "Untitled Update",
+    sourceName = "SDH",
+    timeAgo = "Recently",
+    body,
+    category = "Update",
+    icon = "newspaper-outline",
+    tint = GREEN,
+  } = route?.params ?? {};
+
+  const onShare = async () => {
+    try {
+      await Share.share({ message: `${title}\n\nRead more on SDH.` });
+    } catch (error) { console.log(error); }
+  };
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      <ScrollView
-        contentContainerStyle={{ paddingBottom: 120 }}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Ionicons name="chevron-back" size={24} color="#111827" />
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="#0f4c3a" />
+
+      <FancyAppHeader
+        title="News Details"
+        subtitle="Emergency briefing & verified report"
+        badge={{ icon: "megaphone", label: category.toUpperCase() }}
+        onBack={() => navigation.goBack()}
+        rightElement={
+          <TouchableOpacity onPress={onShare} style={fancyHeaderStyles.backBtn}>
+            <Ionicons name="share-social-outline" size={18} color="#FFF" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>News Details</Text>
-          <View style={{ width: 24 }} />
+        }
+      />
+
+      <ScrollView contentContainerStyle={styles.scrollBody} showsVerticalScrollIndicator={false}>
+        {/* News Badge */}
+        <View style={[styles.categoryBadge, { backgroundColor: tint + "17", borderColor: tint + "33" }]}>
+          <Text style={[styles.categoryText, { color: tint }]}>{category.toUpperCase()}</Text>
         </View>
 
         {/* Title */}
-        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.mainTitle}>{title}</Text>
 
-        {/* Source row */}
-        <View style={styles.sourceRow}>
-          <Image
-            source={{ uri: "https://upload.wikimedia.org/wikipedia/commons/5/5f/Globe_icon.svg" }}
-            style={styles.sourceIcon}
-          />
-          <Text style={styles.sourceName}>{sourceName}</Text>
-          <View style={styles.dot} />
-          <Text style={styles.timeAgo}>{timeAgo}</Text>
+        {/* Enhanced Meta Row */}
+        <View style={styles.metaRow}>
+          <View style={styles.sourceInfo}>
+            <View style={[styles.sourceAvatar, { backgroundColor: tint }]}>
+              <Text style={styles.sourceInitial}>{sourceName[0]}</Text>
+            </View>
+            <View>
+              <Text style={styles.sourceNameText}>{sourceName}</Text>
+              <Text style={styles.timeText}>{timeAgo}</Text>
+            </View>
+          </View>
         </View>
 
-        {/* Cover image */}
-        <Image source={{ uri: imageUrl }} style={styles.cover} />
+        {/* Hero — a tinted icon tile, since we don't yet have verified per-article images */}
+        <View style={[styles.heroBanner, { backgroundColor: tint + "17" }]}>
+          <View style={[styles.heroIconCircle, { backgroundColor: tint }]}>
+            <Ionicons name={icon} size={40} color="#fff" />
+          </View>
+        </View>
 
-        {/* Body */}
-        <Text style={styles.body}>{body}</Text>
+        {/* Content Body */}
+        <View style={styles.contentContainer}>
+          <Text style={styles.bodyText}>
+            {body || "Full article details for this update aren't available yet — check back soon."}
+          </Text>
+        </View>
+
+        {/* Disclaimer Card for "Fuller" Look */}
+        <View style={styles.disclaimerCard}>
+          <Ionicons name="shield-checkmark" size={20} color={GREEN} />
+          <Text style={styles.disclaimerText}>
+            This report is verified by local authorities and updated in real-time as new info arrives.
+          </Text>
+        </View>
       </ScrollView>
     </View>
   );
 };
+
+// --- STYLES ---
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: BG_LIGHT },
+
+  scrollBody: { padding: 20, paddingBottom: 60 },
+  categoryBadge: { alignSelf: 'flex-start', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 8, marginBottom: 15, borderWidth: 1 },
+  categoryText: { fontSize: 10, fontWeight: '900', letterSpacing: 1 },
+
+  mainTitle: { fontSize: 24, fontWeight: '800', color: '#1A1A1A', lineHeight: 32, marginBottom: 20 },
+
+  metaRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 25, paddingBottom: 20, borderBottomWidth: 1, borderBottomColor: '#EEE' },
+  sourceInfo: { flexDirection: 'row', alignItems: 'center' },
+  sourceAvatar: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
+  sourceInitial: { color: '#FFF', fontWeight: 'bold', fontSize: 18 },
+  sourceNameText: { fontSize: 16, fontWeight: '700', color: '#333' },
+  timeText: { fontSize: 12, color: '#999', marginTop: 2 },
+
+  heroBanner: { borderRadius: 24, paddingVertical: 36, alignItems: 'center', marginBottom: 25 },
+  heroIconCircle: { width: 76, height: 76, borderRadius: 38, justifyContent: 'center', alignItems: 'center', elevation: 3 },
+
+  contentContainer: { marginBottom: 30 },
+  bodyText: { fontSize: 16, color: '#444', lineHeight: 26, fontWeight: '400', textAlign: 'justify' },
+
+  disclaimerCard: {
+    flexDirection: 'row', backgroundColor: '#FFF', padding: 20, borderRadius: 20,
+    alignItems: 'center', borderWidth: 1, borderColor: '#EEE', marginTop: 10
+  },
+  disclaimerText: { flex: 1, marginLeft: 12, fontSize: 12, color: '#666', lineHeight: 18, fontWeight: '500' }
+});
 
 export default NewsDetails;

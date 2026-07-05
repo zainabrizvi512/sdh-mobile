@@ -1,20 +1,32 @@
 import { getDisasterTypes } from "@/api/getDisasterTypes";
 import { getSafetyGuides, SafetyGuide } from "@/api/getSafetyGuides";
-import ScreenWrapper from "@/components/screenWrapper";
+import FancyAppHeader from "@/components/fancyAppHeader";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useLayoutEffect, useMemo, useState } from "react";
-import { ActivityIndicator, FlatList, Pressable, Text, TextInput, View } from "react-native";
+import {
+    ActivityIndicator,
+    FlatList,
+    Pressable,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    View
+} from "react-native";
 import { T_SAFETYGUIDES } from "./types";
+
+const GREEN = "#0f4c3a";
+const BG_LIGHT = "#F4F7F4";
 
 const SafetyGuides: React.FC<T_SAFETYGUIDES> = ({ navigation }) => {
     const [loading, setLoading] = useState(true);
     const [guides, setGuides] = useState<SafetyGuide[]>([]);
     const [q, setQ] = useState("");
-    const [city, setCity] = useState("Islamabad"); // default for your use-case
+    const [city, setCity] = useState("Islamabad"); 
     const [disaster, setDisaster] = useState<string | undefined>(undefined);
     const [types, setTypes] = useState<{ slug: string; name: string }[]>([]);
 
-    // Hide native header so your inline back bar is visible
     useLayoutEffect(() => {
         navigation.setOptions({ headerShown: false });
     }, [navigation]);
@@ -31,7 +43,7 @@ const SafetyGuides: React.FC<T_SAFETYGUIDES> = ({ navigation }) => {
             setTypes(t.map((x) => ({ slug: x.slug, name: x.name })));
             setGuides(g);
         } catch (e) {
-            console.log(e)
+            console.log(e);
         } finally {
             setLoading(false);
         }
@@ -39,70 +51,49 @@ const SafetyGuides: React.FC<T_SAFETYGUIDES> = ({ navigation }) => {
 
     useEffect(() => {
         load();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [city, disaster, q]);
 
     return (
-        <ScreenWrapper>
-            {/* Inline Back Bar (your style, fixed colors) */}
-            <View
-                style={{
-                    backgroundColor: "#FFFFFF",
-                    flexDirection: "row",
-                    alignItems: "center",
-                    gap: 8,
-                    paddingHorizontal: 8,
-                    paddingVertical: 10,
-                }}
-            >
-                <Pressable
-                    onPress={() => navigation.goBack()}
-                    style={{ paddingHorizontal: 8, paddingVertical: 6 }}
-                    hitSlop={8}
-                >
-                    <Ionicons name="chevron-back" size={24} color="#000" />
-                </Pressable>
-                <Text style={{ color: "#000", fontSize: 18, fontWeight: "700" }}>Find Guides</Text>
-            </View>
-
-            {/* Body */}
-            <View style={{ flex: 1, backgroundColor: "#ffffff" }}>
-                {/* Filters */}
-                <View style={{ padding: 12, gap: 8 }}>
-                    <View style={{ flexDirection: "row", gap: 8 }}>
-                        <TextInput
-                            placeholder="Search title…"
-                            placeholderTextColor="#000"
-                            value={q}
-                            onChangeText={setQ}
-                            style={{
-                                flex: 1,
-                                backgroundColor: "#b1b3b4ff",
-                                color: "#000",
-                                paddingHorizontal: 12,
-                                paddingVertical: 10,
-                                borderRadius: 10,
-                            }}
-                        />
-                        <TextInput
-                            placeholder="City"
-                            placeholderTextColor="#000"
-                            value={city}
-                            onChangeText={setCity}
-                            style={{
-                                width: 130,
-                                backgroundColor: "#b1b3b4ff",
-                                color: "#000",
-                                paddingHorizontal: 12,
-                                paddingVertical: 10,
-                                borderRadius: 10,
-                            }}
-                        />
+        <View style={styles.container}>
+            <StatusBar barStyle="light-content" backgroundColor="#0f4c3a" />
+            
+            <FancyAppHeader
+                title="Safety Guides"
+                subtitle="Proactive emergency prep & disaster protocols"
+                badge={{ icon: "shield-checkmark", label: "PREPAREDNESS" }}
+                onBack={() => navigation.goBack()}
+                footer={
+                    <View style={styles.searchContainer}>
+                        <View style={styles.searchBox}>
+                            <Ionicons name="search" size={18} color="#999" style={{ marginRight: 8 }} />
+                            <TextInput
+                                placeholder="Search title…"
+                                placeholderTextColor="#999"
+                                value={q}
+                                onChangeText={setQ}
+                                style={styles.input}
+                            />
+                        </View>
+                        <View style={[styles.searchBox, { width: 110, marginLeft: 10 }]}>
+                            <Ionicons name="location" size={18} color={GREEN} style={{ marginRight: 4 }} />
+                            <TextInput
+                                placeholder="City"
+                                placeholderTextColor="#999"
+                                value={city}
+                                onChangeText={setCity}
+                                style={styles.input}
+                            />
+                        </View>
                     </View>
+                }
+            />
 
-                    {/* Disaster pill filter */}
-                    <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-                        <FilterPill label="All" active={!disaster} onPress={() => setDisaster(undefined)} />
+            {/* --- BODY --- */}
+            <View style={styles.body}>
+                {/* Disaster Filters Scrollable Pills */}
+                <View style={styles.filterWrapper}>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+                        <FilterPill label="All Disasters" active={!disaster} onPress={() => setDisaster(undefined)} />
                         {types.map((t) => (
                             <FilterPill
                                 key={t.slug}
@@ -111,75 +102,111 @@ const SafetyGuides: React.FC<T_SAFETYGUIDES> = ({ navigation }) => {
                                 onPress={() => setDisaster(t.slug)}
                             />
                         ))}
-                    </View>
+                    </ScrollView>
                 </View>
 
-                {/* List */}
                 {loading ? (
-                    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-                        <ActivityIndicator color="#1D9BF0" />
+                    <View style={styles.centerLoader}>
+                        <ActivityIndicator color={GREEN} size="large" />
                     </View>
                 ) : (
                     <FlatList
                         data={filtered}
                         keyExtractor={(g) => g.id}
-                        contentContainerStyle={{ padding: 12, gap: 10 }}
+                        contentContainerStyle={styles.listPadding}
                         renderItem={({ item }) => (
                             <Pressable
-                                onPress={() =>
-                                    navigation.navigate("SafetyGuideDetail", { id: item.id, title: item.title })
-                                }
-                                style={{
-                                    backgroundColor: "#121821",
-                                    borderRadius: 14,
-                                    padding: 14,
-                                    borderWidth: 1,
-                                    borderColor: "#1E2A38",
-                                }}
+                                onPress={() => navigation.navigate("SafetyGuideDetail", { id: item.id, title: item.title })}
+                                style={styles.guideCard}
                             >
-                                <Text style={{ color: "#E6EEF8", fontSize: 16, fontWeight: "700" }}>
-                                    {item.title}
-                                </Text>
-                                <Text style={{ color: "#9FB0C6", marginTop: 4 }}>
-                                    {item.disasterType?.name} • {item.regionCity ?? "Region"}{" "}
-                                    {item.regionProvince ? `(${item.regionProvince})` : ""}
-                                </Text>
-                                <Text style={{ color: "#72849A", marginTop: 8, fontSize: 12 }}>
-                                    Updated: {new Date(item.updatedAt).toLocaleDateString()}
-                                </Text>
+                                <View style={styles.cardTop}>
+                                    <Text style={styles.cardTitle}>{item.title}</Text>
+                                    <View style={styles.typeBadge}>
+                                        <Text style={styles.typeBadgeText}>{item.disasterType?.name}</Text>
+                                    </View>
+                                </View>
+                                
+                                <View style={styles.cardBottom}>
+                                    <View style={styles.infoRow}>
+                                        <Ionicons name="map-outline" size={14} color="#666" />
+                                        <Text style={styles.infoText}>
+                                            {item.regionCity ?? "Region"} {item.regionProvince ? `(${item.regionProvince})` : ""}
+                                        </Text>
+                                    </View>
+                                    <Text style={styles.dateText}>
+                                        Updated: {new Date(item.updatedAt).toLocaleDateString()}
+                                    </Text>
+                                </View>
+                                <Ionicons name="chevron-forward" size={18} color="#CCC" style={styles.arrow} />
                             </Pressable>
                         )}
+                        ListEmptyComponent={<Empty label="No safety guides found." />}
                     />
                 )}
             </View>
-        </ScreenWrapper>
+        </View>
     );
 };
 
-function FilterPill({
-    label,
-    active,
-    onPress,
-}: {
-    label: string;
-    active: boolean;
-    onPress: () => void;
-}) {
+// --- HELPER COMPONENTS ---
+
+function FilterPill({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
     return (
-        <Pressable
-            onPress={onPress}
-            style={{
-                paddingHorizontal: 12,
-                paddingVertical: 8,
-                borderRadius: 999,
-                backgroundColor: active ? "#1D9BF0" : "#141A22",
-                borderWidth: 1,
-                borderColor: active ? "#1D9BF0" : "#223042",
-            }}
-        >
-            <Text style={{ color: active ? "#fff" : "#B9C7D8", fontWeight: "600" }}>{label}</Text>
+        <Pressable onPress={onPress} style={[styles.pill, active && styles.pillActive]}>
+            <Text style={[styles.pillText, active && styles.pillTextActive]}>{label}</Text>
         </Pressable>
     );
 }
+
+function Empty({ label }: { label: string }) {
+    return (
+        <View style={styles.centerLoader}>
+            <Ionicons name="document-text-outline" size={40} color="#CCC" />
+            <Text style={{ color: "#999", marginTop: 10 }}>{label}</Text>
+        </View>
+    );
+}
+
+// --- STYLES ---
+
+const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: BG_LIGHT },
+
+    searchContainer: { flexDirection: 'row' },
+    searchBox: { 
+        flex: 1, flexDirection: 'row', alignItems: 'center', 
+        backgroundColor: '#FFF', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10 
+    },
+    input: { flex: 1, color: '#000', fontSize: 14, fontWeight: '600' },
+    
+    body: { flex: 1 },
+    filterWrapper: { paddingVertical: 15, paddingHorizontal: 20 },
+    pill: { 
+        paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, 
+        backgroundColor: '#FFF', borderWidth: 1, borderColor: '#EEE' 
+    },
+    pillActive: { backgroundColor: GREEN, borderColor: GREEN },
+    pillText: { color: GREEN, fontWeight: '700', fontSize: 12 },
+    pillTextActive: { color: '#FFF' },
+    
+    centerLoader: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    listPadding: { paddingHorizontal: 20, paddingBottom: 30 },
+    
+    guideCard: { 
+        backgroundColor: '#FFF', borderRadius: 20, padding: 18, 
+        marginBottom: 12, elevation: 3, shadowColor: '#000', 
+        shadowOpacity: 0.05, shadowRadius: 10, borderWidth: 1, borderColor: '#EEE' 
+    },
+    cardTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+    cardTitle: { fontSize: 16, fontWeight: '800', color: '#333', flex: 1, marginRight: 10 },
+    typeBadge: { backgroundColor: '#F0F4F0', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
+    typeBadgeText: { color: GREEN, fontSize: 10, fontWeight: '900', textTransform: 'uppercase' },
+    
+    cardBottom: { marginTop: 12, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    infoRow: { flexDirection: 'row', alignItems: 'center' },
+    infoText: { fontSize: 12, color: '#666', marginLeft: 4, fontWeight: '600' },
+    dateText: { fontSize: 11, color: '#999' },
+    arrow: { position: 'absolute', right: 15, bottom: 20, opacity: 0.5 }
+});
 
 export default SafetyGuides;

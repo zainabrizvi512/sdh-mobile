@@ -1,9 +1,11 @@
 import { getLoggedInUser } from "@/api/getLoggedInUser";
-import { ArrowBackIcon } from "@/assets/images/svg";
+import AppLogo from "@/components/appLogo";
+import BackButton from "@/components/backButton";
 import ScreenWrapper from "@/components/screenWrapper";
 import { envConfig } from "@/config/envConfig";
+import { MUTED } from "@/constants/theme";
 import { saveTokens } from "@/storage/tokenStorage";
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
     Platform,
@@ -74,29 +76,35 @@ const Login: React.FC<T_LOGIN> = ({ navigation }) => {
     return (
         <ScreenWrapper>
             <View style={styles.container}>
-                <TouchableOpacity
-                    onPress={() => navigation.goBack()}
-                    hitSlop={12}
-                >
-                    <ArrowBackIcon />
-                </TouchableOpacity>
+                <View style={styles.heroWrap}>
+                    <View style={styles.decorGlowTop} pointerEvents="none" />
+                    <View style={styles.decorGlowBottom} pointerEvents="none" />
 
+                    <BackButton onPress={() => navigation.goBack()} />
 
-                {/* Headings */}
-                <Text style={styles.title}>Sign In to SDA</Text>
-                <Text style={styles.subtitle}>Welcome back! Please enter your details</Text>
+                    <View style={styles.logoBadge}>
+                        <AppLogo size={56} />
+                    </View>
+
+                    {/* Headings */}
+                    <Text style={styles.title}>Sign In to SDH</Text>
+                    <Text style={styles.subtitle}>Welcome back! Please enter your details</Text>
+                </View>
 
                 {/* Email */}
                 <Text style={styles.label}>Email</Text>
-                <TextInput
-                    value={email}
-                    onChangeText={setEmail}
-                    placeholder="Enter your email address"
-                    placeholderTextColor="#b9b9b9"
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    style={styles.input}
-                />
+                <View style={styles.inputWrap}>
+                    <Ionicons name="mail-outline" size={18} color={MUTED} />
+                    <TextInput
+                        value={email}
+                        onChangeText={setEmail}
+                        placeholder="Enter your email address"
+                        placeholderTextColor="#b9b9b9"
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                        style={styles.inputInner}
+                    />
+                </View>
 
                 {/* Sign In */}
                 <TouchableOpacity
@@ -105,10 +113,18 @@ const Login: React.FC<T_LOGIN> = ({ navigation }) => {
                     style={[styles.primaryBtn]}
                 >
                     <Text style={styles.primaryBtnText}>{submitting ? "Sending OTP..." : "Continue"}</Text>
+                    {!submitting && <Ionicons name="arrow-forward" size={18} color="#fff" />}
                 </TouchableOpacity>
 
+                {/* Divider */}
+                <View style={styles.dividerRow}>
+                    <View style={styles.dividerLine} />
+                    <Text style={styles.dividerText}>or continue with</Text>
+                    <View style={styles.dividerLine} />
+                </View>
+
                 {/* Social buttons */}
-                <View style={{ gap: 12, marginTop: 12 }}>
+                <View style={{ gap: 12 }}>
                     <TouchableOpacity
                         onPress={() => { onSocialLogin("google-oauth2") }}
                         style={[styles.primaryBtn, styles.socialMediaBtn]}

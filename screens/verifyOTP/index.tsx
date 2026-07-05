@@ -1,8 +1,9 @@
 import { getLoggedInUser } from "@/api/getLoggedInUser";
-import { ArrowBackIcon } from "@/assets/images/svg";
+import BackButton from "@/components/backButton";
 import ScreenWrapper from "@/components/screenWrapper";
+import { envConfig } from "@/config/envConfig";
 import { saveTokens } from "@/storage/tokenStorage";
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
     NativeSyntheticEvent,
     Platform,
@@ -24,9 +25,17 @@ const VerifyOTP: React.FC<T_VERIFYOTP> = ({ navigation, route }) => {
     const [otpArr, setOtpArr] = useState<string[]>(
         Array.from({ length: OTP_LENGTH }, () => "")
     );
-    const { authorizeWithEmail } = useAuth0();
+    const { authorizeWithEmail, sendEmailCode } = useAuth0();
+    const [resending, setResending] = useState(false);
+    const [cooldown, setCooldown] = useState(0);
 
     const code = useMemo(() => otpArr.join(""), [otpArr]);
+
+    useEffect(() => {
+        if (cooldown <= 0) return;
+        const t = setTimeout(() => setCooldown((c) => c - 1), 1000);
+        return () => clearTimeout(t);
+    }, [cooldown]);
 
     const inputsRef = useRef<Array<TextInput | null>>([]);
 
@@ -116,12 +125,27 @@ const VerifyOTP: React.FC<T_VERIFYOTP> = ({ navigation, route }) => {
         }
     };
 
+    const onResend = async () => {
+        if (resending || cooldown > 0) return;
+        setResending(true);
+        try {
+            await sendEmailCode({
+                email, send: "code", connection: "email", authParams: {
+                    audience: envConfig.EXPO_PUBLIC_AUTH0_AUDIENCE,
+                }
+            });
+            setCooldown(30);
+        } catch (e) {
+            console.log("Resend OTP error: ", e);
+        } finally {
+            setResending(false);
+        }
+    };
+
     return (
         <ScreenWrapper>
             <View style={styles.container}>
-                <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={12}>
-                    <ArrowBackIcon />
-                </TouchableOpacity>
+                <BackButton onPress={() => navigation.goBack()} />
 
                 {/* Headings */}
                 <Text style={styles.title}>Enter OTP</Text>
@@ -167,8 +191,10 @@ const VerifyOTP: React.FC<T_VERIFYOTP> = ({ navigation, route }) => {
                 {/* Footer */}
                 <View style={styles.footerRow}>
                     <Text style={styles.footerText}>Didn’t get a code? </Text>
-                    <TouchableOpacity onPress={() => inputsRef.current[0]?.focus()} hitSlop={6}>
-                        <Text>Resend</Text>
+                    <TouchableOpacity onPress={onResend} disabled={resending || cooldown > 0} hitSlop={6}>
+                        <Text style={[styles.footerLink, (resending || cooldown > 0) && { opacity: 0.5 }]}>
+                            {cooldown > 0 ? `Resend in ${cooldown}s` : resending ? "Sending..." : "Resend"}
+                        </Text>
                     </TouchableOpacity>
                 </View>
             </View>

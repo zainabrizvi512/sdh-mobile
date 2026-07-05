@@ -14,6 +14,14 @@ export const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
     },
+    logoWrap: {
+        marginBottom: 18,
+        shadowColor: "#0f4c3a",
+        shadowOpacity: 0.25,
+        shadowRadius: 16,
+        shadowOffset: { width: 0, height: 8 },
+        elevation: 8,
+    },
     brand: {
         fontSize: 36,
         fontWeight: "800",

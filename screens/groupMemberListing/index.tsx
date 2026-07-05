@@ -1,4 +1,5 @@
 import { ApiGroupMember, getGroupMembers } from "@/api/getGroupMembers";
+import FancyAppHeader from "@/components/fancyAppHeader";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useMemo, useState } from "react";
 import {
@@ -8,66 +9,51 @@ import {
   KeyboardAvoidingView,
   Platform,
   RefreshControl,
+  StatusBar,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { useAuth0 } from "react-native-auth0";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { styles } from "./styles";
 import { T_GROUPMEMBERLISTING } from "./types";
 
-type Role = "Owner" | "Admin" | "Moderator" | null;
+const GREEN = "#0f4c3a";
+const BG_LIGHT = "#F4F7F4";
+const FALLBACK_AVATAR = "https://ui-avatars.com/api/?background=F0F4F0&color=1f3d18&bold=true&name=";
 
-type Member = {
-  id: string;
-  name: string;
-  avatar: string;
-  role: Role;
-};
-
-const FALLBACK_AVATAR =
-  "https://ui-avatars.com/api/?background=EEE&color=111&name=?";
-
-const GroupMemberListing: React.FC<T_GROUPMEMBERLISTING> = ({
-  navigation,
-  route,
-}) => {
-  // accept either id or groupId to be safe with existing navigations
+const GroupMemberListing: React.FC<T_GROUPMEMBERLISTING> = ({ navigation, route }) => {
   const groupId = route.params?.id;
   const insets = useSafeAreaInsets();
   const { getCredentials } = useAuth0();
 
   const [query, setQuery] = useState("");
-  const [members, setMembers] = useState<Member[]>([]);
+  const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const mapApiToUi = (arr: ApiGroupMember[]): Member[] =>
-    arr
-      .map((m) => ({
+  const mapApiToUi = (arr: ApiGroupMember[]) =>
+    arr.map((m) => ({
         id: m.id,
-        name: (m.username || m.email || "").trim(),
-        avatar: m.picture || FALLBACK_AVATAR,
-        role: m.isOwner ? ("Owner" as Role) : null, // extend here if backend adds roles
+        name: (m.username || m.email || "Unknown").trim(),
+        avatar: m.picture || (FALLBACK_AVATAR + (m.username || m.email || "?")),
+        role: m.isOwner ? "Owner" : null,
       }))
       .sort((a, b) => {
-        if (a.role === "Owner" && b.role !== "Owner") return -1;
-        if (b.role === "Owner" && a.role !== "Owner") return 1;
+        if (a.role === "Owner") return -1;
+        if (b.role === "Owner") return 1;
         return a.name.localeCompare(b.name);
       });
 
-  const fetchMembers = async (signal?: AbortSignal) => {
+  const fetchMembers = async () => {
     try {
       setError(null);
       const creds = await getCredentials();
-      if (!creds?.accessToken) throw new Error("Missing access token.");
-      // axios doesn't use AbortController directly; safe because our request is quick.
-      const res = await getGroupMembers(creds.accessToken, groupId);
-      const data: ApiGroupMember[] = res.data || [];
-      setMembers(mapApiToUi(data));
+      const res = await getGroupMembers(creds?.accessToken || "", groupId);
+      setMembers(mapApiToUi(res.data || []));
     } catch (e: any) {
       setError(e?.message || "Failed to load members.");
     } finally {
@@ -77,20 +63,9 @@ const GroupMemberListing: React.FC<T_GROUPMEMBERLISTING> = ({
   };
 
   useEffect(() => {
-    if (!groupId) {
-      setError("Missing group id.");
-      setLoading(false);
-      return;
-    }
-    const ctrl = new AbortController();
-    fetchMembers(ctrl.signal);
-    return () => ctrl.abort();
-  }, [groupId]);
-
-  const onRefresh = () => {
-    setRefreshing(true);
+    if (!groupId) { setError("Missing group id."); setLoading(false); return; }
     fetchMembers();
-  };
+  }, [groupId]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -98,126 +73,137 @@ const GroupMemberListing: React.FC<T_GROUPMEMBERLISTING> = ({
     return members.filter((m) => m.name.toLowerCase().includes(q));
   }, [query, members]);
 
-  const renderBadge = (role: Role) => {
+  const renderBadge = (role: string | null) => {
     if (!role) return null;
-    const roleStyle =
-      role === "Owner"
-        ? styles.badgeOwner
-        : role === "Admin"
-          ? styles.badgeAdmin
-          : styles.badgeModerator;
-
-    const roleTextStyle =
-      role === "Owner"
-        ? styles.badgeOwnerText
-        : role === "Admin"
-          ? styles.badgeAdminText
-          : styles.badgeModeratorText;
-
     return (
-      <View style={[styles.badge, roleStyle]}>
-        <Text style={[styles.badgeText, roleTextStyle]}>{role}</Text>
+      <View style={[styles.roleBadge, role === "Owner" ? styles.ownerBadge : styles.adminBadge]}>
+        <Text style={styles.roleText}>{role.toUpperCase()}</Text>
       </View>
     );
   };
 
-  const renderItem = ({ item }: { item: Member }) => (
-    <View style={styles.row}>
-      <Image source={{ uri: item.avatar }} style={styles.avatar} />
-      <Text style={styles.name} numberOfLines={1}>
-        {item.name}
-      </Text>
-      <View style={{ flex: 1 }} />
+  const renderItem = ({ item }: { item: any }) => (
+    <View style={styles.memberCard}>
+      <View style={styles.avatarWrapper}>
+        <Image source={{ uri: item.avatar }} style={styles.avatar} />
+        {item.role === "Owner" && (
+            <View style={styles.crownContainer}>
+                <Ionicons name="ribbon" size={10} color="#FFF" />
+            </View>
+        )}
+      </View>
+      <View style={{ flex: 1, marginLeft: 15 }}>
+        <Text style={styles.memberName} numberOfLines={1}>{item.name}</Text>
+        <Text style={styles.memberStatus}>{item.role === "Owner" ? "Group Creator" : "Member"}</Text>
+      </View>
       {renderBadge(item.role)}
     </View>
   );
 
-  const ListEmpty = () => {
-    if (loading) return null;
-    return (
-      <View style={{ padding: 24, alignItems: "center" }}>
-        <Text style={{ color: "#6B7280" }}>
-          {query ? "No matching members." : "No members to show."}
-        </Text>
-      </View>
-    );
-  };
-
   return (
-    <KeyboardAvoidingView
-      style={[styles.container, { paddingTop: insets.top }]}
-      behavior={Platform.select({ ios: "padding", android: undefined })}
-    >
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          hitSlop={{ top: 8, left: 8, right: 8, bottom: 8 }}
-        >
-          <Ionicons name="chevron-back" size={24} color="#111827" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Members</Text>
-        <View style={{ width: 24 }} />
-      </View>
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="#0f4c3a" />
+      
+      <FancyAppHeader
+        title="Members"
+        subtitle={`${members.length} people joined this group`}
+        badge={{ icon: "ribbon", label: "GROUP DIRECTORY" }}
+        onBack={() => navigation.goBack()}
+        footer={
+          <View style={styles.searchWrapper}>
+            <Ionicons name="search" size={18} color="rgba(255,255,255,0.6)" />
+            <TextInput
+              value={query}
+              onChangeText={setQuery}
+              placeholder="Search member name..."
+              placeholderTextColor="rgba(255,255,255,0.6)"
+              style={styles.searchInput}
+            />
+            {query.length > 0 && (
+              <TouchableOpacity onPress={() => setQuery("")}>
+                <Ionicons name="close-circle" size={18} color="#FFF" />
+              </TouchableOpacity>
+            )}
+          </View>
+        }
+      />
 
-      {/* Search */}
-      <View style={styles.searchWrap}>
-        <Ionicons
-          name="search"
-          size={18}
-          color="#9CA3AF"
-          style={styles.searchIcon}
-        />
-        <TextInput
-          placeholder="Search"
-          placeholderTextColor="#C7C7C7"
-          style={styles.searchInput}
-          value={query}
-          onChangeText={setQuery}
-          returnKeyType="search"
-          clearButtonMode="while-editing"
-        />
-        {query.length > 0 && (
-          <TouchableOpacity onPress={() => setQuery("")} style={styles.clearBtn}>
-            <Ionicons name="close-circle" size={18} color="#C7C7C7" />
-          </TouchableOpacity>
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        style={{ flex: 1 }}
+      >
+        {loading ? (
+          <View style={styles.centerLoader}>
+            <ActivityIndicator size="large" color={GREEN} />
+            <Text style={styles.loaderText}>Syncing Directory...</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={filtered}
+            keyExtractor={(m) => m.id}
+            renderItem={renderItem}
+            contentContainerStyle={styles.listPadding}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchMembers(); }} tintColor={GREEN} />
+            }
+            ListHeaderComponent={
+                <View style={styles.listHeader}>
+                    <Text style={styles.listHeaderText}>DIRECTORY LISTING</Text>
+                    <View style={styles.headerLine} />
+                </View>
+            }
+            ListEmptyComponent={
+              <View style={styles.emptyContainer}>
+                <Ionicons name="people-outline" size={50} color="#CCC" />
+                <Text style={styles.emptyText}>{query ? "No matching members found." : "No members found."}</Text>
+              </View>
+            }
+          />
         )}
-      </View>
-
-      {/* Error */}
-      {error && (
-        <View style={{ paddingHorizontal: 16, paddingBottom: 8 }}>
-          <Text style={{ color: "#B91C1C" }}>
-            {error.includes("403")
-              ? "You are not a member of this group."
-              : error.includes("404")
-                ? "Group not found."
-                : error}
-          </Text>
-        </View>
-      )}
-
-      {/* Loading / List */}
-      {loading ? (
-        <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-          <ActivityIndicator />
-        </View>
-      ) : (
-        <FlatList
-          data={filtered}
-          keyExtractor={(m) => m.id}
-          renderItem={renderItem}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-          contentContainerStyle={{ paddingBottom: 28 }}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-          ListEmptyComponent={<ListEmpty />}
-        />
-      )}
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: BG_LIGHT },
+
+  searchWrapper: { 
+    flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.12)', 
+    paddingHorizontal: 15, paddingVertical: 12, borderRadius: 15, alignItems: 'center' 
+  },
+  searchInput: { flex: 1, marginLeft: 10, color: '#FFF', fontSize: 14, fontWeight: '600' },
+
+  listPadding: { paddingHorizontal: 20, paddingBottom: 40 },
+  listHeader: { flexDirection: 'row', alignItems: 'center', marginTop: 25, marginBottom: 15, paddingHorizontal: 5 },
+  listHeaderText: { fontSize: 10, fontWeight: '900', color: GREEN, letterSpacing: 1.5 },
+  headerLine: { flex: 1, height: 1, backgroundColor: GREEN, opacity: 0.1, marginLeft: 10 },
+
+  memberCard: { 
+    flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFF', 
+    borderRadius: 24, padding: 14, marginBottom: 12, elevation: 3, 
+    borderWidth: 1, borderColor: '#EEF2EE' 
+  },
+  avatarWrapper: { position: 'relative' },
+  avatar: { width: 50, height: 50, borderRadius: 16, backgroundColor: '#F0F4F0' },
+  crownContainer: { 
+    position: 'absolute', top: -5, right: -5, width: 20, height: 20, 
+    borderRadius: 10, backgroundColor: '#FFD700', justifyContent: 'center', 
+    alignItems: 'center', borderWidth: 2, borderColor: '#FFF' 
+  },
+  memberName: { fontSize: 16, fontWeight: '700', color: '#333' },
+  memberStatus: { fontSize: 11, color: '#999', marginTop: 2, fontWeight: '600' },
+  
+  roleBadge: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 },
+  ownerBadge: { backgroundColor: '#FFF4E5' },
+  adminBadge: { backgroundColor: '#F0F4F0' },
+  roleText: { fontSize: 9, fontWeight: '900', color: GREEN },
+
+  centerLoader: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  loaderText: { marginTop: 15, color: GREEN, fontWeight: '700', fontSize: 13 },
+  emptyContainer: { padding: 60, alignItems: 'center' },
+  emptyText: { color: '#999', marginTop: 15, fontSize: 14, textAlign: 'center' }
+});
 
 export default GroupMemberListing;

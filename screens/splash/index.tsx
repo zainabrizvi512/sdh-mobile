@@ -1,4 +1,5 @@
 // src/screens/Splash.tsx
+import AppLogo from "@/components/appLogo";
 import { FontAwesome5, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useEffect, useMemo, useRef } from "react";
 import {
@@ -161,6 +162,9 @@ const Splash: React.FC<SplashProps> = ({
 
             {/* Center logo/title */}
             <View style={styles.centerWrap}>
+                <View style={styles.logoWrap}>
+                    <AppLogo size={104} />
+                </View>
                 <Text style={styles.brand}>Shelter</Text>
                 <Text style={styles.brandAccent}>Disaster Help</Text>
                 <Text style={styles.tagline}>Relief. Safety. Dignity.</Text>

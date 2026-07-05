@@ -1,5 +1,6 @@
 import { ApiUserSummary, getAllUsers, ListUsersResponse } from "@/api/getAllUsers";
 import { postMembersToGroup } from "@/api/postMembersToGroup";
+import FancyAppHeader from "@/components/fancyAppHeader";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -9,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   RefreshControl,
+  StatusBar,
   Text,
   TextInput,
   TouchableOpacity,
@@ -158,36 +160,34 @@ const AddMembers: React.FC<T_ADDMEMBERS> = ({ navigation, route }) => {
 
   return (
     <KeyboardAvoidingView
-      style={[styles.container, { paddingTop: insets.top }]}
+      style={styles.container}
       behavior={Platform.select({ ios: "padding", android: undefined })}
     >
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={{ top: 10, left: 10, right: 10, bottom: 10 }}>
-          <Ionicons name="chevron-back" size={24} color="#111827" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Add Members</Text>
-        <View style={{ width: 24 }} />
-      </View>
-
-      {/* Search */}
-      <View style={styles.searchWrap}>
-        <Ionicons name="search" size={18} color="#9CA3AF" style={styles.searchIcon} />
-        <TextInput
-          value={query}
-          onChangeText={setQuery}
-          placeholder="Search"
-          placeholderTextColor="#C7C7C7"
-          style={styles.searchInput}
-          returnKeyType="search"
-          clearButtonMode="while-editing"
-        />
-        {query.length > 0 && (
-          <TouchableOpacity onPress={() => setQuery("")} style={styles.clearBtn}>
-            <Ionicons name="close-circle" size={18} color="#C7C7C7" />
-          </TouchableOpacity>
-        )}
-      </View>
+      <StatusBar barStyle="light-content" backgroundColor="#0f4c3a" />
+      <FancyAppHeader
+        title="Add Members"
+        subtitle="Search and invite users to your group"
+        badge={{ icon: "person-add", label: "GROUP INVITE" }}
+        onBack={() => navigation.goBack()}
+        footer={
+          <View style={styles.searchWrap}>
+            <Ionicons name="search" size={18} color="rgba(255,255,255,0.6)" style={styles.searchIcon} />
+            <TextInput
+              value={query}
+              onChangeText={setQuery}
+              placeholder="Search users..."
+              placeholderTextColor="rgba(255,255,255,0.6)"
+              style={styles.searchInput}
+              returnKeyType="search"
+            />
+            {query.length > 0 && (
+              <TouchableOpacity onPress={() => setQuery("")} style={styles.clearBtn}>
+                <Ionicons name="close-circle" size={18} color="#FFF" />
+              </TouchableOpacity>
+            )}
+          </View>
+        }
+      />
 
       {/* Error */}
       {error && (
